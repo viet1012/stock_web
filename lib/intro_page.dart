@@ -56,7 +56,7 @@ class IntroPage extends StatelessWidget {
 
                   // 🔹 Title
                   const Text(
-                    "HỆ THỐNG QUẢN LÝ MTS",
+                    "HỆ THỐNG QUẢN LÝ KHO",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ class IntroPage extends StatelessWidget {
                   // 🔹 Description
                   Text(
                     "Ứng dụng giúp quản lý quy trình nhập kho, xuất kho, "
-                    "và phân loại sản phẩm trong hệ thống MTS.",
+                    "và phân loại sản phẩm trong hệ thống.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 15,

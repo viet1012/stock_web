@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/confirmation_trans_shelf_screen.dart';
 import 'IN_TEM_LEN_KE/in_tem_len_ke_mts_screen.dart';
+import 'MTS_stock_export_formV2.dart';
 import 'MTS_stock_export_screen.dart';
 import 'box_management_screen.dart';
 import 'intro_page.dart';
@@ -22,13 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.list_alt, "label": "DANH SÁCH MTO"},
       {"icon": Icons.settings, "label": "CẤU HÌNH"},
     ],
-    "MTS NHẬP KHO": [
+    "NHẬP KHO": [
       {"icon": Icons.category, "label": "PHÂN LOẠI BOX LIST"},
-      {"icon": Icons.print, "label": "IN TEM VÀ LÊN KỆ MTS"},
+      {"icon": Icons.print, "label": "IN TEM VÀ LÊN KỆ"},
       {"icon": Icons.add_box, "label": "CHUYỂN KHO NỘI BỘ"},
     ],
-    "MTS XUẤT KHO": [
-      {"icon": Icons.local_shipping, "label": "XUẤT HÀNG MTS(BƯỚC 1)"},
+    "XUẤT KHO": [
+      {"icon": Icons.local_shipping, "label": "XUẤT HÀNG (BƯỚC 1)"},
+      {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
       {"icon": Icons.print, "label": "IN PHIẾU XUẤT"},
     ],
   };
@@ -137,14 +139,17 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "PHÂN LOẠI BOX LIST") {
       return const BoxManagementScreen();
     }
-    if (selectedSubMenu == "IN TEM VÀ LÊN KỆ MTS") {
+    if (selectedSubMenu == "IN TEM VÀ LÊN KỆ") {
       return const InTemLenKeMTSScreen();
     }
     if (selectedSubMenu == "CHUYỂN KHO NỘI BỘ") {
       return ConfirmationScreen();
     }
-    if (selectedSubMenu == "XUẤT HÀNG MTS(BƯỚC 1)") {
+    if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") {
       return MTSStockExportScreen();
+    }
+    if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
+      return MTSStockExportFormV2();
     }
     return Center(
       child: Text(
