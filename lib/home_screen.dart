@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/confirmation_trans_shelf_screen.dart';
 import 'IN_TEM_LEN_KE/in_tem_len_ke_mts_screen.dart';
+import 'MTS_stock_export_screen.dart';
 import 'box_management_screen.dart';
 import 'intro_page.dart';
 
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.add_box, "label": "CHUYỂN KHO NỘI BỘ"},
     ],
     "MTS XUẤT KHO": [
-      {"icon": Icons.local_shipping, "label": "XUẤT HÀNG"},
+      {"icon": Icons.local_shipping, "label": "XUẤT HÀNG MTS(BƯỚC 1)"},
       {"icon": Icons.print, "label": "IN PHIẾU XUẤT"},
     ],
   };
@@ -141,6 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (selectedSubMenu == "CHUYỂN KHO NỘI BỘ") {
       return ConfirmationScreen();
+    }
+    if (selectedSubMenu == "XUẤT HÀNG MTS(BƯỚC 1)") {
+      return MTSStockExportScreen();
     }
     return Center(
       child: Text(
