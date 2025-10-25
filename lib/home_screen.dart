@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/confirmation_trans_shelf_screen.dart';
 import 'IN_TEM_LEN_KE/in_tem_len_ke_mts_screen.dart';
-import 'MTS_stock_export_formV2.dart';
+import 'MTSStockExportStep2.dart';
+import 'MTS_stock_export_hangbo_screen.dart';
 import 'MTS_stock_export_screen.dart';
 import 'box_management_screen.dart';
 import 'intro_page.dart';
@@ -31,46 +32,82 @@ class _HomeScreenState extends State<HomeScreen> {
     "XUẤT KHO": [
       {"icon": Icons.local_shipping, "label": "XUẤT HÀNG (BƯỚC 1)"},
       {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
-      {"icon": Icons.print, "label": "IN PHIẾU XUẤT"},
+      {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
   };
 
-  // 🔹 Hàm dựng phần AppBar riêng
   PreferredSizeWidget _buildAppBar() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(100),
+      preferredSize: const Size.fromHeight(90),
       child: Column(
         children: [
-          // 🔹 Thanh Tabs chính
+          // 🔹 Thanh tab chính
           Container(
-            color: Colors.blue[800],
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue[900]!, Colors.blue[700]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 50,
             child: Row(
               children: tabButtons.keys.map((tab) {
                 final bool isActive = (tab == activeTab);
                 return Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        activeTab = tab;
-                        final subList = tabButtons[tab];
-                        selectedSubMenu =
-                            (subList != null && subList.isNotEmpty)
-                            ? subList.first["label"]
-                            : null;
-                      });
-                    },
-
-                    child: Text(
-                      tab,
-                      style: TextStyle(
-                        color: isActive ? Colors.yellowAccent : Colors.white,
-                        fontWeight: isActive
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        fontSize: 16,
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          activeTab = tab;
+                          final subList = tabButtons[tab];
+                          selectedSubMenu =
+                              (subList != null && subList.isNotEmpty)
+                              ? subList.first["label"]
+                              : null;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? Colors.white.withOpacity(0.2)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isActive
+                                ? Colors.white.withOpacity(0.5)
+                                : Colors.transparent,
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          tab,
+                          style: TextStyle(
+                            color: isActive
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.8),
+                            fontWeight: isActive
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            fontSize: 14,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -79,51 +116,68 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🔹 Ribbon nhóm nút (nếu có submenu)
+          // 🔹 Sub menu gọn (icon + text nằm cùng hàng)
           if (tabButtons[activeTab]!.isNotEmpty)
             Container(
-              color: Colors.grey[200],
-              height: 60,
-              child: SingleChildScrollView(
+              height: 36,
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: ListView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 20),
-                    ...tabButtons[activeTab]!.map((item) {
-                      final isSelected = selectedSubMenu == item["label"];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() => selectedSubMenu = item["label"]);
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                item["icon"],
-                                size: 28,
-                                color: isSelected
-                                    ? Colors.orange
-                                    : Colors.blue[800],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                item["label"],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isSelected
-                                      ? Colors.orange[800]
-                                      : Colors.black,
-                                ),
-                              ),
-                            ],
+                children: tabButtons[activeTab]!.map((item) {
+                  final isSelected = selectedSubMenu == item["label"];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () =>
+                          setState(() => selectedSubMenu = item["label"]),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.blue[50]
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.blue[400]!
+                                : Colors.transparent,
+                            width: 1,
                           ),
                         ),
-                      );
-                    }),
-                  ],
-                ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              item["icon"],
+                              size: 16,
+                              color: isSelected
+                                  ? Colors.blue[700]
+                                  : Colors.grey[700],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              item["label"],
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? Colors.blue[800]
+                                    : Colors.grey[800],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
         ],
@@ -134,7 +188,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     if (activeTab == "GIỚI THIỆU HỆ THỐNG") {
       return IntroPage();
-      ();
     }
     if (selectedSubMenu == "PHÂN LOẠI BOX LIST") {
       return const BoxManagementScreen();
@@ -149,12 +202,16 @@ class _HomeScreenState extends State<HomeScreen> {
       return MTSStockExportScreen();
     }
     if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
-      return MTSStockExportFormV2();
+      return MTSStockExportHangBoForm();
     }
+    if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 2)") {
+      return MTSStockExportStep2();
+    }
+
     return Center(
       child: Text(
         "Trang nội dung của: $activeTab",
-        style: const TextStyle(fontSize: 20, color: Colors.black54),
+        style: const TextStyle(color: Colors.black54),
       ),
     );
   }

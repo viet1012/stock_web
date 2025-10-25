@@ -77,11 +77,7 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
         children: [
           const Text(
             'THÔNG TIN ĐƠN HÀNG',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              color: Colors.blue,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           const SizedBox(height: 8),
 
@@ -140,7 +136,6 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
               label,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: 12,
                 color: Color(0xFF5A6C7D),
               ),
             ),
@@ -152,7 +147,6 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
           readOnly: readOnly,
           keyboardType: inputType,
           onSubmitted: onSubmitted,
-          style: const TextStyle(fontSize: 13),
           decoration: InputDecoration(
             filled: true,
             fillColor: readOnly

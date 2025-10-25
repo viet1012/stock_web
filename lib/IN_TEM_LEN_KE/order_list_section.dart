@@ -35,7 +35,6 @@ class OrderListSection extends StatelessWidget {
             Text(
               'Chưa có đơn hàng nào',
               style: TextStyle(
-                fontSize: 16,
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w500,
               ),
@@ -43,7 +42,7 @@ class OrderListSection extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Scan mã để thêm đơn hàng',
-              style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+              style: TextStyle(color: Colors.grey[400]),
             ),
           ],
         ),
@@ -157,7 +156,6 @@ class OrderListSection extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 13,
         ),
       ),
     );
@@ -169,7 +167,7 @@ class OrderListSection extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 13, color: Colors.black87),
+        style: const TextStyle(color: Colors.black87),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
@@ -213,13 +211,10 @@ class OrderListSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text('Xác nhận xóa', style: TextStyle(fontSize: 18)),
+              const Text('Xác nhận xóa'),
             ],
           ),
-          content: const Text(
-            'Bạn có chắc chắn muốn xóa đơn hàng này không?',
-            style: TextStyle(fontSize: 15),
-          ),
+          content: const Text('Bạn có chắc chắn muốn xóa đơn hàng này không?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),

@@ -10,6 +10,7 @@ class MTSStockExportScreen extends StatefulWidget {
 class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
   String selectedType = 'MTO';
   String selectedAction = 'CheckBox';
+
   final TextEditingController orderIdController = TextEditingController();
   final TextEditingController changeBlankController = TextEditingController();
 
@@ -48,14 +49,10 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
         elevation: 2,
         title: Row(
           children: [
-            const Text(
-              'MSNV: ',
-              style: TextStyle(fontSize: 14, color: Colors.black87),
-            ),
+            const Text('MSNV: ', style: TextStyle(color: Colors.black87)),
             Text(
               '20616',
               style: TextStyle(
-                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.red[700],
               ),
@@ -67,28 +64,21 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
         children: [
           // Header Section
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(4),
             color: Colors.white,
             child: Column(
               children: [
                 const Text(
-                  'QUẢN LÝ XUẤT KHO STOCK MTS',
+                  'QUẢN LÝ XUẤT KHO STOCK (Bước 01)',
                   style: TextStyle(
-                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '(Bước 01)',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
-                const SizedBox(height: 8),
                 Text(
                   'Xác nhận lấy hàng xuất kho',
                   style: TextStyle(
-                    fontSize: 14,
                     color: Colors.red[700],
                     fontWeight: FontWeight.w500,
                   ),
@@ -100,10 +90,7 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
           Expanded(
             child: Row(
               children: [
-                // Left Section
                 Expanded(child: _buildLeftSection()),
-
-                // Right Section
                 Expanded(child: _buildRightSection()),
               ],
             ),
@@ -116,11 +103,7 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
   Widget _buildLeftSection() {
     return Container(
       margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
+      decoration: _boxDecoration(),
       child: Column(
         children: [
           // Top Controls
@@ -132,126 +115,40 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
             ),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 100, child: Text('Phân Loại:')),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        value: selectedType,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(),
-                        ),
-                        items: ['MTO', 'MTS'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedType = value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
+                _buildDropdownRow('Phân Loại:', selectedType, ['MTO', 'MTS'], (
+                  val,
+                ) {
+                  setState(() => selectedType = val!);
+                }),
+                const SizedBox(height: 12),
+                _buildDropdownRow(
+                  'Chọn Thao Tác:',
+                  selectedAction,
+                  ['CheckBox', 'Other'],
+                  (val) {
+                    setState(() => selectedAction = val!);
+                  },
                 ),
                 const SizedBox(height: 12),
+                _buildFormRow('+ OrderIto Scan:', orderIdController),
+                _buildFormRow('+ Change Blank:', changeBlankController),
+                const SizedBox(height: 16),
+
+                // Buttons
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(width: 100, child: Text('Chọn Thao Tác:')),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        value: selectedAction,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(),
-                        ),
-                        items: ['CheckBox', 'Other'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedAction = value!;
-                          });
-                        },
-                      ),
+                    _buildButton(
+                      label: 'Xóa (Clear)',
+                      color: Colors.grey[400]!,
+                      textColor: Colors.black87,
+                      onPressed: () {},
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const SizedBox(width: 100, child: Text('+ OrderIto Scan:')),
-                    Expanded(
-                      child: TextField(
-                        controller: orderIdController,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const SizedBox(width: 100, child: Text('+ Change Blank:')),
-                    Expanded(
-                      child: TextField(
-                        controller: changeBlankController,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.black87,
-                        ),
-                        child: const Text('Xóa (Clear)'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('Thoát (Exit)'),
-                      ),
+                    _buildButton(
+                      label: 'Thoát (Exit)',
+                      color: Colors.red,
+                      textColor: Colors.white,
+                      onPressed: () {},
                     ),
                   ],
                 ),
@@ -272,15 +169,16 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
                 _buildFormRow('+ ShelfIDWait :', leftShelfIdWaitController),
                 Row(
                   children: [
-                    Expanded(
-                      child: _buildFormRow('Box Qty :', leftBoxQtyController),
+                    _buildFormRow(
+                      'Box Qty :',
+                      leftBoxQtyController,
+                      width: 150,
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildFormRow(
-                        '+ BoxIDConfirm:',
-                        leftBoxIdConfirmController,
-                      ),
+                    _buildFormRow(
+                      '+ BoxIDConfirm:',
+                      leftBoxIdConfirmController,
+                      width: 180,
                     ),
                   ],
                 ),
@@ -288,22 +186,7 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
             ),
           ),
 
-          // Table Header
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(color: Colors.green[700]),
-            child: const Text(
-              'Danh sách đơn hàng chờ xuất kho:',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          // Table
+          _buildTableTitle('Danh sách đơn hàng chờ xuất kho:'),
           Expanded(
             child: _buildDataTable([
               'SPCNo',
@@ -326,14 +209,9 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
   Widget _buildRightSection() {
     return Container(
       margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
+      decoration: _boxDecoration(),
       child: Column(
         children: [
-          // Top Section
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -346,7 +224,6 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
                 const Text(
                   'Kiểm tra, xác nhận box cần lấy',
                   style: TextStyle(
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
                   ),
@@ -355,28 +232,13 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
                 _buildFormRow('+ OrderIto :', rightOrderController),
                 Row(
                   children: [
-                    Expanded(
-                      child: _buildFormRow(
-                        '+ ProductID :',
-                        rightProductIdController,
-                      ),
-                    ),
+                    _buildFormRow('+ ProductID :', rightProductIdController),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        '*',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    const Text(
+                      '*',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -386,68 +248,45 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
                 _buildFormRow('+ ShelfID :', rightShelfIdController),
                 Row(
                   children: [
-                    Expanded(
-                      child: _buildFormRow('+ TQty :', rightTQtyController),
-                    ),
+                    _buildFormRow('+ TQty :', rightTQtyController, width: 150),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Text('+ Remain : '),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.purple[50],
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.purple[200]!),
-                            ),
-                            child: const Text(
-                              '0',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                    Row(
+                      children: [
+                        const Text('+ Remain :'),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
                           ),
-                        ],
-                      ),
+                          decoration: BoxDecoration(
+                            color: Colors.purple[50],
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.purple[200]!),
+                          ),
+                          child: const Text(
+                            '0',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Đưa Hàng Lên Kệ Chờ'),
-                  ),
+                const SizedBox(height: 16),
+
+                _buildButton(
+                  label: 'Đưa Hàng Lên Kệ Chờ',
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  onPressed: () {},
+                  paddingV: 14,
                 ),
               ],
             ),
           ),
 
-          // Table Header
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(color: Colors.green[700]),
-            child: const Text(
-              'Danh sách hàng đang có trong kho:',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          // Table
+          _buildTableTitle('Danh sách hàng đang có trong kho:'),
           Expanded(
             child: _buildDataTable([
               'Firsttime',
@@ -463,16 +302,60 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
     );
   }
 
-  Widget _buildFormRow(String label, TextEditingController controller) {
+  // --- COMMON WIDGETS BELOW ---
+
+  BoxDecoration _boxDecoration() => BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.grey[300]!),
+  );
+
+  Widget _buildDropdownRow(
+    String label,
+    String value,
+    List<String> items,
+    void Function(String?) onChanged,
+  ) {
+    return Row(
+      children: [
+        SizedBox(width: 120, child: Text(label)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 200,
+          child: DropdownButtonFormField<String>(
+            value: value,
+            items: items
+                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                .toList(),
+            onChanged: onChanged,
+            decoration: const InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFormRow(
+    String label,
+    TextEditingController controller, {
+    double width = 200,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: const TextStyle(fontSize: 13)),
+            child: Text(label, style: const TextStyle(fontSize: 14)),
           ),
-          Expanded(
+          const SizedBox(width: 8),
+          SizedBox(
+            width: width,
             child: TextField(
               controller: controller,
               decoration: const InputDecoration(
@@ -483,10 +366,52 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
                 ),
                 border: OutlineInputBorder(),
               ),
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 14),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required String label,
+    required Color color,
+    required Color textColor,
+    required VoidCallback onPressed,
+    double width = 150,
+    double paddingV = 10,
+  }) {
+    return SizedBox(
+      width: width,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: textColor,
+          padding: EdgeInsets.symmetric(vertical: paddingV),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableTitle(String title) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      color: Colors.green[700],
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -501,7 +426,7 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
       ),
       child: Column(
         children: [
-          // Table Header
+          // Header
           Container(
             color: Colors.grey[200],
             child: Row(
@@ -517,61 +442,55 @@ class _MTSStockExportScreenState extends State<MTSStockExportScreen> {
                     child: Text(
                       header,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 );
               }).toList(),
             ),
           ),
-          // Table Body (Empty State)
+          // Body
           Expanded(
-            child: Container(
-              color: Colors.grey[300],
-              child: data.isEmpty
-                  ? const Center(
+            child: data.isEmpty
+                ? Container(
+                    color: Colors.grey[300],
+                    child: const Center(
                       child: Text(
                         'Chưa có dữ liệu',
                         style: TextStyle(color: Colors.black54),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: Colors.grey[400]!),
-                            ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey[400]!),
                           ),
-                          child: Row(
-                            children: headers.map((header) {
-                              return Expanded(
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      right: BorderSide(
-                                        color: Colors.grey[400]!,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    data[index][header]?.toString() ?? '',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(fontSize: 12),
+                        ),
+                        child: Row(
+                          children: headers.map((header) {
+                            return Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    right: BorderSide(color: Colors.grey[400]!),
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                          ),
-                        );
-                      },
-                    ),
-            ),
+                                child: Text(
+                                  data[index][header]?.toString() ?? '',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

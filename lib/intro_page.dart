@@ -80,7 +80,6 @@ class IntroPage extends StatelessWidget {
                     child: Text(
                       "Giải pháp quản lý kho thông minh",
                       style: TextStyle(
-                        fontSize: 14,
                         color: Colors.blue[700],
                         fontWeight: FontWeight.w500,
                       ),
@@ -93,11 +92,7 @@ class IntroPage extends StatelessWidget {
                     "Ứng dụng giúp quản lý quy trình nhập kho, xuất kho, "
                     "và phân loại sản phẩm trong hệ thống.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[700],
-                      height: 1.5,
-                    ),
+                    style: TextStyle(color: Colors.grey[700], height: 1.5),
                   ),
                   const SizedBox(height: 30),
 
@@ -115,7 +110,6 @@ class IntroPage extends StatelessWidget {
                         Text(
                           "Các chức năng chính:",
                           style: TextStyle(
-                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[800],
                           ),
@@ -155,7 +149,7 @@ class IntroPage extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         "Phiên bản 1.0.0",
-                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -183,11 +177,7 @@ class IntroPage extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              height: 1.4,
-            ),
+            style: const TextStyle(color: Colors.black87, height: 1.4),
           ),
         ),
       ],

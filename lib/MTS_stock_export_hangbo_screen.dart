@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
-class MTSStockExportFormV2 extends StatefulWidget {
-  const MTSStockExportFormV2({super.key});
+import 'IN_TEM_LEN_KE/action_button.dart';
+
+class MTSStockExportHangBoForm extends StatefulWidget {
+  const MTSStockExportHangBoForm({super.key});
 
   @override
-  State<MTSStockExportFormV2> createState() => _MTSStockExportFormV2State();
+  State<MTSStockExportHangBoForm> createState() =>
+      _MTSStockExportHangBoFormState();
 }
 
-class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
+class _MTSStockExportHangBoFormState extends State<MTSStockExportHangBoForm> {
   String selectedAction = 'CheckBox';
   final TextEditingController orderItoScanController = TextEditingController();
   final TextEditingController changeBlankController = TextEditingController();
@@ -79,7 +82,6 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                       text: 'MSNV: ',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -87,7 +89,6 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                       text: '20616',
                       style: TextStyle(
                         color: Colors.red[700],
-                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -95,9 +96,8 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                 ),
               ),
               const Text(
-                'QUẢN LÝ XUẤT KHO STOCK HÀNG BỘ MTS',
+                'QUẢN LÝ XUẤT KHO STOCK HÀNG BỘ',
                 style: TextStyle(
-                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
                 ),
@@ -126,7 +126,6 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                   'Xác nhận lấy hàng xuất kho',
                   style: TextStyle(
                     color: Colors.red[700],
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -135,13 +134,7 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                 // Chọn thao tác
                 Row(
                   children: [
-                    const SizedBox(
-                      width: 120,
-                      child: Text(
-                        '+ Chọn thao tác:',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                    ),
+                    const SizedBox(width: 120, child: Text('+ Chọn thao tác:')),
                     SizedBox(
                       width: 200,
                       child: DropdownButtonFormField<String>(
@@ -171,13 +164,7 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                 // OrderIto Scan
                 Row(
                   children: [
-                    const SizedBox(
-                      width: 120,
-                      child: Text(
-                        '+ OrderIto Scan:',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                    ),
+                    const SizedBox(width: 120, child: Text('+ OrderIto Scan:')),
                     Expanded(
                       child: TextField(
                         controller: orderItoScanController,
@@ -198,13 +185,7 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                 // Change blank
                 Row(
                   children: [
-                    const SizedBox(
-                      width: 120,
-                      child: Text(
-                        '+ Change blank:',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                    ),
+                    const SizedBox(width: 120, child: Text('+ Change blank:')),
                     Expanded(
                       child: TextField(
                         controller: changeBlankController,
@@ -286,12 +267,11 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Text('Box Qty :', style: TextStyle(fontSize: 13)),
+                    const Text('Box Qty :'),
                     const SizedBox(width: 8),
                     const Text(
                       '0',
                       style: TextStyle(
-                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.red,
                       ),
@@ -346,7 +326,6 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                   'Kiểm tra, xác nhận box cần lấy',
                   style: TextStyle(
                     color: Colors.red[700],
-                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -384,7 +363,6 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                         style: TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -421,12 +399,11 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Text('+ Remain :', style: TextStyle(fontSize: 13)),
+                    const Text('+ Remain :'),
                     const SizedBox(width: 8),
                     const Text(
                       '0',
                       style: TextStyle(
-                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.red,
                       ),
@@ -437,19 +414,12 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
 
                 // Button
                 SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
+                  width: 130,
+                  child: ActionButton(
+                    label: 'Đưa hàng lên kệ',
+                    color: Colors.green,
+                    icon: Icons.transfer_within_a_station_rounded,
                     onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: Colors.black),
-                    ),
-                    child: const Text(
-                      'Đưa Lên Kệ Chờ',
-                      style: TextStyle(fontSize: 14),
-                    ),
                   ),
                 ),
               ],
@@ -476,18 +446,11 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
   ) {
     return Row(
       children: [
-        SizedBox(
-          width: 120,
-          child: Text(label, style: const TextStyle(fontSize: 13)),
-        ),
+        SizedBox(width: 120, child: Text(label)),
         Expanded(
           child: Text(
             value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w500, color: color),
           ),
         ),
       ],
@@ -497,10 +460,7 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
   Widget _buildLabelInputRow(String label, TextEditingController controller) {
     return Row(
       children: [
-        SizedBox(
-          width: 120,
-          child: Text(label, style: const TextStyle(fontSize: 13)),
-        ),
+        SizedBox(width: 120, child: Text(label)),
         Expanded(
           child: TextField(
             controller: controller,
@@ -549,10 +509,7 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                     child: Text(
                       header,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 );
@@ -598,7 +555,6 @@ class _MTSStockExportFormV2State extends State<MTSStockExportFormV2> {
                                   child: Text(
                                     data[index][header]?.toString() ?? '',
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(fontSize: 12),
                                   ),
                                 ),
                               );

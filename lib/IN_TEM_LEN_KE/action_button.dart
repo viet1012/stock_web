@@ -25,7 +25,7 @@ class ActionButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       icon: Icon(icon, size: 18),
-      label: Text(label, style: const TextStyle(fontSize: 14)),
+      label: Text(label),
     );
   }
 }

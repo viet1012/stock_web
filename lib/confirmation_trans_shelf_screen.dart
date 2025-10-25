@@ -102,15 +102,11 @@ class ConfirmationScreen extends StatelessWidget {
                               SizedBox(width: 8),
                               Text(
                                 'Box còn lại: ',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
+                                style: TextStyle(color: Colors.grey[700]),
                               ),
                               Text(
                                 '37',
                                 style: TextStyle(
-                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.orange[700],
                                 ),
@@ -131,7 +127,6 @@ class ConfirmationScreen extends StatelessWidget {
                           child: Text(
                             'BoxID',
                             style: TextStyle(
-                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.blue[700],
                             ),
@@ -186,7 +181,6 @@ class ConfirmationScreen extends StatelessWidget {
                     Text(
                       'Danh Sách Box',
                       style: TextStyle(
-                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -220,12 +214,8 @@ class ConfirmationScreen extends StatelessWidget {
                     headingTextStyle: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.blue[900],
-                      fontSize: 13,
                     ),
-                    dataTextStyle: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: 12,
-                    ),
+                    dataTextStyle: TextStyle(color: Colors.grey[800]),
                     columnSpacing: 24,
                     horizontalMargin: 16,
                     columns: [
@@ -315,10 +305,7 @@ class ConfirmationScreen extends StatelessWidget {
               color: Colors.orange[100],
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Text(
-              shelfId,
-              style: TextStyle(color: Colors.orange[800], fontSize: 11),
-            ),
+            child: Text(shelfId, style: TextStyle(color: Colors.orange[800])),
           ),
         ),
         DataCell(Text(productId)),

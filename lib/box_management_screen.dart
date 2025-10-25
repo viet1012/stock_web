@@ -135,7 +135,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                     'MSNV: ',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 13,
                       color: Color(0xFF5A6C7D),
                     ),
                   ),
@@ -153,7 +152,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                       '20616',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        fontSize: 18,
                         color: Color(0xFFD32F2F),
                       ),
                     ),
@@ -174,7 +172,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                   'LẤY HÀNG RA KỆ',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 12,
                     color: Color(0xFF6A1B9A),
                     letterSpacing: 0.3,
                   ),
@@ -225,7 +222,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                   'Danh sách đã nhập',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 12,
                     color: Color(0xFF5A4A00),
                   ),
                 ),
@@ -273,7 +269,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
             'Thông tin đơn hàng',
             style: TextStyle(
               fontWeight: FontWeight.w700,
-              fontSize: 16,
               color: Color(0xFF2C3E50),
             ),
           ),
@@ -295,7 +290,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
               'Danh sách chi tiết',
               style: TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 14,
                 color: Color(0xFF2C3E50),
               ),
             ),
@@ -334,7 +328,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
               'XÁC NHẬN FULL BOX',
               style: TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 12,
                 color: Color(0xFF5A4A00),
                 letterSpacing: 0.3,
               ),
@@ -383,7 +376,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
       text,
       style: const TextStyle(
         fontWeight: FontWeight.w600,
-        fontSize: 12,
         color: Color(0xFF5A6C7D),
         letterSpacing: 0.2,
       ),
@@ -408,7 +400,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
   Widget _buildTextField(TextEditingController controller) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: 13),
       decoration: InputDecoration(
         filled: true,
         fillColor: const Color(0xFFFAFAFA),
@@ -494,39 +485,33 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         dataRowColor: MaterialStateColor.resolveWith((_) => Colors.white),
         columns: const [
           DataColumn(
-            label: Text(
-              'SPCNo',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-            ),
+            label: Text('SPCNo', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
           DataColumn(
-            label: Text(
-              'POQty',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-            ),
+            label: Text('POQty', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
           DataColumn(
             label: Text(
               'Product Name',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           DataColumn(
             label: Text(
               'PartID',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           DataColumn(
             label: Text(
               'DateTime',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           DataColumn(
             label: Text(
               'Action',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
