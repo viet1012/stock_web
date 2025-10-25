@@ -104,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontWeight: isActive
                                 ? FontWeight.bold
                                 : FontWeight.w500,
-                            fontSize: 14,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -163,7 +162,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             Text(
                               item["label"],
                               style: TextStyle(
-                                fontSize: 12,
                                 fontWeight: isSelected
                                     ? FontWeight.bold
                                     : FontWeight.w500,
