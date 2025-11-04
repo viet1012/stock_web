@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 
+import '../../Data/mock_data.dart';
+
 class OrderItem {
   final String spCNo;
   final String poQty;
@@ -32,70 +34,44 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
   final TextEditingController _boxNumberController = TextEditingController();
   final TextEditingController _confirmBoxIdController = TextEditingController();
 
+  final FocusNode _boxFocusNode = FocusNode();
+
   late List<OrderItem> _orderItems;
-  late Map<String, String> _orderInfo;
+  Map<String, dynamic>? _selectedOrder;
 
   @override
   void initState() {
     super.initState();
-    _initializeMockData();
+    _orderItems = [];
   }
 
-  void _initializeMockData() {
-    _orderInfo = {
-      'Số đơn hàng': 'DH-2024-001',
-      'Tên hàng': 'Linh kiện điện tử A',
-      'Mã SP': 'SP-123456',
-      'Lot No': 'LOT-2024-Q1',
-      'Số lượng': '100',
-    };
-
-    _orderItems = [
-      OrderItem(
-        spCNo: '001',
-        poQty: '50',
-        pName: 'Resistor 1K',
-        partID: 'RES-001',
-        inDateTime: '2024-01-15 10:30',
-        boxWait: '5',
-      ),
-      OrderItem(
-        spCNo: '002',
-        poQty: '30',
-        pName: 'Capacitor 100uF',
-        partID: 'CAP-002',
-        inDateTime: '2024-01-15 11:15',
-        boxWait: '3',
-      ),
-      OrderItem(
-        spCNo: '003',
-        poQty: '20',
-        pName: 'Diode 1N4007',
-        partID: 'DIO-003',
-        inDateTime: '2024-01-15 12:00',
-        boxWait: '2',
-      ),
-    ];
-  }
-
-  @override
-  void dispose() {
-    _boxIdController.dispose();
-    _sodonhangController.dispose();
-    _boxNumberController.dispose();
-    _confirmBoxIdController.dispose();
-    super.dispose();
+  void _fetchOrder(String po) {
+    final key = po.trim().toUpperCase();
+    if (mockOrderData.containsKey(key)) {
+      setState(() => _selectedOrder = mockOrderData[key]);
+      Future.delayed(const Duration(milliseconds: 200), () {
+        FocusScope.of(context).requestFocus(_boxFocusNode);
+      });
+    } else {
+      setState(() => _selectedOrder = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Không tìm thấy đơn hàng "$po"')),
+      );
+    }
   }
 
   void _addOrderItem() {
-    if (_sodonhangController.text.isEmpty ||
-        _boxNumberController.text.isEmpty) {
+    if (_selectedOrder == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng điền đầy đủ thông tin'),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text('⚠️ Vui lòng nhập PO hợp lệ')),
       );
+      return;
+    }
+
+    if (_boxNumberController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('⚠️ Nhập số Box')));
       return;
     }
 
@@ -104,15 +80,30 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         OrderItem(
           spCNo: (_orderItems.length + 1).toString().padLeft(3, '0'),
           poQty: _sodonhangController.text,
-          pName: 'Sản phẩm mới',
-          partID: 'PART-${DateTime.now().millisecondsSinceEpoch}',
+          pName: _selectedOrder!['product'],
+          partID: _selectedOrder!['code'],
           inDateTime: DateTime.now().toString().split('.')[0],
           boxWait: _boxNumberController.text,
         ),
       );
-      _sodonhangController.clear();
       _boxNumberController.clear();
+      _sodonhangController.clear();
+      _selectedOrder = null;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('✅ Đã thêm vào danh sách nhập tem box')),
+    );
+  }
+
+  @override
+  void dispose() {
+    _boxIdController.dispose();
+    _sodonhangController.dispose();
+    _boxNumberController.dispose();
+    _confirmBoxIdController.dispose();
+    _boxFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -128,27 +119,29 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  // Nếu nhỏ hơn 1100px → hiển thị dọc
                   bool isNarrow = constraints.maxWidth < 1100;
-
                   return SingleChildScrollView(
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      alignment: WrapAlignment.start,
                       children: [
                         SizedBox(
-                          width: isNarrow ? double.infinity : 280,
+                          width: isNarrow ? double.infinity : 320,
                           child: _buildLeftPanel(),
                         ),
-                        SizedBox(
-                          width: isNarrow
-                              ? double.infinity
-                              : constraints.maxWidth - 580, // chừa 2 panel biên
-                          child: _buildMiddlePanel(),
+                        Column(
+                          children: [
+                            SizedBox(
+                              width: isNarrow
+                                  ? double.infinity
+                                  : constraints.maxWidth - 680,
+                              child: _buildMiddlePanel(),
+                            ),
+                            _buildBottomTable(),
+                          ],
                         ),
                         SizedBox(
-                          width: isNarrow ? double.infinity : 280,
+                          width: isNarrow ? double.infinity : 320,
                           child: _buildRightPanel(),
                         ),
                       ],
@@ -157,8 +150,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 10),
-            _buildBottomTable(),
           ],
         ),
       ),
@@ -171,18 +162,13 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(4),
       ),
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
+        children: [
           Text(
             'MSNV: 20616',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
           Text(
             'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ',
@@ -194,11 +180,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
           ),
           Text(
             'XÁC NHẬN FULL BOX',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
         ],
       ),
@@ -210,50 +192,85 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
       decoration: _panelStyle(),
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle(
-            'LẤY HÀNG RA KỆ',
-            Icons.inventory_2,
-            Colors.orange,
-          ),
-          const SizedBox(height: 20),
-          _buildLabeledTextField('BOX ID', _boxIdController, Icons.qr_code),
-          const SizedBox(height: 16),
-          CustomButton(
-            label: 'Xóa tất cả',
-            color: Colors.redAccent,
-            icon: Icons.clear_all,
-            width: double.infinity,
-            radius: 6,
-            fontSize: 13,
-            onPressed: () {
-              _boxIdController.clear();
-              _sodonhangController.clear();
-              _boxNumberController.clear();
-            },
-          ),
-          const Divider(height: 30),
-          _buildLabeledTextField(
-            'Số đơn hàng',
-            _sodonhangController,
-            Icons.receipt_long,
-          ),
+          _buildSectionTitle('NHẬP ĐƠN HÀNG', Icons.assignment, Colors.teal),
           const SizedBox(height: 10),
-          _buildLabeledTextField(
-            'Số Box chờ',
-            _boxNumberController,
-            Icons.inventory,
+          TextField(
+            controller: _sodonhangController,
+            onSubmitted: _fetchOrder,
+            decoration: InputDecoration(
+              labelText: 'Nhập số đơn hàng (VD: ODR1001)',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              prefixIcon: const Icon(Icons.receipt_long),
+            ),
           ),
-          const SizedBox(height: 10),
-          CustomButton(
-            label: 'Thêm hàng',
-            color: Colors.blue,
-            icon: Icons.add_box,
-            width: double.infinity,
-            radius: 6,
-            fontSize: 13,
-            onPressed: _addOrderItem,
-          ),
+          const SizedBox(height: 12),
+          if (_selectedOrder != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tên hàng: ${_selectedOrder!['product']}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text('Mã SP: ${_selectedOrder!['code']}'),
+                  Text('Lot: ${_selectedOrder!['lot']}'),
+                  Text('Trọng lượng: ${_selectedOrder!['weight']}'),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Box trống:',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Wrap(
+                    spacing: 6,
+                    children: (_selectedOrder!['emptyBoxes'] as List<String>)
+                        .map((b) => Chip(label: Text(b)))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _boxNumberController,
+              focusNode: _boxFocusNode,
+              onSubmitted: (_) => _addOrderItem(),
+              decoration: InputDecoration(
+                labelText: 'Nhập BOX cần thêm',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                prefixIcon: const Icon(Icons.inventory_2),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              onPressed: _addOrderItem,
+              icon: const Icon(Icons.add),
+              label: const Text('Thêm vào danh sách'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 42),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -267,31 +284,14 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle('THÔNG TIN ĐƠN HÀNG', Icons.info, Colors.green),
-          const SizedBox(height: 16),
-          ..._orderInfo.entries.map((e) => _buildInfoRow(e.key, e.value)),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
-              border: Border.all(color: Colors.green),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.list_alt, color: Colors.green, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'Đã nhập: ${_orderItems.length} hàng',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(height: 12),
+          if (_selectedOrder != null) ...[
+            _buildInfoRow('Tên hàng', _selectedOrder!['product']),
+            _buildInfoRow('Mã SP', _selectedOrder!['code']),
+            _buildInfoRow('Lot', _selectedOrder!['lot']),
+            _buildInfoRow('Trọng lượng', _selectedOrder!['weight']),
+          ] else
+            const Text('Chưa có đơn hàng nào được chọn'),
         ],
       ),
     );
@@ -316,8 +316,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
             color: Colors.green,
             icon: Icons.check_circle,
             width: double.infinity,
-            radius: 6,
-            fontSize: 13,
             onPressed: () {
               if (_confirmBoxIdController.text.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -330,26 +328,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                 );
               }
             },
-          ),
-          const SizedBox(height: 10),
-          CustomButton(
-            label: 'Xóa',
-            color: Colors.grey,
-            icon: Icons.delete_outline,
-            width: double.infinity,
-            radius: 6,
-            fontSize: 13,
-            onPressed: _confirmBoxIdController.clear,
-          ),
-          const SizedBox(height: 10),
-          CustomButton(
-            label: 'Thoát',
-            color: Colors.red,
-            icon: Icons.exit_to_app,
-            width: double.infinity,
-            radius: 6,
-            fontSize: 13,
-            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
@@ -382,14 +360,13 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
-        columnSpacing: 150,
         headingRowColor: MaterialStateColor.resolveWith(
           (_) => Colors.grey.shade200,
         ),
         headingTextStyle: const TextStyle(
           color: Colors.black87,
           fontWeight: FontWeight.bold,
-          fontSize: 13,
+          fontSize: 16,
         ),
         dataRowHeight: 32,
         headingRowHeight: 34,
@@ -427,7 +404,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
     return BoxDecoration(
       color: color ?? Colors.white,
       border: Border.all(color: Colors.grey.shade300),
-      borderRadius: BorderRadius.circular(6),
     );
   }
 
@@ -458,11 +434,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-            fontSize: 12,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
         const SizedBox(height: 4),
         TextField(
@@ -475,13 +447,10 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF2563EB)),
+              borderSide: BorderSide(color: Colors.grey.shade300),
             ),
           ),
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 16),
         ),
       ],
     );
@@ -498,12 +467,11 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: Colors.black54,
-              fontSize: 18,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
           ),
         ],
       ),

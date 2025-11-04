@@ -1,434 +1,234 @@
 import 'package:flutter/material.dart';
+import 'action_button.dart';
+import '../Nhap_Kho/In_Tem_Len_Kệ/widget/order_info_section.dart';
+import 'order_list_section.dart';
 
-class BoxListManagementForm extends StatefulWidget {
-  const BoxListManagementForm({super.key});
+class InTemLenKeMTSScreen extends StatefulWidget {
+  const InTemLenKeMTSScreen({super.key});
 
   @override
-  State<BoxListManagementForm> createState() => _BoxListManagementFormState();
+  State<InTemLenKeMTSScreen> createState() => _InTemLenKeMTSScreenState();
 }
 
-class _BoxListManagementFormState extends State<BoxListManagementForm> {
-  String _selectedStatus = 'PRESS';
-  final TextEditingController _boxIdController = TextEditingController();
-  final TextEditingController _soLuongController = TextEditingController();
+class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
+  List<Map<String, dynamic>> orderList = [];
 
-  // Mock data
-  final Map<String, String> _boxInfo = {
-    'sodonhang': '72000020802',
-    'tenHang': '[HF]_SSH3-50-0',
-    'maSP': 'HOR3524',
-    'lotNo': 'S1ND267238',
-    'soLuong': '1',
-    'pherAufnr': '101007295758',
-    'trongLuong': '0',
-    'donVi': '(Kg)',
-  };
-
-  @override
-  void dispose() {
-    _boxIdController.dispose();
-    _soLuongController.dispose();
-    super.dispose();
+  void _onOrderAdded(Map<String, dynamic> orderData) {
+    setState(() {
+      orderList.add(orderData);
+    });
   }
+
+  void _deleteOrder(int index) {
+    setState(() {
+      orderList.removeAt(index);
+    });
+  }
+
+  void _clearAll() {
+    setState(() => orderList.clear());
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Đã xóa tất cả dữ liệu')));
+  }
+
+  int get _totalQty =>
+      orderList.fold(0, (sum, e) => sum + (e['quantity'] as int? ?? 0));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF0F0F0),
-      appBar: AppBar(
-        backgroundColor: Colors.blueGrey[700],
-        title: Text('Nha'),
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // Header
-          Container(
-            color: Colors.white,
-            padding: EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Icon(Icons.folder, color: Colors.blue[700], size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'LẤY HÀNG ĐƯA KỀ',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                // Left Panel
-                Container(
-                  width: 280,
-                  color: Colors.white,
-                  padding: EdgeInsets.all(16),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // MSNV
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'MSNV:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '20616',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[900],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 20),
+      backgroundColor: const Color(0xFFF7F7F7),
 
-                        // Status
-                        Text(
-                          'BOX ID :',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                            fontSize: 12,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Column(
-                          children: [
-                            _buildRadioOption('PRESS'),
-                            _buildRadioOption('HOLD'),
-                            _buildRadioOption('GUIDE'),
-                          ],
-                        ),
-                        SizedBox(height: 16),
-                        TextField(
-                          controller: _boxIdController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Nhập Box ID',
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-
-                        // Số lượng
-                        Text(
-                          '+ Số đơn hàng:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[900],
-                            fontSize: 12,
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        TextField(
-                          controller: _soLuongController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Q',
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-
-                        // Buttons
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue[700],
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                            ),
-                            icon: Icon(Icons.print, size: 18),
-                            label: Text(
-                              'In Box(Print)',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onPressed: () {},
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[400],
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                            ),
-                            icon: Icon(Icons.clear, size: 18),
-                            label: Text(
-                              'Xóa (Clear)',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onPressed: () {
-                              _boxIdController.clear();
-                              _soLuongController.clear();
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                            ),
-                            icon: Icon(Icons.exit_to_app, size: 18),
-                            label: Text(
-                              'Thoát (Exit)',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.amber[50],
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.amber[200]!),
-                          ),
-                          child: Text(
-                            'Danh sách đơn hàng đang chờ trong box :',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber[800],
-                            ),
-                          ),
-                        ),
-                      ],
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            /// ======== HEADER BAR ==========
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'MSNV: 9999',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                   ),
-                ),
-
-                // Middle Content
-                Expanded(
-                  child: Container(
-                    color: Colors.grey[50],
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[900],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.inventory_2,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              SizedBox(width: 12),
-                              Text(
-                                'QUẢN LÝ BOX LIST NHẬP KHO MTS',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 20),
-
-                        // Info section
-                        Text(
-                          'Thông tin đơn hàng',
-                          style: TextStyle(
-                            color: Colors.amber[700],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Wrap(
-                          spacing: 24,
-                          runSpacing: 12,
-                          children: [
-                            _buildInfoItem(
-                              '+ Số đơn hàng :',
-                              _boxInfo['sodonhang']!,
-                            ),
-                            _buildInfoItem(
-                              '+ Tên hàng :',
-                              _boxInfo['tenHang']!,
-                            ),
-                            _buildInfoItem('+ Mã SP :', _boxInfo['maSP']!),
-                            _buildInfoItem('+ LotNo :', _boxInfo['lotNo']!),
-                            _buildInfoItem(
-                              '+ Số lượng :',
-                              _boxInfo['soLuong']!,
-                            ),
-                            _buildInfoItem(
-                              '+ PHER_AUFNR :',
-                              _boxInfo['pherAufnr']!,
-                            ),
-                            _buildInfoItem(
-                              '+ Trọng lượng :',
-                              _boxInfo['trongLuong']!,
-                            ),
-                            _buildInfoItem('+ Đơn vị :', _boxInfo['donVi']!),
-                          ],
-                        ),
-                      ],
+                  const Text(
+                    'IN TEM & LÊN KỆ ',
+                    style: TextStyle(
+                      color: Color(0xFF1E3A8A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                ),
-
-                // Right Panel - QR Code
-                Container(
-                  width: 250,
-                  color: Colors.white,
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  Row(
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'In Lại Tem Box QR (Re-Printer)',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                          ),
-                        ),
+                      Icon(
+                        Icons.calendar_month,
+                        size: 18,
+                        color: Colors.grey.shade600,
                       ),
-                      SizedBox(height: 20),
-
-                      // QR Code area
-                      Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.green[700],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'QR',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 24),
+                      const SizedBox(width: 6),
                       Text(
-                        'Lưu ý: Chú ý dùng in lại ngay sau khi in lần đầu tiên',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.red,
-                          fontStyle: FontStyle.italic,
+                        'Ngày: ${DateTime.now().toString().split(' ')[0]}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
-                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            /// ======== FORM + BUTTONS ==========
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// 🧾 Khung thông tin đơn hàng nhỏ gọn hơn
+                Container(
+                  width: 800,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 14,
+                  ),
+                  child: OrderInfoSection(onAddOrder: _onOrderAdded),
+                ),
+
+                const SizedBox(width: 18),
+
+                /// 🔘 Cột chứa nút hành động
+                Container(
+                  width: 160,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFAF0),
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ActionButton(
+                          label: 'In Tem',
+                          color: Colors.green.shade700,
+                          icon: Icons.print,
+                          onPressed: () {
+                            if (orderList.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Chưa có đơn hàng để in'),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Đang in ${orderList.length} đơn hàng...',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ActionButton(
+                          label: 'Xóa tất cả',
+                          color: Colors.red.shade600,
+                          icon: Icons.delete_forever,
+                          onPressed: _clearAll,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ActionButton(
+                          label: 'Thoát',
+                          color: Colors.grey.shade600,
+                          icon: Icons.exit_to_app,
+                          onPressed: () => Navigator.pop(context),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildRadioOption(String value) {
-    return Row(
-      children: [
-        Radio<String>(
-          value: value,
-          groupValue: _selectedStatus,
-          onChanged: (newValue) {
-            setState(() => _selectedStatus = newValue!);
-          },
+            const SizedBox(height: 16),
+
+            /// ======== DANH SÁCH ĐƠN HÀNG ==========
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: OrderListSection(
+                  orderList: orderList,
+                  onDelete: _deleteOrder,
+                ),
+              ),
+            ),
+
+            /// ======== TỔNG KẾT ==========
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F9FF),
+                border: Border.all(color: Colors.blue.shade200),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Tổng đơn hàng: ${orderList.length}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    'Tổng SL: $_totalQty',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        Text(value, style: TextStyle(fontSize: 12)),
-      ],
-    );
-  }
-
-  Widget _buildInfoItem(String label, String value) {
-    return Expanded(
-      flex: 0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.amber[700],
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -128,7 +128,7 @@ class OrderListSection extends StatelessWidget {
                       TableRow(
                         children: [
                           _buildDataCell('${index + 1}'),
-                          _buildDataCell(o['order'] ?? ''),
+                          _buildDataCell(o['po'] ?? ''),
                           _buildDataCell(o['product'] ?? ''),
                           _buildDataCell(o['code'] ?? ''),
                           _buildDataCell(o['lot'] ?? ''),

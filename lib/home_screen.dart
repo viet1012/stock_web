@@ -4,7 +4,7 @@ import 'IN_TEM_LEN_KE/in_tem_len_ke_mts_screen.dart';
 import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
 import 'MTS_stock_export_screen.dart';
-import 'box_management_screen.dart';
+import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
 import 'intro_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return const BoxManagementScreen();
     }
     if (selectedSubMenu == "IN TEM VÀ LÊN KỆ") {
-      return const BoxListManagementForm();
+      return const InTemLenKeMTSScreen();
     }
     if (selectedSubMenu == "CHUYỂN KHO NỘI BỘ") {
       return ConfirmationScreen();
