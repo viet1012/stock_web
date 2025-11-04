@@ -163,7 +163,7 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             color: Colors.grey,
             fontWeight: FontWeight.w500,
           ),
@@ -173,7 +173,7 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
           value,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 15,
+            fontSize: 16,
             color: Colors.black87,
           ),
         ),

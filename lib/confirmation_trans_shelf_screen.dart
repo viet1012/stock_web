@@ -1,337 +1,355 @@
 import 'package:flutter/material.dart';
+import 'package:stock_web/widgets/custom_button.dart';
 
-void main() {
-  runApp(MyApp());
-}
+class FrmTransShelfScreen extends StatefulWidget {
+  const FrmTransShelfScreen({super.key});
 
-class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Xác Nhận Box Cần Chuyển Kệ',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: ConfirmationScreen(),
-    );
-  }
+  State<FrmTransShelfScreen> createState() => _FrmTransShelfScreenState();
 }
 
-class ConfirmationScreen extends StatelessWidget {
+class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
+  final TextEditingController _boxController = TextEditingController();
+  final TextEditingController _shelfController = TextEditingController();
+  final FocusNode _boxFocus = FocusNode();
+  final FocusNode _shelfFocus = FocusNode();
+
+  String _statusMessage = "";
+  Color _statusColor = Colors.black;
+
+  List<Map<String, dynamic>> _waitingBoxes = [
+    {
+      "id": "800125",
+      "shelfId": "Waiting",
+      "productId": "H0077923",
+      "productName": "[HF].SSB4-40-0",
+      "qty": "95",
+      "idBlock": "Box_[HF]_VEPN3-250-0_20251104062931",
+      "MSNV": "9999",
+      "firstTime": "",
+      "POFirst": "MTSBox_[HF]_VEPAJ4-250-0_20251103072306",
+      "remark": "A01",
+    },
+    {
+      "id": "800185",
+      "shelfId": "Waiting",
+      "productId": "H0100573",
+      "productName": "[HF].Set Part_R3",
+      "qty": "1",
+      "idBlock": "Box_[HF]_VEPN3-250-0_20251104062932",
+      "MSNV": "9999",
+      "firstTime": "",
+      "POFirst": "MTSBox_[HF]_VEPAJ4-250-0_20251103072307",
+      "remark": "A02",
+    },
+  ];
+
+  @override
+  void dispose() {
+    _boxController.dispose();
+    _shelfController.dispose();
+    _boxFocus.dispose();
+    _shelfFocus.dispose();
+    super.dispose();
+  }
+
+  void _confirmTransfer() {
+    final boxId = _boxController.text.trim();
+    final shelfId = _shelfController.text.trim();
+
+    if (boxId.isEmpty) {
+      _setStatus("Vui lòng nhập BoxID cần chuyển", Colors.red);
+      _boxFocus.requestFocus();
+      return;
+    }
+    if (shelfId.isEmpty || shelfId.length > 15) {
+      _setStatus("Quẹt sai kệ, vui lòng kiểm tra lại", Colors.red);
+      _shelfController.clear();
+      _shelfFocus.requestFocus();
+      return;
+    }
+
+    // ✅ Giả lập cập nhật kệ thành công
+    setState(() {
+      for (var box in _waitingBoxes) {
+        if (box['id'] == boxId) {
+          box['shelfId'] = shelfId;
+        }
+      }
+      _setStatus("Xác nhận chuyển kệ thành công", Colors.green);
+      _boxController.clear();
+      _shelfController.clear();
+      _boxFocus.requestFocus();
+    });
+  }
+
+  void _setStatus(String msg, Color color) {
+    setState(() {
+      _statusMessage = msg;
+      _statusColor = color;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text(
-          'XÁC NHẬN CẦN BOX CHUYỂN LÊN KỆ',
-
-          style: TextStyle(color: Colors.white),
+      backgroundColor: const Color(0xFFF4F5F7),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(child: _buildTopPanel()),
+                  Expanded(flex: 2, child: _buildBottomPanel()),
+                ],
+              ),
+            ),
+          ],
         ),
-        backgroundColor: Colors.blue.shade700,
-        centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("MSNV: 9999", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            "XÁC NHẬN BOX CẦN CHUYỂN LÊN KỆ",
+            style: TextStyle(
+              color: Color(0xFF1E3A8A),
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          Row(
             children: [
-              // Input Section
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Scan Box Field
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Scan Box',
-                        prefixIcon: Icon(
-                          Icons.qr_code_scanner,
-                          color: Colors.blue[700],
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: Colors.blue[700]!,
-                            width: 2,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                      ),
-                    ),
-                    SizedBox(height: 16),
-
-                    // Box Info Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.orange[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.orange[200]!),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.inventory_2,
-                                color: Colors.orange[700],
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Box còn lại: ',
-                                style: TextStyle(color: Colors.grey[700]),
-                              ),
-                              Text(
-                                '37',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange[700],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue[200]!),
-                          ),
-                          child: Text(
-                            'BoxID',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue[700],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-
-                    // Scan ShelfID Field
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Scan ShelfID',
-                        prefixIcon: Icon(
-                          Icons.shelves,
-                          color: Colors.blue[700],
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: Colors.blue[700]!,
-                            width: 2,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 24),
-
-              // Table Header
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.blue[700],
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.table_chart, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Danh Sách Box',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Data Table
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(
-                      Colors.grey[100],
-                    ),
-                    headingTextStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[900],
-                    ),
-                    dataTextStyle: TextStyle(color: Colors.grey[800]),
-                    columnSpacing: 24,
-                    horizontalMargin: 16,
-                    columns: [
-                      DataColumn(label: Text('ID')),
-                      DataColumn(label: Text('ShelfID')),
-                      DataColumn(label: Text('ProductID')),
-                      DataColumn(label: Text('ProductName')),
-                      DataColumn(label: Text('Qty')),
-                      DataColumn(label: Text('IDBlock')),
-                      DataColumn(label: Text('MSNV')),
-                      DataColumn(label: Text('Remark')),
-                      DataColumn(label: Text('Firsttime')),
-                      DataColumn(label: Text('PO_First')),
-                    ],
-                    rows: [
-                      _buildDataRow(
-                        '800125',
-                        'Wating',
-                        'H0077923',
-                        '[HF].SSB4-40-0',
-                        '95',
-                        'Box_[HF].S...',
-                        '22207',
-                        '',
-                        '10/2/2025',
-                        'Box_[HF].S...',
-                        Colors.blue[50],
-                      ),
-                      _buildDataRow(
-                        '800185',
-                        'Wating',
-                        'H0100573',
-                        '[HF].Set Part_R...',
-                        '1',
-                        'Box_[HF].S...',
-                        '22259',
-                        '',
-                        '5/28/2025',
-                        'Box_[HF].S...',
-                        null,
-                      ),
-                      _buildDataRow(
-                        '800222',
-                        'Wating',
-                        'H0063869',
-                        '[HF].HSB8P-10...',
-                        '2',
-                        'Box_[HF].S...',
-                        '22707',
-                        '',
-                        '9/29/2025',
-                        'Box_[HF].S...',
-                        Colors.blue[50],
-                      ),
-                    ],
-                  ),
+              Icon(Icons.calendar_month, size: 18, color: Colors.grey.shade600),
+              const SizedBox(width: 6),
+              Text(
+                'Ngày: ${DateTime.now().toString().split(' ')[0]}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
-  DataRow _buildDataRow(
-    String id,
-    String shelfId,
-    String productId,
-    String productName,
-    String qty,
-    String idBlock,
-    String msnv,
-    String remark,
-    String firsttime,
-    String poFirst,
-    Color? backgroundColor,
-  ) {
-    return DataRow(
-      color: MaterialStateProperty.all(backgroundColor),
-      cells: [
-        DataCell(Text(id, style: TextStyle(fontWeight: FontWeight.w600))),
-        DataCell(
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.orange[100],
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(shelfId, style: TextStyle(color: Colors.orange[800])),
+  Widget _buildTopPanel() {
+    return Container(
+      decoration: _panelStyle(),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(
+            "NHẬP THÔNG TIN BOX",
+            Icons.qr_code_2,
+            Colors.blue,
           ),
-        ),
-        DataCell(Text(productId)),
-        DataCell(Text(productName)),
-        DataCell(
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.green[100],
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              qty,
-              style: TextStyle(
-                color: Colors.green[800],
-                fontWeight: FontWeight.bold,
+          const SizedBox(height: 16),
+          _buildLabeledTextField(
+            "Scan Box",
+            _boxController,
+            Icons.qr_code_scanner,
+            focusNode: _boxFocus,
+            onSubmitted: (_) =>
+                FocusScope.of(context).requestFocus(_shelfFocus),
+          ),
+          const SizedBox(height: 12),
+          _buildLabeledTextField(
+            "Scan ShelfID",
+            _shelfController,
+            Icons.inventory_2,
+            focusNode: _shelfFocus,
+            onSubmitted: (_) => _confirmTransfer(),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Text(
+                "Box còn lại: ${_waitingBoxes.where((b) => b['shelfId'] == 'Waiting').length}",
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              Spacer(),
+              SizedBox(
+                width: 300,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        label: "XÁC NHẬN",
+                        color: Colors.green,
+                        icon: Icons.check_circle_outline,
+                        onPressed: _confirmTransfer,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: CustomButton(
+                        label: "XÓA DỮ LIỆU",
+                        color: Colors.red,
+                        icon: Icons.delete_outline,
+                        onPressed: () {
+                          _boxController.clear();
+                          _shelfController.clear();
+                          _setStatus("", Colors.black);
+                          _boxFocus.requestFocus();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          Text(
+            _statusMessage,
+            style: TextStyle(color: _statusColor, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomPanel() {
+    return Container(
+      decoration: _panelStyle(),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(
+            "DANH SÁCH F2_MTS_ShelfActualStock",
+            Icons.table_chart,
+            Colors.indigo,
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  headingRowColor: MaterialStateColor.resolveWith(
+                    (_) => Colors.grey.shade200,
+                  ),
+                  columns: const [
+                    DataColumn(label: Text("ID")),
+                    DataColumn(label: Text("ShelfID")),
+                    DataColumn(label: Text("ProductID")),
+                    DataColumn(label: Text("ProductName")),
+                    DataColumn(label: Text("Qty")),
+                    DataColumn(label: Text("idBlock")),
+                    DataColumn(label: Text("MSNV")),
+                    DataColumn(label: Text("firstTime")),
+                    DataColumn(label: Text("POFirst")),
+                    DataColumn(label: Text("Remark")),
+                  ],
+                  rows: _waitingBoxes.map((e) {
+                    return DataRow(
+                      color: MaterialStateProperty.resolveWith(
+                        (_) => e['shelfId'] == 'Waiting'
+                            ? Colors.white
+                            : Colors.green.shade50,
+                      ),
+                      cells: [
+                        DataCell(Text(e['id'] ?? '')),
+                        DataCell(Text(e['shelfId'] ?? '')),
+                        DataCell(Text(e['productId'] ?? '')),
+                        DataCell(Text(e['productName'] ?? '')),
+                        DataCell(Text(e['qty'] ?? '')),
+                        DataCell(Text(e['idBlock'] ?? '')),
+                        DataCell(Text(e['MSNV'] ?? '')),
+                        DataCell(Text(e['firstTime'] ?? '')),
+                        DataCell(Text(e['POFirst'] ?? '')),
+                        DataCell(Text(e['remark'] ?? '')),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabeledTextField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    FocusNode? focusNode,
+    void Function(String)? onSubmitted,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          focusNode: focusNode,
+          onSubmitted: onSubmitted,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: Icon(icon, size: 20, color: Colors.grey[600]),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
         ),
-        DataCell(Text(idBlock)),
-        DataCell(Text(msnv)),
-        DataCell(Text(remark)),
-        DataCell(Text(firsttime)),
-        DataCell(Text(poFirst)),
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _panelStyle() {
+    return BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.grey.shade300),
     );
   }
 }

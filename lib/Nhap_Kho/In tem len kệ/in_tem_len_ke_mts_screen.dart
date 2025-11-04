@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'action_button.dart';
-import '../Nhap_Kho/In_Tem_Len_Kệ/widget/order_info_section.dart';
-import 'order_list_section.dart';
+import '../../widgets/action_button.dart';
+import '../../widgets/custom_button.dart';
+import 'widget/order_info_section.dart';
+import 'widget/order_list_section.dart';
 
 class InTemLenKeMTSScreen extends StatefulWidget {
   const InTemLenKeMTSScreen({super.key});
@@ -57,18 +58,14 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
                 children: [
                   const Text(
                     'MSNV: 9999',
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const Text(
                     'IN TEM & LÊN KỆ ',
                     style: TextStyle(
                       color: Color(0xFF1E3A8A),
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 18,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -129,7 +126,7 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
                     children: [
                       SizedBox(
                         width: double.infinity,
-                        child: ActionButton(
+                        child: CustomButton(
                           label: 'In Tem',
                           color: Colors.green.shade700,
                           icon: Icons.print,
@@ -155,7 +152,7 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
-                        child: ActionButton(
+                        child: CustomButton(
                           label: 'Xóa tất cả',
                           color: Colors.red.shade600,
                           icon: Icons.delete_forever,
@@ -165,7 +162,7 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
-                        child: ActionButton(
+                        child: CustomButton(
                           label: 'Thoát',
                           color: Colors.grey.shade600,
                           icon: Icons.exit_to_app,

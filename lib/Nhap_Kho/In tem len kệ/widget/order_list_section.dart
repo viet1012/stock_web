@@ -87,7 +87,7 @@ class OrderListSection extends StatelessWidget {
                 TableRow(
                   children: [
                     _buildHeaderCell('STT'),
-                    _buildHeaderCell('Đơn'),
+                    _buildHeaderCell('Mã đơn hàng'),
                     _buildHeaderCell('Sản phẩm'),
                     _buildHeaderCell('Mã SP'),
                     _buildHeaderCell('Lot'),

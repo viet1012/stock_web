@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/confirmation_trans_shelf_screen.dart';
-import 'IN_TEM_LEN_KE/in_tem_len_ke_mts_screen.dart';
+import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
 import 'MTS_stock_export_screen.dart';
@@ -194,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return const InTemLenKeMTSScreen();
     }
     if (selectedSubMenu == "CHUYỂN KHO NỘI BỘ") {
-      return ConfirmationScreen();
+      return FrmTransShelfScreen();
     }
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") {
       return MTSStockExportScreen();

@@ -260,15 +260,12 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            ElevatedButton.icon(
+            CustomButton(
+              label: 'Thêm vào danh sách',
+              color: Colors.blue,
+              icon: Icons.add,
+              width: double.infinity, // full width như cũ
               onPressed: _addOrderItem,
-              icon: const Icon(Icons.add),
-              label: const Text('Thêm vào danh sách'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 42),
-              ),
             ),
           ],
         ],

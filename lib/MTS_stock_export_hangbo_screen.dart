@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:stock_web/widgets/custom_button.dart';
 
-import 'IN_TEM_LEN_KE/action_button.dart';
+import 'widgets/action_button.dart';
 
 class MTSStockExportHangBoForm extends StatefulWidget {
   const MTSStockExportHangBoForm({super.key});
@@ -415,7 +416,7 @@ class _MTSStockExportHangBoFormState extends State<MTSStockExportHangBoForm> {
                 // Button
                 SizedBox(
                   width: 130,
-                  child: ActionButton(
+                  child: CustomButton(
                     label: 'Đưa hàng lên kệ',
                     color: Colors.green,
                     icon: Icons.transfer_within_a_station_rounded,
