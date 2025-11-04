@@ -90,7 +90,7 @@ class IntroPage extends StatelessWidget {
                   // 🔹 Description
                   Text(
                     "Ứng dụng giúp quản lý quy trình nhập kho, xuất kho, "
-                    "và phân loại sản phẩm trong hệ thống.",
+                    "gom số lượng và kiểm kê sản phẩm trong hệ thống.",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[700], height: 1.5),
                   ),
@@ -116,21 +116,27 @@ class IntroPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         _buildFeatureItem(
-                          Icons.category_outlined,
-                          "Phân loại và quản lý BOX chờ",
-                          Colors.orange,
+                          Icons.move_to_inbox_outlined,
+                          "Nhập kho",
+                          Colors.green.shade700,
                         ),
                         const SizedBox(height: 12),
                         _buildFeatureItem(
-                          Icons.print_outlined,
-                          "In tem, lên kệ, chuyển kho nội bộ",
-                          Colors.green,
+                          Icons.outbox_outlined,
+                          "Xuất kho",
+                          Colors.red.shade700,
                         ),
                         const SizedBox(height: 12),
                         _buildFeatureItem(
-                          Icons.local_shipping_outlined,
-                          "Theo dõi xuất hàng và in phiếu xuất",
-                          Colors.purple,
+                          Icons.format_list_numbered_rtl_outlined,
+                          "Gom số lượng",
+                          Colors.orange.shade700,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildFeatureItem(
+                          Icons.inventory_outlined,
+                          "Kiểm kê kho",
+                          Colors.blue.shade700,
                         ),
                       ],
                     ),

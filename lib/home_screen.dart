@@ -26,12 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
     // ],
     "NHẬP KHO": [
       {"icon": Icons.category, "label": "PHÂN LOẠI BOX LIST"},
-      {"icon": Icons.print, "label": "IN TEM VÀ LÊN KỆ"},
-      {"icon": Icons.add_box, "label": "CHUYỂN KHO NỘI BỘ"},
+      {"icon": Icons.print, "label": "IN TEM"},
+      {"icon": Icons.add_box, "label": "CHUYỂN HÀNG LÊN KỆ"},
     ],
     "XUẤT KHO": [
       {"icon": Icons.local_shipping, "label": "XUẤT HÀNG (BƯỚC 1)"},
-      {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
+      // {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
   };
@@ -190,10 +190,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "PHÂN LOẠI BOX LIST") {
       return const BoxManagementScreen();
     }
-    if (selectedSubMenu == "IN TEM VÀ LÊN KỆ") {
+    if (selectedSubMenu == "IN TEM") {
       return const InTemLenKeMTSScreen();
     }
-    if (selectedSubMenu == "CHUYỂN KHO NỘI BỘ") {
+    if (selectedSubMenu == "CHUYỂN HÀNG LÊN KỆ") {
       return FrmTransShelfScreen();
     }
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") {

@@ -4,7 +4,7 @@ import 'package:stock_web/widgets/custom_button.dart';
 import '../../Data/mock_data.dart';
 
 class OrderItem {
-  final String spCNo;
+  final String No;
   final String poQty;
   final String pName;
   final String partID;
@@ -12,7 +12,7 @@ class OrderItem {
   final String boxWait;
 
   OrderItem({
-    required this.spCNo,
+    required this.No,
     required this.poQty,
     required this.pName,
     required this.partID,
@@ -78,7 +78,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
     setState(() {
       _orderItems.add(
         OrderItem(
-          spCNo: (_orderItems.length + 1).toString().padLeft(3, '0'),
+          No: (_orderItems.length + 1).toString().padLeft(3, '0'),
           poQty: _sodonhangController.text,
           pName: _selectedOrder!['product'],
           partID: _selectedOrder!['code'],
@@ -376,7 +376,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         headingRowHeight: 34,
         dividerThickness: 0.6,
         columns: const [
-          DataColumn(label: Text('SPCNo')),
+          DataColumn(label: Text('No')),
           DataColumn(label: Text('POQty')),
           DataColumn(label: Text('PName')),
           DataColumn(label: Text('PartID')),
@@ -391,7 +391,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
               (_) => i.isEven ? Colors.white : Colors.grey.shade50,
             ),
             cells: [
-              DataCell(Text(item.spCNo)),
+              DataCell(Text(item.No)),
               DataCell(Text(item.poQty)),
               DataCell(Text(item.pName)),
               DataCell(Text(item.partID)),
