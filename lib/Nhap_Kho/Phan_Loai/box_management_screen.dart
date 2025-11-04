@@ -343,7 +343,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
       decoration: _panelStyle(),
       padding: const EdgeInsets.all(12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
             'Danh sách đơn hàng đang chờ nhập tem box:',
@@ -375,6 +375,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         dataRowHeight: 32,
         headingRowHeight: 34,
         dividerThickness: 0.6,
+        columnSpacing: 80,
         columns: const [
           DataColumn(label: Text('No')),
           DataColumn(label: Text('POQty')),

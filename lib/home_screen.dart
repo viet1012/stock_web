@@ -3,7 +3,7 @@ import 'package:stock_web/confirmation_trans_shelf_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
-import 'MTS_stock_export_screen.dart';
+import 'stock_export_form.dart';
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
 import 'intro_page.dart';
 
@@ -34,6 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
       // {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
+    "KIỂM KÊ": [],
+    // , "XUẤT KHO": [
+    //   {"icon": Icons.local_shipping, "label": "XUẤT HÀNG (BƯỚC 1)"},
+    //   // {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
+    //   {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
+    // ],
   };
 
   PreferredSizeWidget _buildAppBar() {
@@ -197,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return FrmTransShelfScreen();
     }
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") {
-      return MTSStockExportScreen();
+      return StockExportForm();
     }
     if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
       return MTSStockExportHangBoForm();

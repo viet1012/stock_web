@@ -50,7 +50,7 @@ class OrderListSection extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -179,7 +179,7 @@ class OrderListSection extends StatelessWidget {
         child: IconButton(
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
-          icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+          icon: const Icon(Icons.delete_outline, color: Colors.red, size: 22),
           onPressed: () => _showDeleteConfirmation(context, index),
         ),
       ),
