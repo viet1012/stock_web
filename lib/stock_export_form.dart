@@ -51,36 +51,91 @@ class _StockExportFormState extends State<StockExportForm> {
   void initState() {
     super.initState();
 
-    // Dữ liệu mẫu cho bảng orderWaitList
-    orderWaitList = List.generate(10, (index) {
-      return {
-        'No': index + 1,
-        'PartID': 'P100${index + 1}',
-        'QtyPO': 50 + index * 5,
-        'QtyInOut': 30 + index * 3,
-        'ShelfIDWait': 'S${100 + index}',
-        'BoxIDStock': 'BX${200 + index}',
-        'Status': index % 2 == 0 ? 'Đã duyệt' : 'Chờ',
-        'BoxID': 'BID${300 + index}',
-        'PName': 'Product ${index + 1}',
-        'Remark': index % 3 == 0 ? 'Gấp' : '',
-      };
-    });
+    // Danh sách đơn hàng chờ xuất
+    orderWaitList = [
+      {
+        'No': 1,
+        'PartID': 'P1001',
+        'QtyPO': 100,
+        'QtyInOut': 40,
+        'ShelfIDWait': 'Shelf-1',
+        'BoxIDStock': 'BOX501',
+        'Status': 'Chờ',
+        'BoxID': 'BX501',
+        'PName': 'Sản phẩm A',
+        'Remark': '',
+      },
+      {
+        'No': 2,
+        'PartID': 'P1002',
+        'QtyPO': 50,
+        'QtyInOut': 50,
+        'ShelfIDWait': 'Shelf-2',
+        'BoxIDStock': 'BOX502',
+        'Status': 'Đã duyệt',
+        'BoxID': 'BX502',
+        'PName': 'Sản phẩm B',
+        'Remark': 'Gấp',
+      },
+      {
+        'No': 3,
+        'PartID': 'P1003',
+        'QtyPO': 200,
+        'QtyInOut': 150,
+        'ShelfIDWait': 'Shelf-3',
+        'BoxIDStock': 'BOX503',
+        'Status': 'Chờ',
+        'BoxID': 'BX503',
+        'PName': 'Sản phẩm C',
+        'Remark': '',
+      },
+    ];
 
-    // Dữ liệu mẫu cho bảng stockBoxList
-    stockBoxList = List.generate(8, (index) {
-      return {
-        'Firsttime': '2025-11-${(index + 1).toString().padLeft(2, '0')} 08:00',
-        'BoxID': 'BOX${500 + index}',
-        'QtyStock': 100 + index * 10,
-        'CheckSt': index % 2 == 0 ? 'OK' : 'Pending',
-        'ShelfID': 'Shelf-${index + 1}',
-      };
-    });
+    // Danh sách Box trong kho
+    stockBoxList = [
+      {
+        'Firsttime': '2025-11-01 08:00',
+        'BoxID': 'BOX501',
+        'QtyStock': 60,
+        'CheckSt': 'OK',
+        'ShelfID': 'Shelf-1',
+      },
+      {
+        'Firsttime': '2025-11-02 08:00',
+        'BoxID': 'BOX502',
+        'QtyStock': 50,
+        'CheckSt': 'OK',
+        'ShelfID': 'Shelf-2',
+      },
+      {
+        'Firsttime': '2025-11-03 08:00',
+        'BoxID': 'BOX503',
+        'QtyStock': 100,
+        'CheckSt': 'Pending',
+        'ShelfID': 'Shelf-3',
+      },
+      {
+        'Firsttime': '2025-11-04 08:00',
+        'BoxID': 'BOX504',
+        'QtyStock': 120,
+        'CheckSt': 'OK',
+        'ShelfID': 'Shelf-4',
+      },
+    ];
 
-    // Ví dụ số lượng box và remainQty cũng giả lập
-    boxQty = 25;
-    remainQty = 12;
+    // Giá trị hiển thị tổng box qty và remain qty
+    boxQty = stockBoxList.fold(0, (prev, e) => prev + (e['QtyStock'] as int));
+
+    // Giả sử remainQty = tổng QtyPO - tổng QtyInOut đơn hàng
+    int totalPO = orderWaitList.fold(
+      0,
+      (prev, e) => prev + (e['QtyPO'] as int),
+    );
+    int totalInOut = orderWaitList.fold(
+      0,
+      (prev, e) => prev + (e['QtyInOut'] as int),
+    );
+    remainQty = totalPO - totalInOut;
   }
 
   @override
