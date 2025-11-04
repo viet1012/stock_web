@@ -54,11 +54,12 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
   }
 
   void _confirmTransfer() {
-    final boxId = _boxController.text.trim();
+    final idBlockInput = _boxController.text
+        .trim(); // đổi tên biến cho rõ là idBlock
     final shelfId = _shelfController.text.trim();
 
-    if (boxId.isEmpty) {
-      _setStatus("Vui lòng nhập BoxID cần chuyển", Colors.red);
+    if (idBlockInput.isEmpty) {
+      _setStatus("Vui lòng nhập idBlock cần chuyển", Colors.red);
       _boxFocus.requestFocus();
       return;
     }
@@ -69,13 +70,22 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
       return;
     }
 
-    // ✅ Giả lập cập nhật kệ thành công
+    // Tìm box theo idBlock
+    final existingBoxIndex = _waitingBoxes.indexWhere(
+      (box) => box['idBlock'] == idBlockInput,
+    );
+
+    if (existingBoxIndex == -1) {
+      // idBlock không tồn tại trong danh sách
+      _setStatus("idBlock không tồn tại, vui lòng kiểm tra lại", Colors.red);
+      _boxController.clear();
+      _boxFocus.requestFocus();
+      return;
+    }
+
+    // Update shelfId cho box đã tồn tại
     setState(() {
-      for (var box in _waitingBoxes) {
-        if (box['id'] == boxId) {
-          box['shelfId'] = shelfId;
-        }
-      }
+      _waitingBoxes[existingBoxIndex]['shelfId'] = shelfId;
       _setStatus("Xác nhận chuyển kệ thành công", Colors.green);
       _boxController.clear();
       _shelfController.clear();
@@ -237,11 +247,7 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle(
-            "DANH SÁCH F2_MTS_ShelfActualStock",
-            Icons.table_chart,
-            Colors.indigo,
-          ),
+          _buildSectionTitle("DANH SÁCH ", Icons.table_chart, Colors.indigo),
           const SizedBox(height: 8),
           Expanded(
             child: Container(
@@ -274,16 +280,16 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
                             : Colors.green.shade50,
                       ),
                       cells: [
-                        DataCell(Text(e['id'] ?? '')),
-                        DataCell(Text(e['shelfId'] ?? '')),
-                        DataCell(Text(e['productId'] ?? '')),
-                        DataCell(Text(e['productName'] ?? '')),
-                        DataCell(Text(e['qty'] ?? '')),
-                        DataCell(Text(e['idBlock'] ?? '')),
-                        DataCell(Text(e['MSNV'] ?? '')),
-                        DataCell(Text(e['firstTime'] ?? '')),
-                        DataCell(Text(e['POFirst'] ?? '')),
-                        DataCell(Text(e['remark'] ?? '')),
+                        DataCell(SelectableText(e['id'] ?? '')),
+                        DataCell(SelectableText(e['shelfId'] ?? '')),
+                        DataCell(SelectableText(e['productId'] ?? '')),
+                        DataCell(SelectableText(e['productName'] ?? '')),
+                        DataCell(SelectableText(e['qty'] ?? '')),
+                        DataCell(SelectableText(e['idBlock'] ?? '')),
+                        DataCell(SelectableText(e['MSNV'] ?? '')),
+                        DataCell(SelectableText(e['firstTime'] ?? '')),
+                        DataCell(SelectableText(e['POFirst'] ?? '')),
+                        DataCell(SelectableText(e['remark'] ?? '')),
                       ],
                     );
                   }).toList(),

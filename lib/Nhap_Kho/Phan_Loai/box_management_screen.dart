@@ -163,24 +163,31 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         color: Colors.white,
         border: Border.all(color: Colors.grey.shade300),
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'MSNV: 20616',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          ),
+          Text('MSNV: 9999', style: TextStyle(fontWeight: FontWeight.bold)),
           Text(
             'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ',
             style: TextStyle(
               color: Color(0xFF1E3A8A),
               fontWeight: FontWeight.bold,
               fontSize: 18,
+              letterSpacing: 0.5,
             ),
           ),
-          Text(
-            'XÁC NHẬN FULL BOX',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          Row(
+            children: [
+              Icon(Icons.calendar_month, size: 18, color: Colors.grey.shade600),
+              const SizedBox(width: 6),
+              Text(
+                'Ngày: ${DateTime.now().toString().split(' ')[0]}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
