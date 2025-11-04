@@ -20,10 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final Map<String, List<Map<String, dynamic>>> tabButtons = {
     "GIỚI THIỆU HỆ THỐNG": [],
-    "QUẢN LÝ MTO": [
-      {"icon": Icons.list_alt, "label": "DANH SÁCH MTO"},
-      {"icon": Icons.settings, "label": "CẤU HÌNH"},
-    ],
+    // "QUẢN LÝ MTO": [
+    //   {"icon": Icons.list_alt, "label": "DANH SÁCH MTO"},
+    //   {"icon": Icons.settings, "label": "CẤU HÌNH"},
+    // ],
     "NHẬP KHO": [
       {"icon": Icons.category, "label": "PHÂN LOẠI BOX LIST"},
       {"icon": Icons.print, "label": "IN TEM VÀ LÊN KỆ"},
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return const BoxManagementScreen();
     }
     if (selectedSubMenu == "IN TEM VÀ LÊN KỆ") {
-      return const InTemLenKeMTSScreen();
+      return const BoxListManagementForm();
     }
     if (selectedSubMenu == "CHUYỂN KHO NỘI BỘ") {
       return ConfirmationScreen();

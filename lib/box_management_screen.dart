@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:stock_web/widgets/custom_button.dart';
+
+class OrderItem {
+  final String spCNo;
+  final String poQty;
+  final String pName;
+  final String partID;
+  final String inDateTime;
+  final String boxWait;
+
+  OrderItem({
+    required this.spCNo,
+    required this.poQty,
+    required this.pName,
+    required this.partID,
+    required this.inDateTime,
+    required this.boxWait,
+  });
+}
 
 class BoxManagementScreen extends StatefulWidget {
-  const BoxManagementScreen({Key? key}) : super(key: key);
+  const BoxManagementScreen({super.key});
 
   @override
   State<BoxManagementScreen> createState() => _BoxManagementScreenState();
@@ -9,293 +28,270 @@ class BoxManagementScreen extends StatefulWidget {
 
 class _BoxManagementScreenState extends State<BoxManagementScreen> {
   final TextEditingController _boxIdController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _productNameController = TextEditingController();
-  final TextEditingController _partIdController = TextEditingController();
-  final TextEditingController _lotNoController = TextEditingController();
-  final TextEditingController _quantityDetailController =
-      TextEditingController();
+  final TextEditingController _sodonhangController = TextEditingController();
+  final TextEditingController _boxNumberController = TextEditingController();
   final TextEditingController _confirmBoxIdController = TextEditingController();
 
-  List<Map<String, dynamic>> tableData = [];
+  late List<OrderItem> _orderItems;
+  late Map<String, String> _orderInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMockData();
+  }
+
+  void _initializeMockData() {
+    _orderInfo = {
+      'Số đơn hàng': 'DH-2024-001',
+      'Tên hàng': 'Linh kiện điện tử A',
+      'Mã SP': 'SP-123456',
+      'Lot No': 'LOT-2024-Q1',
+      'Số lượng': '100',
+    };
+
+    _orderItems = [
+      OrderItem(
+        spCNo: '001',
+        poQty: '50',
+        pName: 'Resistor 1K',
+        partID: 'RES-001',
+        inDateTime: '2024-01-15 10:30',
+        boxWait: '5',
+      ),
+      OrderItem(
+        spCNo: '002',
+        poQty: '30',
+        pName: 'Capacitor 100uF',
+        partID: 'CAP-002',
+        inDateTime: '2024-01-15 11:15',
+        boxWait: '3',
+      ),
+      OrderItem(
+        spCNo: '003',
+        poQty: '20',
+        pName: 'Diode 1N4007',
+        partID: 'DIO-003',
+        inDateTime: '2024-01-15 12:00',
+        boxWait: '2',
+      ),
+    ];
+  }
 
   @override
   void dispose() {
     _boxIdController.dispose();
-    _quantityController.dispose();
-    _productNameController.dispose();
-    _partIdController.dispose();
-    _lotNoController.dispose();
-    _quantityDetailController.dispose();
+    _sodonhangController.dispose();
+    _boxNumberController.dispose();
     _confirmBoxIdController.dispose();
     super.dispose();
   }
 
-  void _addRow() {
-    if (_quantityController.text.isEmpty) {
-      _showSnackBar('Vui lòng nhập Số đơn hàng');
+  void _addOrderItem() {
+    if (_sodonhangController.text.isEmpty ||
+        _boxNumberController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng điền đầy đủ thông tin'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
     setState(() {
-      tableData.add({
-        'SPCNo': tableData.length + 1,
-        'POQty': _quantityController.text,
-        'PName': _productNameController.text,
-        'PartID': _partIdController.text,
-        'InDateTime': DateTime.now().toString().split('.')[0],
-        'BoxWait': _lotNoController.text,
-      });
+      _orderItems.add(
+        OrderItem(
+          spCNo: (_orderItems.length + 1).toString().padLeft(3, '0'),
+          poQty: _sodonhangController.text,
+          pName: 'Sản phẩm mới',
+          partID: 'PART-${DateTime.now().millisecondsSinceEpoch}',
+          inDateTime: DateTime.now().toString().split('.')[0],
+          boxWait: _boxNumberController.text,
+        ),
+      );
+      _sodonhangController.clear();
+      _boxNumberController.clear();
     });
-    _quantityController.clear();
-  }
-
-  void _clearAll() {
-    setState(() {
-      tableData.clear();
-      _boxIdController.clear();
-      _quantityController.clear();
-      _productNameController.clear();
-      _partIdController.clear();
-      _lotNoController.clear();
-      _quantityDetailController.clear();
-      _confirmBoxIdController.clear();
-    });
-    _showSnackBar('Đã xóa tất cả dữ liệu');
-  }
-
-  void _deleteRow(int index) {
-    setState(() {
-      tableData.removeAt(index);
-    });
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue.shade700,
+      backgroundColor: const Color(0xFFF7F7F7),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            _buildHeaderBar(),
+            const SizedBox(height: 8),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Nếu nhỏ hơn 1100px → hiển thị dọc
+                  bool isNarrow = constraints.maxWidth < 1100;
 
-        elevation: 0,
-        title: const Text(
-          'PHÂN LOẠI HÀNG ĐƯA VÀO BOX',
-          style: TextStyle(color: Colors.white),
+                  return SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      alignment: WrapAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: isNarrow ? double.infinity : 280,
+                          child: _buildLeftPanel(),
+                        ),
+                        SizedBox(
+                          width: isNarrow
+                              ? double.infinity
+                              : constraints.maxWidth - 580, // chừa 2 panel biên
+                          child: _buildMiddlePanel(),
+                        ),
+                        SizedBox(
+                          width: isNarrow ? double.infinity : 280,
+                          child: _buildRightPanel(),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildBottomTable(),
+          ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Panel
-              Expanded(flex: 1, child: Column(children: [_buildLeftPanel()])),
-              const SizedBox(width: 24),
-              // Middle Panel
-              Expanded(flex: 2, child: _buildMiddlePanel()),
-              const SizedBox(width: 24),
-              // Right Panel
-              Expanded(flex: 1, child: _buildRightPanel()),
-            ],
+    );
+  }
+
+  Widget _buildHeaderBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: const [
+          Text(
+            'MSNV: 20616',
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
           ),
-        ),
+          Text(
+            'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ',
+            style: TextStyle(
+              color: Color(0xFF1E3A8A),
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          Text(
+            'XÁC NHẬN FULL BOX',
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLeftPanel() {
-    return Column(
-      children: [
-        // Info Card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return Container(
+      decoration: _panelStyle(),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildSectionTitle(
+            'LẤY HÀNG RA KỆ',
+            Icons.inventory_2,
+            Colors.orange,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Text(
-                    'MSNV: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF5A6C7D),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFEBEE),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      '20616',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFFD32F2F),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3E5F5),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'LẤY HÀNG RA KỆ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF6A1B9A),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildLabel('BOX ID'),
-              const SizedBox(height: 8),
-              _buildTextField(_boxIdController),
-              const SizedBox(height: 16),
-              _buildButton(
-                label: 'Clear All',
-                onPressed: _clearAll,
-                backgroundColor: const Color(0xFFECEFF1),
-                textColor: const Color(0xFFD32F2F),
-              ),
-            ],
+          const SizedBox(height: 20),
+          _buildLabeledTextField('BOX ID', _boxIdController, Icons.qr_code),
+          const SizedBox(height: 16),
+          CustomButton(
+            label: 'Xóa tất cả',
+            color: Colors.redAccent,
+            icon: Icons.clear_all,
+            width: double.infinity,
+            radius: 6,
+            fontSize: 13,
+            onPressed: () {
+              _boxIdController.clear();
+              _sodonhangController.clear();
+              _boxNumberController.clear();
+            },
           ),
-        ),
-        const SizedBox(height: 20),
-        // Input Card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+          const Divider(height: 30),
+          _buildLabeledTextField(
+            'Số đơn hàng',
+            _sodonhangController,
+            Icons.receipt_long,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFF59D),
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-                child: const Text(
-                  'Danh sách đã nhập',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF5A4A00),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildLabelWithIcon('Số đơn hàng'),
-              const SizedBox(height: 8),
-              _buildTextField(_quantityController),
-              const SizedBox(height: 12),
-              _buildLabelWithIcon('Box Number'),
-              const SizedBox(height: 8),
-              _buildTextField(_lotNoController),
-              const SizedBox(height: 16),
-              _buildButton(
-                label: 'Thêm',
-                onPressed: _addRow,
-                backgroundColor: const Color(0xFF1565C0),
-                textColor: Colors.white,
-              ),
-            ],
+          const SizedBox(height: 10),
+          _buildLabeledTextField(
+            'Số Box chờ',
+            _boxNumberController,
+            Icons.inventory,
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          CustomButton(
+            label: 'Thêm hàng',
+            color: Colors.blue,
+            icon: Icons.add_box,
+            width: double.infinity,
+            radius: 6,
+            fontSize: 13,
+            onPressed: _addOrderItem,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildMiddlePanel() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: _panelStyle(),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Thông tin đơn hàng',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF2C3E50),
+          _buildSectionTitle('THÔNG TIN ĐƠN HÀNG', Icons.info, Colors.green),
+          const SizedBox(height: 16),
+          ..._orderInfo.entries.map((e) => _buildInfoRow(e.key, e.value)),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              border: Border.all(color: Colors.green),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.list_alt, color: Colors.green, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'Đã nhập: ${_orderItems.length} hàng',
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 20),
-          _buildInfoField('Số đơn hàng', _quantityController),
-          const SizedBox(height: 12),
-          _buildInfoField('Tên hàng', _productNameController),
-          const SizedBox(height: 12),
-          _buildInfoField('Mã SP', _partIdController),
-          const SizedBox(height: 12),
-          _buildInfoField('LotNo', _lotNoController),
-          const SizedBox(height: 12),
-          _buildInfoField('Số lượng', _quantityDetailController),
-          const SizedBox(height: 24),
-          if (tableData.isNotEmpty) ...[
-            const Divider(color: Color(0xFFECEFF1)),
-            const SizedBox(height: 16),
-            const Text(
-              'Danh sách chi tiết',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF2C3E50),
-              ),
-            ),
-            const SizedBox(height: 12),
-            _buildDataTable(),
-          ],
         ],
       ),
     );
@@ -303,238 +299,213 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
 
   Widget _buildRightPanel() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+      decoration: _panelStyle(color: const Color(0xFFFFFAF0)),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildSectionTitle('XÁC NHẬN FULL BOX', Icons.verified, Colors.green),
+          const SizedBox(height: 18),
+          _buildLabeledTextField(
+            'BOX ID',
+            _confirmBoxIdController,
+            Icons.qr_code_2,
+          ),
+          const SizedBox(height: 18),
+          CustomButton(
+            label: 'XÁC NHẬN',
+            color: Colors.green,
+            icon: Icons.check_circle,
+            width: double.infinity,
+            radius: 6,
+            fontSize: 13,
+            onPressed: () {
+              if (_confirmBoxIdController.text.isNotEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Box ${_confirmBoxIdController.text} đã được xác nhận!',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 10),
+          CustomButton(
+            label: 'Xóa',
+            color: Colors.grey,
+            icon: Icons.delete_outline,
+            width: double.infinity,
+            radius: 6,
+            fontSize: 13,
+            onPressed: _confirmBoxIdController.clear,
+          ),
+          const SizedBox(height: 10),
+          CustomButton(
+            label: 'Thoát',
+            color: Colors.red,
+            icon: Icons.exit_to_app,
+            width: double.infinity,
+            radius: 6,
+            fontSize: 13,
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBottomTable() {
+    return Container(
+      decoration: _panelStyle(),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFF59D),
-              borderRadius: BorderRadius.all(Radius.circular(6)),
-            ),
-            child: const Text(
-              'XÁC NHẬN FULL BOX',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF5A4A00),
-                letterSpacing: 0.3,
-              ),
+          const Text(
+            'Danh sách đơn hàng đang chờ nhập tem box:',
+            style: TextStyle(
+              color: Color(0xFF1E40AF),
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
           ),
-          const SizedBox(height: 16),
-          _buildLabel('BOX ID'),
           const SizedBox(height: 8),
-          _buildTextField(_confirmBoxIdController),
-          const SizedBox(height: 20),
-          _buildButton(
-            label: 'XÁC NHẬN',
-            icon: Icons.check_circle,
-            onPressed: () {
-              _showSnackBar('Box đã được xác nhận!');
-            },
-            backgroundColor: const Color(0xFF1565C0),
-            textColor: Colors.white,
-            isFullWidth: true,
-          ),
-          const SizedBox(height: 10),
-          _buildButton(
-            label: 'Xóa',
-            icon: Icons.refresh,
-            onPressed: _clearAll,
-            backgroundColor: const Color(0xFFECEFF1),
-            textColor: const Color(0xFF424242),
-            isFullWidth: true,
-          ),
-          const SizedBox(height: 10),
-          _buildButton(
-            label: 'Thoát',
-            icon: Icons.logout,
-            onPressed: () {},
-            backgroundColor: const Color(0xFFD32F2F),
-            textColor: Colors.white,
-            isFullWidth: true,
-          ),
+          SizedBox(height: 400, child: _buildDataTable()),
         ],
       ),
     );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF5A6C7D),
-        letterSpacing: 0.2,
-      ),
-    );
-  }
-
-  Widget _buildLabelWithIcon(String text) {
-    return Row(
-      children: [
-        const Text(
-          '+ ',
-          style: TextStyle(
-            color: Color(0xFF6A1B9A),
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        _buildLabel(text),
-      ],
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: const Color(0xFFFAFAFA),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF1565C0), width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text(
-              '+ ',
-              style: TextStyle(
-                color: Color(0xFFCCCC00),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            _buildLabel(label),
-          ],
-        ),
-        const SizedBox(height: 6),
-        _buildTextField(controller),
-      ],
-    );
-  }
-
-  Widget _buildButton({
-    required String label,
-    required VoidCallback onPressed,
-    required Color backgroundColor,
-    required Color textColor,
-    IconData? icon,
-    bool isFullWidth = false,
-  }) {
-    Widget button = ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: icon != null
-          ? Icon(icon, color: textColor, size: 18)
-          : const SizedBox.shrink(),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: textColor,
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        elevation: 0,
-      ),
-    );
-
-    if (isFullWidth) {
-      return SizedBox(width: double.infinity, child: button);
-    }
-    return button;
   }
 
   Widget _buildDataTable() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
-        columnSpacing: 12,
+        columnSpacing: 150,
         headingRowColor: MaterialStateColor.resolveWith(
-          (_) => const Color(0xFFF5F5F5),
+          (_) => Colors.grey.shade200,
         ),
-        dataRowColor: MaterialStateColor.resolveWith((_) => Colors.white),
+        headingTextStyle: const TextStyle(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        dataRowHeight: 32,
+        headingRowHeight: 34,
+        dividerThickness: 0.6,
         columns: const [
-          DataColumn(
-            label: Text('SPCNo', style: TextStyle(fontWeight: FontWeight.w600)),
-          ),
-          DataColumn(
-            label: Text('POQty', style: TextStyle(fontWeight: FontWeight.w600)),
-          ),
-          DataColumn(
-            label: Text(
-              'Product Name',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'PartID',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'DateTime',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Action',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
+          DataColumn(label: Text('SPCNo')),
+          DataColumn(label: Text('POQty')),
+          DataColumn(label: Text('PName')),
+          DataColumn(label: Text('PartID')),
+          DataColumn(label: Text('InDateTime')),
+          DataColumn(label: Text('BoxWait')),
         ],
-        rows: tableData.asMap().entries.map((entry) {
-          int index = entry.key;
-          Map<String, dynamic> data = entry.value;
+        rows: _orderItems.asMap().entries.map((e) {
+          final i = e.key;
+          final item = e.value;
           return DataRow(
+            color: MaterialStateProperty.resolveWith(
+              (_) => i.isEven ? Colors.white : Colors.grey.shade50,
+            ),
             cells: [
-              DataCell(Text(data['SPCNo'].toString())),
-              DataCell(Text(data['POQty'].toString())),
-              DataCell(Text(data['PName'].toString())),
-              DataCell(Text(data['PartID'].toString())),
-              DataCell(Text(data['InDateTime'].toString())),
-              DataCell(
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Color(0xFFD32F2F)),
-                  iconSize: 18,
-                  onPressed: () => _deleteRow(index),
-                ),
-              ),
+              DataCell(Text(item.spCNo)),
+              DataCell(Text(item.poQty)),
+              DataCell(Text(item.pName)),
+              DataCell(Text(item.partID)),
+              DataCell(Text(item.inDateTime.split(' ')[0])),
+              DataCell(Text(item.boxWait)),
             ],
           );
         }).toList(),
+      ),
+    );
+  }
+
+  BoxDecoration _panelStyle({Color? color}) {
+    return BoxDecoration(
+      color: color ?? Colors.white,
+      border: Border.all(color: Colors.grey.shade300),
+      borderRadius: BorderRadius.circular(6),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabeledTextField(
+    String label,
+    TextEditingController controller,
+    IconData icon,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, size: 18, color: Colors.grey[600]),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF2563EB)),
+            ),
+          ),
+          style: const TextStyle(fontSize: 13),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+              fontSize: 18,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+          ),
+        ],
       ),
     );
   }
