@@ -137,9 +137,16 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
                                   : constraints.maxWidth - 680,
                               child: _buildMiddlePanel(),
                             ),
-                            _buildBottomTable(),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: isNarrow
+                                  ? double.infinity
+                                  : constraints.maxWidth - 680,
+                              child: _buildBottomTable(),
+                            ),
                           ],
                         ),
+
                         SizedBox(
                           width: isNarrow ? double.infinity : 320,
                           child: _buildRightPanel(),
@@ -375,7 +382,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         dataRowHeight: 32,
         headingRowHeight: 34,
         dividerThickness: 0.6,
-        columnSpacing: 80,
+        columnSpacing: 120,
         columns: const [
           DataColumn(label: Text('No')),
           DataColumn(label: Text('POQty')),

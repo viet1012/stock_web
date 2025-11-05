@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/confirmation_trans_shelf_screen.dart';
+import 'Kiem_Ke/inventory_management_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
@@ -34,7 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
       // {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
-    "KIỂM KÊ": [],
+    "KIỂM KÊ": [
+      {"icon": Icons.local_shipping, "label": "KIỂM KÊ"},
+    ],
     // , "XUẤT KHO": [
     //   {"icon": Icons.local_shipping, "label": "XUẤT HÀNG (BƯỚC 1)"},
     //   // {"icon": Icons.local_shipping, "label": "XUẤT KHO HÀNG BỘ"},
@@ -211,7 +214,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 2)") {
       return MTSStockExportStep2();
     }
-
+    if (selectedSubMenu == "KIỂM KÊ") {
+      return InventoryManagementScreen();
+    }
     return Center(
       child: Text(
         "Trang nội dung của: $activeTab",
