@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 
+class InventoryItem {
+  final String boxId;
+  final String pid;
+  final String pName;
+  final String status;
+  final String date;
+  final String shelfId;
+  final int qty;
+
+  InventoryItem({
+    required this.boxId,
+    required this.pid,
+    required this.pName,
+    required this.status,
+    required this.date,
+    required this.shelfId,
+    required this.qty,
+  });
+}
+
 class InventoryManagementScreen extends StatefulWidget {
   const InventoryManagementScreen({super.key});
 
@@ -13,10 +33,141 @@ class InventoryManagementScreen extends StatefulWidget {
 class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
   final TextEditingController _boxIdConfirmController = TextEditingController();
   final TextEditingController _qtyActualController = TextEditingController();
+  final TextEditingController _conditionController = TextEditingController();
 
   String _selectedCondition = 'By Shelf';
-  String _selectedRange = '1 tháng'; // mặc định
-  final TextEditingController _conditionController = TextEditingController();
+  String _selectedRange = '1 tháng';
+
+  // Mock data
+  List<InventoryItem> _allItems = [];
+  List<InventoryItem> _filteredItems = [];
+  List<InventoryItem> _ngItems = [];
+
+  InventoryItem? _selectedItem; // dòng đang được chọn
+  final FocusNode _boxFocus = FocusNode();
+  final FocusNode _qtyFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _mockData();
+    _filteredItems = List.from(_allItems);
+  }
+
+  @override
+  void dispose() {
+    _boxIdConfirmController.dispose();
+    _qtyActualController.dispose();
+    _conditionController.dispose();
+    _boxFocus.dispose();
+    _qtyFocus.dispose();
+    super.dispose();
+  }
+
+  void _mockData() {
+    _allItems = List.generate(20, (i) {
+      return InventoryItem(
+        boxId: 'BOX${1000 + i}',
+        pid: 'P${i + 1}',
+        pName: i % 2 == 0 ? 'Hoa hồng' : 'Hoa lan',
+        status: 'Chưa kiểm',
+        date: '2025-11-05',
+        shelfId: i % 3 == 0
+            ? 'A1'
+            : i % 3 == 1
+            ? 'B2'
+            : 'C3',
+        qty: 100 + i * 5, // ví dụ: số lượng chuẩn trong hệ thống
+      );
+    });
+  }
+
+  void _filterItems() {
+    String condition = _selectedCondition;
+    String value = _conditionController.text.trim().toLowerCase();
+
+    setState(() {
+      if (condition == 'All' || value.isEmpty) {
+        _filteredItems = List.from(_allItems);
+      } else if (condition == 'By Shelf') {
+        _filteredItems = _allItems
+            .where((e) => e.shelfId.toLowerCase().contains(value))
+            .toList();
+      } else if (condition == 'By Name') {
+        _filteredItems = _allItems
+            .where((e) => e.pName.toLowerCase().contains(value))
+            .toList();
+      }
+    });
+  }
+
+  void _confirmBox() {
+    if (_selectedItem == null) {
+      _showMessage('Vui lòng quét BoxID hợp lệ trước!');
+      return;
+    }
+
+    int? qtyActual = int.tryParse(_qtyActualController.text.trim());
+    if (qtyActual == null) {
+      _showMessage('Vui lòng nhập số lượng thực tế!');
+      return;
+    }
+
+    final item = _selectedItem!;
+    setState(() {
+      if (qtyActual < item.qty) {
+        // ❌ NG
+        _ngItems.add(
+          InventoryItem(
+            boxId: item.boxId,
+            pid: item.pid,
+            pName: item.pName,
+            status: 'NG - Thiếu hàng',
+            date: DateTime.now().toString().split(' ')[0],
+            shelfId: item.shelfId,
+            qty: item.qty,
+          ),
+        );
+        _allItems.removeWhere((e) => e.boxId == item.boxId);
+        _showMessage('❌ Box ${item.boxId} thiếu hàng → chuyển NG');
+      } else {
+        // ✅ Đúng
+        final index = _allItems.indexWhere((e) => e.boxId == item.boxId);
+        if (index != -1) {
+          _allItems[index] = InventoryItem(
+            boxId: item.boxId,
+            pid: item.pid,
+            pName: item.pName,
+            status: 'Đã kiểm',
+            date: DateTime.now().toString().split(' ')[0],
+            shelfId: item.shelfId,
+            qty: item.qty,
+          );
+        }
+        _showMessage('✅ Box ${item.boxId} đã kiểm');
+      }
+
+      _selectedItem = null;
+      _boxIdConfirmController.clear();
+      _qtyActualController.clear();
+      _filterItems();
+
+      // Tự focus lại về BoxID để quét tiếp
+      Future.delayed(const Duration(milliseconds: 200), () {
+        FocusScope.of(context).requestFocus(_boxFocus);
+      });
+    });
+  }
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +200,10 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
 
   // HEADER
   Widget _buildHeader() {
+    int total = _allItems.length;
+    int checked = _allItems.where((e) => e.status == 'Đã kiểm').length;
+    int remain = total - checked;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
@@ -56,32 +211,27 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: const [
-              Text(
-                'TỔNG: 0   ',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.purple,
-                ),
-              ),
-              Text(
-                'Đã kiểm: 0   ',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              Text(
-                'Còn lại: 0',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
-            ],
+          Text(
+            'TỔNG: $total   ',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.purple,
+            ),
+          ),
+          Text(
+            'Đã kiểm: $checked   ',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
+          ),
+          Text(
+            'Còn lại: $remain',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
           ),
         ],
       ),
@@ -104,8 +254,6 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
           const SizedBox(height: 8),
           const Text('Chọn điều kiện:'),
           const SizedBox(height: 4),
-
-          // 🔹 Dropdown chọn loại điều kiện
           DropdownButtonFormField<String>(
             value: _selectedCondition,
             items: const [
@@ -116,55 +264,22 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
             onChanged: (val) {
               setState(() {
                 _selectedCondition = val!;
-                _conditionController
-                    .clear(); // reset ô nhập mỗi khi đổi điều kiện
+                _conditionController.clear();
               });
             },
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: Colors.grey.shade400),
-              ),
-            ),
           ),
-
           const SizedBox(height: 10),
-
-          // 🔹 Hiện ô nhập nếu không phải "All"
-          if (_selectedCondition == 'By Shelf' ||
-              _selectedCondition == 'By Name') ...[
+          if (_selectedCondition != 'All') ...[
             Text(
               _selectedCondition == 'By Shelf'
                   ? 'Nhập tên kệ:'
                   : 'Nhập tên hàng:',
             ),
             const SizedBox(height: 4),
-            TextField(
-              controller: _conditionController,
-              decoration: InputDecoration(
-                hintText: _selectedCondition == 'By Shelf'
-                    ? 'Ví dụ: Kệ A1'
-                    : 'Ví dụ: Hoa hồng',
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  borderSide: BorderSide(color: Colors.grey.shade400),
-                ),
-              ),
-            ),
+            TextField(controller: _conditionController),
             const SizedBox(height: 10),
           ],
-
-          // 🔹 Dropdown chọn khoảng thời gian
           const Text('Khoảng thời gian:'),
-          const SizedBox(height: 4),
           DropdownButtonFormField<String>(
             value: _selectedRange,
             items: const [
@@ -174,20 +289,8 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
               DropdownMenuItem(value: '6 tháng', child: Text('6 tháng')),
             ],
             onChanged: (val) => setState(() => _selectedRange = val!),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: Colors.grey.shade400),
-              ),
-            ),
           ),
-
           const SizedBox(height: 16),
-
           Row(
             children: [
               Expanded(
@@ -203,13 +306,8 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                 child: CustomButton(
                   label: 'Thực hiện',
                   color: Colors.blue,
-                  width: double.infinity,
                   icon: Icons.play_arrow,
-                  onPressed: () {
-                    print('Điều kiện: $_selectedCondition');
-                    print('Giá trị nhập: ${_conditionController.text}');
-                    print('Khoảng thời gian: $_selectedRange');
-                  },
+                  onPressed: _filterItems,
                 ),
               ),
             ],
@@ -230,90 +328,123 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
           _buildInputRow(),
           const Divider(thickness: 1),
           const SizedBox(height: 10),
-          _buildLabelRow('BoxId:', 'PName:', 'PId:'),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Text(
-                    'Input Qty Actual:',
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: 140,
-                    child: TextField(
-                      controller: _qtyActualController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const Text(
-                'Danh sách Box cần lấy khỏi kê (NG)',
-                style: TextStyle(
-                  color: Colors.pink,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(
-                width: 150,
-                child: CustomButton(
-                  label: 'Làm mới',
-                  color: Colors.blue,
-                  width: double.infinity,
-                  icon: Icons.refresh,
-                  onPressed: () {
-                    print('Điều kiện: $_selectedCondition');
-                    print('Giá trị nhập: ${_conditionController.text}');
-                    print('Khoảng thời gian: $_selectedRange');
-                  },
-                ),
-              ),
-            ],
-          ),
+          if (_selectedItem != null) _buildBoxDetail(_selectedItem!),
+          if (_selectedItem == null)
+            const Text(
+              '⚠️ Hãy quét hoặc nhập BoxID để xem chi tiết.',
+              style: TextStyle(color: Colors.grey),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildInputRow() {
-    return Row(
-      children: [
-        const Text(
-          '+ BoxID Confirm: ',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          width: 500,
-          child: TextField(
-            controller: _boxIdConfirmController,
-            decoration: const InputDecoration(
-              isDense: true,
-              border: OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 🔹 Cột nhập BoxID
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '📦 BoxID:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextField(
+                  focusNode: _boxFocus,
+                  controller: _boxIdConfirmController,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                    hintText: 'Quét hoặc nhập mã thùng...',
+                  ),
+                  onSubmitted: (value) {
+                    _selectBoxById(value.trim().toUpperCase());
+                  },
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+
+          const SizedBox(width: 16),
+
+          // 🔹 Cột nhập số lượng thực tế
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '📊 Số lượng thực tế:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextField(
+                  focusNode: _qtyFocus,
+                  controller: _qtyActualController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  textInputAction: TextInputAction.done, // 🔹 thêm dòng này
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                    hintText: 'Nhập số lượng kiểm thực tế...',
+                  ),
+                  onSubmitted: (value) {
+                    _confirmBox(); // Gọi luôn xác nhận khi nhấn Enter
+                    _boxFocus.requestFocus(); // Trả focus lại cho ô BoxID
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  void _selectBoxById(String boxId) {
+    if (boxId.isEmpty) return;
+
+    final found = _allItems.firstWhere(
+      (e) => e.boxId.toUpperCase() == boxId,
+      orElse: () => InventoryItem(
+        boxId: '',
+        pid: '',
+        pName: '',
+        status: '',
+        date: '',
+        shelfId: '',
+        qty: 0,
+      ),
+    );
+
+    if (found.boxId.isEmpty) {
+      _showMessage('❌ BoxID "$boxId" không tồn tại trong danh sách!');
+      setState(() => _selectedItem = null);
+      return;
+    }
+
+    setState(() {
+      _selectedItem = found;
+    });
+
+    // Tự động focus qua ô nhập số lượng
+    Future.delayed(const Duration(milliseconds: 100), () {
+      FocusScope.of(context).requestFocus(_qtyFocus);
+    });
   }
 
   Widget _buildLabelRow(String a, String b, String c) {
@@ -345,60 +476,136 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     );
   }
 
+  Widget _buildBoxDetail(InventoryItem item) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 10),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        border: Border.all(color: Colors.blue.shade200),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '📦 BoxID: ${item.boxId}',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('PID: ${item.pid}'),
+              Text('Tên hàng: ${item.pName}'),
+              Text('Số lượng (Qty Box): ${item.qty}'),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Kệ: ${item.shelfId}'),
+              Text('Ngày: ${item.date}'),
+              Text('Trạng thái: ${item.status}'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // BOTTOM TABLES
   Widget _buildBottomTables() {
     return Row(
       children: [
-        Expanded(child: _buildDataTable(title: 'Danh sách kiểm kê')),
+        Expanded(
+          child: _buildDataTable(
+            title: 'Danh sách kiểm kê',
+            items: _filteredItems,
+          ),
+        ),
         const SizedBox(width: 10),
-        Expanded(child: _buildDataTable(title: 'Danh sách NG')),
+        Expanded(
+          child: _buildDataTable(title: 'Danh sách NG', items: _ngItems),
+        ),
       ],
     );
   }
 
-  Widget _buildDataTable({required String title}) {
+  Widget _buildDataTable({
+    required String title,
+    required List<InventoryItem> items,
+  }) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: _panelDecoration(),
-
       child: Column(
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: MaterialStateColor.resolveWith(
-                  (_) => Colors.grey.shade200,
-                ),
-                headingTextStyle: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-                dataRowHeight: 32,
-                headingRowHeight: 34,
-                dividerThickness: 0.6,
-                columnSpacing: 80,
-                columns: const [
-                  DataColumn(label: Text('STT')),
-                  DataColumn(label: Text('BoxID')),
-                  DataColumn(label: Text('PID')),
-                  DataColumn(label: Text('PName')),
-                  DataColumn(label: Text('StatusCheck')),
-                  DataColumn(label: Text('DateInventory')),
-                  DataColumn(label: Text('ShelfID')),
-                ],
-                rows: const [],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: DataTable(
+                      headingRowColor: MaterialStateColor.resolveWith(
+                        (_) => Colors.grey.shade200,
+                      ),
+                      headingTextStyle: const TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      dataRowHeight: 32,
+                      headingRowHeight: 34,
+                      dividerThickness: 0.6,
+                      columnSpacing: 40,
+                      columns: const [
+                        DataColumn(label: Text('STT')),
+                        DataColumn(label: Text('BoxID')),
+                        DataColumn(label: Text('PID')),
+                        DataColumn(label: Text('PName')),
+                        DataColumn(label: Text('Qty')),
+                        DataColumn(label: Text('StatusCheck')),
+                        DataColumn(label: Text('DateInventory')),
+                        DataColumn(label: Text('ShelfID')),
+                      ],
+                      rows: items.asMap().entries.map((e) {
+                        final i = e.key;
+                        final item = e.value;
+                        final isSelected = _selectedItem?.boxId == item.boxId;
+                        return DataRow(
+                          color: MaterialStateProperty.resolveWith(
+                            (_) => isSelected
+                                ? Colors.yellow.shade100
+                                : i.isEven
+                                ? Colors.white
+                                : Colors.grey.shade50,
+                          ),
+                          cells: [
+                            DataCell(Text('${i + 1}')),
+                            DataCell(SelectableText(item.boxId)),
+                            DataCell(SelectableText(item.pid)),
+                            DataCell(SelectableText(item.pName)),
+                            DataCell(SelectableText(item.qty.toString())),
+                            DataCell(SelectableText(item.status)),
+                            DataCell(SelectableText(item.date)),
+                            DataCell(SelectableText(item.shelfId)),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
