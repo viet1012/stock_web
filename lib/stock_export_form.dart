@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stock_web/widgets/action_button.dart';
-import 'package:stock_web/widgets/custom_button.dart';
+import 'package:flutter/services.dart';
 
 class StockExportForm extends StatefulWidget {
   const StockExportForm({super.key});
@@ -10,12 +9,10 @@ class StockExportForm extends StatefulWidget {
 }
 
 class _StockExportFormState extends State<StockExportForm> {
-  String selectedAction = 'CheckBox';
-
   final TextEditingController orderNoScanController = TextEditingController();
   final TextEditingController changeBlankController = TextEditingController();
 
-  // Kiểm tra box cần lấy
+  // Confirm fields
   final TextEditingController orderNoConfirmController =
       TextEditingController();
   final TextEditingController productIdConfirmController =
@@ -25,139 +22,171 @@ class _StockExportFormState extends State<StockExportForm> {
       TextEditingController();
   final TextEditingController shelfIdConfirmController =
       TextEditingController();
-  final TextEditingController tQtyConfirmController = TextEditingController();
+
+  // Danh sách dữ liệu
+  List<Map<String, dynamic>> orderWaitList = [];
+  List<Map<String, dynamic>> filteredOrderList = [];
+  List<Map<String, dynamic>> allBoxes = [];
+  List<Map<String, dynamic>> displayedBoxes = [];
 
   int boxQty = 0;
   int remainQty = 0;
 
-  // Giả lập dữ liệu bảng
-  List<Map<String, dynamic>> orderWaitList = [];
-  List<Map<String, dynamic>> stockBoxList = [];
-
-  @override
-  void dispose() {
-    orderNoScanController.dispose();
-    changeBlankController.dispose();
-    orderNoConfirmController.dispose();
-    productIdConfirmController.dispose();
-    poQtyConfirmController.dispose();
-    boxIdStockConfirmController.dispose();
-    shelfIdConfirmController.dispose();
-    tQtyConfirmController.dispose();
-    super.dispose();
-  }
+  String? selectedPOBoxId;
 
   @override
   void initState() {
     super.initState();
+    _initializeMockData();
+    _calculateTotals();
+  }
 
-    // Danh sách đơn hàng chờ xuất
+  void _initializeMockData() {
     orderWaitList = [
       {
         'No': 1,
         'PartID': 'P1001',
+        'PName': 'Ống thép 20mm',
         'QtyPO': 100,
-        'QtyInOut': 40,
+        'QtyInOut': 0,
         'ShelfIDWait': 'Shelf-1',
-        'BoxIDStock': 'BOX501',
+        'BoxIDStock': '123',
         'Status': 'Chờ',
         'BoxID': 'BX501',
-        'PName': 'Sản phẩm A',
-        'Remark': '',
-      },
-      {
-        'No': 2,
-        'PartID': 'P1002',
-        'QtyPO': 50,
-        'QtyInOut': 50,
-        'ShelfIDWait': 'Shelf-2',
-        'BoxIDStock': 'BOX502',
-        'Status': 'Đã duyệt',
-        'BoxID': 'BX502',
-        'PName': 'Sản phẩm B',
-        'Remark': 'Gấp',
-      },
-      {
-        'No': 3,
-        'PartID': 'P1003',
-        'QtyPO': 200,
-        'QtyInOut': 150,
-        'ShelfIDWait': 'Shelf-3',
-        'BoxIDStock': 'BOX503',
-        'Status': 'Chờ',
-        'BoxID': 'BX503',
-        'PName': 'Sản phẩm C',
         'Remark': '',
       },
     ];
 
-    // Danh sách Box trong kho
-    stockBoxList = [
+    allBoxes = [
       {
         'Firsttime': '2025-11-01 08:00',
-        'BoxID': 'BOX501',
+        'BoxID': 'BX501',
         'QtyStock': 60,
         'CheckSt': 'OK',
         'ShelfID': 'Shelf-1',
       },
-      {
-        'Firsttime': '2025-11-02 08:00',
-        'BoxID': 'BOX502',
-        'QtyStock': 50,
-        'CheckSt': 'OK',
-        'ShelfID': 'Shelf-2',
-      },
-      {
-        'Firsttime': '2025-11-03 08:00',
-        'BoxID': 'BOX503',
-        'QtyStock': 100,
-        'CheckSt': 'Pending',
-        'ShelfID': 'Shelf-3',
-      },
-      {
-        'Firsttime': '2025-11-04 08:00',
-        'BoxID': 'BOX504',
-        'QtyStock': 120,
-        'CheckSt': 'OK',
-        'ShelfID': 'Shelf-4',
-      },
     ];
 
-    // Giá trị hiển thị tổng box qty và remain qty
-    boxQty = stockBoxList.fold(0, (prev, e) => prev + (e['QtyStock'] as int));
+    // ✅ Thay bằng:
+    filteredOrderList = []; // Bảng trống ban đầu
 
-    // Giả sử remainQty = tổng QtyPO - tổng QtyInOut đơn hàng
-    int totalPO = orderWaitList.fold(
+    displayedBoxes = [];
+  }
+
+  void _calculateTotals() {
+    boxQty = allBoxes.fold(0, (sum, e) => sum + (e['QtyStock'] as int));
+    int totalPO = orderWaitList.fold(0, (sum, e) => sum + (e['QtyPO'] as int));
+    int totalExport = orderWaitList.fold(
       0,
-      (prev, e) => prev + (e['QtyPO'] as int),
+      (sum, e) => sum + (e['QtyInOut'] as int),
     );
-    int totalInOut = orderWaitList.fold(
-      0,
-      (prev, e) => prev + (e['QtyInOut'] as int),
-    );
-    remainQty = totalPO - totalInOut;
+    remainQty = totalPO - totalExport;
+    setState(() {});
+  }
+
+  void _filterByPO(String po) {
+    setState(() {
+      if (po.isEmpty) return;
+
+      // Tìm PO hợp lệ trong danh sách tổng
+      final matches = orderWaitList
+          .where((e) => e['BoxIDStock'].toString().contains(po))
+          .toList();
+
+      for (var match in matches) {
+        final exists = filteredOrderList.any(
+          (item) => item['BoxIDStock'] == match['BoxIDStock'],
+        );
+        if (!exists) filteredOrderList.add(match);
+      }
+
+      orderNoScanController.clear(); // Xóa input sau khi nhập
+    });
+  }
+
+  void _selectPO(Map<String, dynamic> po) {
+    setState(() {
+      selectedPOBoxId = po['BoxIDStock'];
+      displayedBoxes = allBoxes
+          .where((box) => box['ShelfID'] == po['ShelfIDWait'])
+          .toList();
+
+      orderNoConfirmController.text = po['BoxIDStock'];
+      productIdConfirmController.text = po['PartID'];
+      poQtyConfirmController.text = po['QtyPO'].toString();
+      shelfIdConfirmController.text = po['ShelfIDWait'];
+      boxIdStockConfirmController.text = po['BoxID'];
+    });
+  }
+
+  void _updateExportQty(int qtyExport, String boxId) {
+    if (qtyExport <= 0 || selectedPOBoxId == null) return;
+
+    setState(() {
+      final poIndex = orderWaitList.indexWhere(
+        (e) => e['BoxIDStock'] == selectedPOBoxId,
+      );
+      if (poIndex == -1) return;
+
+      final po = orderWaitList[poIndex];
+      final boxIndex = allBoxes.indexWhere((e) => e['BoxID'] == boxId);
+      if (boxIndex == -1) return;
+
+      final box = allBoxes[boxIndex];
+
+      int currentStock = box['QtyStock'] as int;
+      int currentInOut = po['QtyInOut'] as int;
+      int poQty = po['QtyPO'] as int;
+
+      // 🔹 Tồn kho không đủ
+      if (qtyExport > currentStock) {
+        _showMessage('❌ Số lượng vượt quá tồn kho!');
+        return;
+      }
+
+      // 🔹 Không được xuất vượt PO
+      int remainingPO = poQty - currentInOut;
+      if (qtyExport > remainingPO) {
+        _showMessage('⚠️ Số lượng vượt quá số còn lại của PO!');
+        return;
+      }
+
+      // ✅ Cập nhật tồn kho & PO
+      box['QtyStock'] = currentStock - qtyExport;
+      po['QtyInOut'] = currentInOut + qtyExport;
+
+      // 🔹 Nếu đã đủ 100% thì cập nhật trạng thái
+      if (po['QtyInOut'] >= poQty) {
+        po['Status'] = 'Hoàn tất';
+      }
+
+      // 🔹 Cập nhật remainQty toàn màn hình
+      _calculateTotals();
+
+      displayedBoxes = allBoxes
+          .where((b) => b['ShelfID'] == po['ShelfIDWait'])
+          .toList();
+
+      _showMessage(
+        '✅ Xuất $qtyExport từ Box $boxId cho PO ${po['BoxIDStock']}',
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              // HEADER
-              _buildHeaderBar(),
-
-              const SizedBox(height: 8),
-
-              // MAIN CONTENT: Left and Right parts
               Expanded(
                 child: Row(
                   children: [
                     Expanded(flex: 3, child: _buildLeftPanel()),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Expanded(flex: 2, child: _buildRightPanel()),
                   ],
                 ),
@@ -169,158 +198,158 @@ class _StockExportFormState extends State<StockExportForm> {
     );
   }
 
-  Widget _buildHeaderBar() {
+  Widget _buildLeftPanel() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(16),
+      child: Column(
         children: [
-          Text('MSNV: 9999', style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(
-            'XUẤT KHO BƯỚC 1',
-            style: TextStyle(
-              color: Color(0xFF1E3A8A),
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              letterSpacing: 0.5,
-            ),
-          ),
           Row(
             children: [
-              Icon(Icons.calendar_month, size: 18, color: Colors.grey.shade600),
-              const SizedBox(width: 6),
-              Text(
-                'Ngày: ${DateTime.now().toString().split(' ')[0]}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+              const Text(
+                'Chọn thao tác:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 12),
+              DropdownButton<String>(
+                value: 'CheckBox',
+                items: ['CheckBox', 'Other']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (_) {},
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          _buildInputField(
+            'OrderNo Scan:',
+            orderNoScanController,
+            Icons.qr_code_scanner,
+            (val) => _filterByPO(val),
+          ),
+          const SizedBox(height: 8),
+          // _buildInputField('Change blank:', changeBlankController, Icons.edit,(){}),
+          // const SizedBox(height: 16),
+          Row(
+            children: [
+              _buildActionButton(
+                'Xóa PO',
+                Icons.delete_forever,
+                Colors.red,
+                () {},
+              ),
+              const SizedBox(width: 12),
+
+              const Spacer(),
+              _buildBadge('Box Qty: $boxQty', Colors.orange),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Expanded(child: _buildPOListTable()),
         ],
       ),
     );
   }
 
-  Widget _buildLeftPanel() {
+  Widget _buildPOListTable() {
+    final columns = [
+      'SPO No',
+      'PartID',
+      'PName',
+      'QtyPO',
+      'QtyInOut',
+      'ShelfIDWait',
+      'BoxIDStock',
+      'Status',
+      'Remark',
+    ];
+
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Phần chọn thao tác và nhập liệu
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Chọn thao tác:',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(width: 12),
-              DropdownButton<String>(
-                value: selectedAction,
-                items: ['CheckBox', 'Other']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() => selectedAction = val!);
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Input OrderNo Scan
-          _buildLabeledInput('+ OrderNo Scan:', orderNoScanController),
-
-          const SizedBox(height: 8),
-
-          // Input Change blank
-          _buildLabeledInput('+ Change blank:', changeBlankController),
-
-          const SizedBox(height: 16),
-
-          // Buttons Row (2 buttons with equal width and spacing)
-          Row(
-            children: [
-              CustomButton(
-                label: 'Xóa PO',
-                color: Colors.red.shade600,
-                icon: Icons.delete_forever,
-                width: 130,
-                onPressed: () {},
-              ),
-              const SizedBox(width: 12),
-              CustomButton(
-                label: 'Thoát',
-                color: Colors.grey.shade600,
-                icon: Icons.exit_to_app,
-                width: 130,
-                onPressed: () {},
-              ),
-              Spacer(),
-
-              // Box Qty label aligned right
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Text(
-                    'Box Qty: ',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Text(
-                    '$boxQty',
-                    style: TextStyle(
+          // Header
+          Container(
+            color: Colors.indigo.shade800,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: columns.map((c) {
+                return Expanded(
+                  child: Text(
+                    c,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      color: Colors.red.shade700,
-                      fontSize: 18,
+                      fontSize: 13,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                ],
-              ),
-            ],
+                );
+              }).toList(),
+            ),
           ),
 
-          const SizedBox(height: 8),
-
-          // Bảng danh sách đơn hàng chờ xuất kho với border-radius và shadow
+          // Body
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+            child: filteredOrderList.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Chưa có dữ liệu - vui lòng nhập số PO',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredOrderList.length,
+                    itemBuilder: (ctx, i) {
+                      final po = filteredOrderList[i];
+                      final isSelected = po['BoxIDStock'] == selectedPOBoxId;
+                      return GestureDetector(
+                        onTap: () => _selectPO(po),
+                        child: Container(
+                          color: isSelected
+                              ? Colors.yellow.shade100
+                              : (i % 2 == 0
+                                    ? Colors.white
+                                    : Colors.grey.shade100),
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: columns.map((col) {
+                              final val = po[col]?.toString() ?? '';
+                              final isNumber = [
+                                'QtyPO',
+                                'QtyInOut',
+                              ].contains(col);
+                              return Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                  ),
+                                  child: Text(
+                                    val,
+                                    textAlign: isNumber
+                                        ? TextAlign.right
+                                        : TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: col == 'BoxIDStock'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: isSelected
+                                          ? Colors.blue.shade800
+                                          : Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
-              padding: const EdgeInsets.all(8),
-              child: _buildTable(
-                columns: const [
-                  'No',
-                  'PartID',
-                  'QtyPO',
-                  'QtyInOut',
-                  'ShelfIDWait',
-                  'BoxIDStock',
-                  'Status',
-                  'BoxID',
-                  'PName',
-                  'Remark',
-                ],
-                rows: orderWaitList,
-              ),
-            ),
           ),
         ],
       ),
@@ -329,159 +358,228 @@ class _StockExportFormState extends State<StockExportForm> {
 
   Widget _buildRightPanel() {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(8),
+      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Phần nhập liệu xác nhận box cần lấy
           Container(
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400),
-              color: Colors.grey[100],
+              color: Colors.green.shade50,
+              border: Border.all(color: Colors.green),
+              borderRadius: BorderRadius.circular(8),
             ),
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              children: [
-                _buildLabelValueRow(
-                  'Kiểm tra, xác nhận box cần lấy',
-                  isBold: true,
-                  color: Colors.green[800],
-                ),
-                _buildLabeledInput(
-                  '+ OrderNo :',
-                  orderNoConfirmController,
-                  width: 160,
-                ),
-                _buildLabeledInput(
-                  '+ ProductID :',
-                  productIdConfirmController,
-                  width: 160,
-                ),
-                _buildLabeledInput(
-                  '+ POQty :',
-                  poQtyConfirmController,
-                  width: 160,
-                ),
-                _buildLabeledInput(
-                  '+ IDBoxStock :',
-                  boxIdStockConfirmController,
-                  width: 160,
-                ),
-                _buildLabeledInput(
-                  '+ ShelfID :',
-                  shelfIdConfirmController,
-                  width: 160,
-                ),
-                Row(
-                  children: [
-                    _buildLabeledInput(
-                      '+ TQty :',
-                      tQtyConfirmController,
-                      width: 120,
-                    ),
-                    const SizedBox(width: 12),
-                    RichText(
-                      text: TextSpan(
-                        text: '+ Remain : ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: '$remainQty',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red[700],
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ActionButton(
-                    label: 'Đưa lên kệ chờ',
-                    color: Colors.grey[300]!,
-                    icon: Icons.upload,
-                    onPressed: () {},
-                  ),
-                ),
-              ],
+            child: const Text(
+              'Kiểm tra, xác nhận box cần lấy',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          // Bảng danh sách hàng đang có trong kho
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
+          const SizedBox(height: 12),
+          _buildConfirmField('OrderNo :', orderNoConfirmController),
+          _buildConfirmField('ProductID :', productIdConfirmController),
+          _buildConfirmField('POQty :', poQtyConfirmController),
+          _buildConfirmField('IDBoxStock :', boxIdStockConfirmController),
+          _buildConfirmField('ShelfID :', shelfIdConfirmController),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: TextEditingController(),
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'TQty',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onSubmitted: (val) {
+                    final qty = int.tryParse(val) ?? 0;
+                    if (qty > 0 && selectedPOBoxId != null) {
+                      _updateExportQty(qty, boxIdStockConfirmController.text);
+                    }
+                  },
+                ),
               ),
-              child: _buildTable(
-                columns: const [
-                  'Firsttime',
-                  'BoxID',
-                  'QtyStock',
-                  'CheckSt',
-                  'ShelfID',
-                ],
-                rows: stockBoxList,
-              ),
+              const SizedBox(width: 12),
+              _buildBadge('Remain: $remainQty', Colors.red),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildActionButton(
+            'Đưa lên kệ chờ',
+            Icons.upload,
+            Colors.blue,
+            () {},
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildBoxListTable()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBoxListTable() {
+    final columns = [
+      'Firsttime',
+      'BoxID',
+      'QtyStock',
+      'CheckSt',
+      'ShelfID',
+      'TQty',
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        children: [
+          Container(
+            color: Colors.grey.shade300,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: columns
+                  .map(
+                    (c) => Expanded(
+                      child: Text(
+                        c,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
+          ),
+          Expanded(
+            child: displayedBoxes.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Không có box nào trong kệ chờ',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: displayedBoxes.length,
+                    itemBuilder: (ctx, i) {
+                      final box = displayedBoxes[i];
+                      return Container(
+                        color: i % 2 == 0 ? Colors.white : Colors.grey.shade100,
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          children: columns.map((col) {
+                            if (col == 'TQty') {
+                              return Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                  ),
+                                  child: TextField(
+                                    textAlign: TextAlign.center,
+                                    keyboardType: TextInputType.number,
+                                    style: const TextStyle(fontSize: 12),
+                                    decoration: const InputDecoration(
+                                      hintText: '0',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
+                                    ),
+                                    onSubmitted: (val) {
+                                      final qty = int.tryParse(val) ?? 0;
+                                      if (qty > 0) {
+                                        _updateExportQty(qty, box['BoxID']);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final val = box[col]?.toString() ?? '';
+                            final isNumber = ['QtyStock'].contains(col);
+                            return Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                child: Text(
+                                  val,
+                                  textAlign: isNumber
+                                      ? TextAlign.right
+                                      : TextAlign.center,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLabelValueRow(String text, {bool isBold = false, Color? color}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          fontSize: 14,
-          color: color ?? Colors.black,
+  // Helper Widgets
+  Widget _buildInputField(
+    String label,
+    TextEditingController controller,
+    IconData icon,
+    Function(String) onSubmit,
+  ) {
+    return Row(
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: TextField(
+            autofocus: true,
+            controller: controller,
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, size: 18),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
+            ),
+            onSubmitted: onSubmit,
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildLabeledInput(
-    String label,
-    TextEditingController controller, {
-    double width = 400,
-  }) {
+  Widget _buildConfirmField(String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           SizedBox(
+            width: 400,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
-          SizedBox(width: 16),
-          SizedBox(
-            width: width,
+          Expanded(
             child: TextField(
               controller: controller,
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 8,
-                ),
-                border: OutlineInputBorder(),
-                isDense: true,
-              ),
-              style: const TextStyle(fontSize: 16),
+              readOnly: true,
+              decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
         ],
@@ -489,84 +587,61 @@ class _StockExportFormState extends State<StockExportForm> {
     );
   }
 
-  Widget _buildTable({
-    required List<String> columns,
-    required List<Map<String, dynamic>> rows,
-  }) {
-    return Column(
-      children: [
-        // Header row
-        Container(
-          color: Colors.grey[300],
-          child: Row(
-            children: columns.map((col) {
-              return Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      right: BorderSide(color: Colors.grey.shade400),
-                    ),
-                  ),
-                  child: Text(
-                    col,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+  Widget _buildActionButton(
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+      ),
+      onPressed: onPressed,
+    );
+  }
 
-        // Data rows
-        Expanded(
-          child: rows.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Chưa có dữ liệu',
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: rows.length,
-                  itemBuilder: (context, index) {
-                    final row = rows[index];
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: Colors.grey.shade400),
-                        ),
-                      ),
-                      child: Row(
-                        children: columns.map((col) {
-                          return Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  right: BorderSide(
-                                    color: Colors.grey.shade400,
-                                  ),
-                                ),
-                              ),
-                              child: Text(
-                                row[col]?.toString() ?? '',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    );
-                  },
-                ),
+  Widget _buildBadge(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  BoxDecoration _cardDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
         ),
       ],
+    );
+  }
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.blue.shade700,
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 }
