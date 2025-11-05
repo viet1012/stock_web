@@ -24,6 +24,9 @@ class _StockExportFormState extends State<StockExportForm> {
   final TextEditingController shelfIdConfirmController =
       TextEditingController();
 
+  final FocusNode qtyFocusNode = FocusNode();
+  bool isQtyHighlighted = false;
+
   // Danh sách dữ liệu
   List<Map<String, dynamic>> orderWaitList = [];
   List<Map<String, dynamic>> filteredOrderList = [];
@@ -117,6 +120,14 @@ class _StockExportFormState extends State<StockExportForm> {
       poQtyConfirmController.text = po['QtyPO'].toString();
       shelfIdConfirmController.text = po['ShelfIDWait'];
       boxIdStockConfirmController.text = po['BoxID'];
+
+      // ✅ Bật highlight
+      isQtyHighlighted = true;
+    });
+
+    // ✅ Delay nhẹ để đảm bảo UI build xong trước khi focus
+    Future.delayed(const Duration(milliseconds: 300), () {
+      FocusScope.of(context).requestFocus(qtyFocusNode);
     });
   }
 
@@ -142,6 +153,7 @@ class _StockExportFormState extends State<StockExportForm> {
       // 🔹 Tồn kho không đủ
       if (qtyExport > currentStock) {
         _showMessage('❌ Số lượng vượt quá tồn kho!');
+        FocusScope.of(context).requestFocus(qtyFocusNode);
         return;
       }
 
@@ -242,7 +254,7 @@ class _StockExportFormState extends State<StockExportForm> {
 
             // ?? Ô nh?p OrderNo
             _buildInputField(
-              'S? PO (OrderNo):',
+              'OrderNo:',
               orderNoScanController,
               Icons.qr_code_scanner,
               (val) => _filterByPO(val),
@@ -263,10 +275,10 @@ class _StockExportFormState extends State<StockExportForm> {
                     ),
                   ),
 
-                  const Spacer(),
-
-                  // ?? Hi?n th? s? lu?ng box
-                  _buildBadge('Box: $boxQty', Colors.orange),
+                  // const Spacer(),
+                  //
+                  // // ?? Hi?n th? s? lu?ng box
+                  // _buildBadge('Box: $boxQty', Colors.orange),
                 ],
               ),
 
@@ -323,7 +335,7 @@ class _StockExportFormState extends State<StockExportForm> {
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -373,7 +385,7 @@ class _StockExportFormState extends State<StockExportForm> {
                                         ? TextAlign.right
                                         : TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 16,
                                       fontWeight: col == 'BoxIDStock'
                                           ? FontWeight.bold
                                           : FontWeight.normal,
@@ -462,14 +474,27 @@ class _StockExportFormState extends State<StockExportForm> {
                 SizedBox(
                   width: 140,
                   child: TextField(
+                    focusNode: qtyFocusNode,
                     controller: TextEditingController(),
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'TQty',
-                      labelStyle: TextStyle(fontSize: 16),
-                      border: OutlineInputBorder(),
+                      labelStyle: const TextStyle(fontSize: 18),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: isQtyHighlighted ? Colors.blue : Colors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 2),
+                      ),
+                      fillColor: isQtyHighlighted
+                          ? Colors.blue.shade50
+                          : Colors.white,
+                      filled: true,
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         vertical: 8,
                         horizontal: 8,
                       ),
@@ -480,6 +505,8 @@ class _StockExportFormState extends State<StockExportForm> {
                       if (qty > 0 && selectedPOBoxId != null) {
                         _updateExportQty(qty, boxIdStockConfirmController.text);
                       }
+                      // ✅ Sau khi nhập xong thì tắt highlight
+                      setState(() => isQtyHighlighted = false);
                     },
                   ),
                 ),
