@@ -171,28 +171,70 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 800; // < 800px coi là mobile/tablet
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 12),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildLeftPanel(),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildCenterPanel()),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(child: _buildBottomTables()),
-          ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 12),
+
+                // 🔹 Panel trên
+                Expanded(
+                  flex: isMobile ? 0 : 2,
+                  child: isMobile
+                      ? Column(
+                          children: [
+                            _buildLeftPanel(),
+                            const SizedBox(height: 12),
+                            _buildCenterPanel(),
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(flex: 3, child: _buildLeftPanel()),
+                            const SizedBox(width: 12),
+                            Expanded(flex: 5, child: _buildCenterPanel()),
+                          ],
+                        ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // 🔹 Bảng dưới
+                Expanded(
+                  flex: 3,
+                  child: isMobile
+                      ? Column(
+                          children: [
+                            Expanded(
+                              child: _buildDataTable(
+                                title: 'Danh sách kiểm kê',
+                                items: _filteredItems,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Expanded(
+                              child: _buildDataTable(
+                                title: 'Danh sách NG',
+                                items: _ngItems,
+                              ),
+                            ),
+                          ],
+                        )
+                      : _buildBottomTables(),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -241,8 +283,8 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
   // LEFT PANEL
   Widget _buildLeftPanel() {
     return Container(
-      width: 400,
-      padding: const EdgeInsets.all(14),
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
       decoration: _panelDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +310,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
               });
             },
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
           if (_selectedCondition != 'All') ...[
             Text(
               _selectedCondition == 'By Shelf'
@@ -277,7 +319,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
             ),
             const SizedBox(height: 4),
             TextField(controller: _conditionController),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
           ],
           const Text('Khoảng thời gian:'),
           DropdownButtonFormField<String>(
@@ -290,7 +332,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
             ],
             onChanged: (val) => setState(() => _selectedRange = val!),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -538,6 +580,8 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     required String title,
     required List<InventoryItem> items,
   }) {
+    final isMobile = MediaQuery.of(context).size.width < 800;
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: _panelDecoration(),
@@ -559,12 +603,14 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                       headingRowColor: MaterialStateColor.resolveWith(
                         (_) => Colors.grey.shade200,
                       ),
-                      headingTextStyle: const TextStyle(
+
+                      dataRowHeight: isMobile ? 28 : 32,
+                      headingTextStyle: TextStyle(
                         color: Colors.black87,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: isMobile ? 13 : 16,
                       ),
-                      dataRowHeight: 32,
+
                       headingRowHeight: 34,
                       dividerThickness: 0.6,
                       columnSpacing: 40,

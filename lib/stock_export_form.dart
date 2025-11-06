@@ -38,6 +38,7 @@ class _StockExportFormState extends State<StockExportForm> {
 
   String? selectedPOBoxId;
 
+  Map<String, dynamic>? selectedBox;
   @override
   void initState() {
     super.initState();
@@ -415,59 +416,66 @@ class _StockExportFormState extends State<StockExportForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ?? Header
+          // 🔹 Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
               color: Colors.green.shade50,
               border: Border.all(color: Colors.green),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'Kiểm tra & xác nhận Box cần lấy',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-                fontSize: 18,
+            child: const Center(
+              child: Text(
+                'Kiểm tra & xác nhận Box cần lấy',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                  fontSize: 18,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
           ),
+
           const SizedBox(height: 16),
 
-          // ?? Nhóm input
-          Wrap(
-            spacing: 16,
-            runSpacing: 10,
-            children: [
-              _buildConfirmField(
-                'OrderNo:',
-                orderNoConfirmController,
-                width: 180,
-              ),
-              _buildConfirmField(
-                'ProductID:',
-                productIdConfirmController,
-                width: 180,
-              ),
-              _buildConfirmField('POQty:', poQtyConfirmController, width: 120),
-              _buildConfirmField(
-                'BoxID:',
-                boxIdStockConfirmController,
-                width: 180,
-              ),
-              _buildConfirmField(
-                'ShelfID:',
-                shelfIdConfirmController,
-                width: 150,
-              ),
-            ],
+          // 🔹 Nhóm input (sử dụng Wrap để responsive)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 700;
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildInputBox(
+                    'Order No',
+                    orderNoConfirmController,
+                    width: 180,
+                  ),
+                  _buildInputBox(
+                    'Product ID',
+                    productIdConfirmController,
+                    width: 180,
+                  ),
+                  _buildInputBox('PO Qty', poQtyConfirmController, width: 120),
+                  _buildInputBox(
+                    'Box ID',
+                    boxIdStockConfirmController,
+                    width: 180,
+                  ),
+                  _buildInputBox(
+                    'Shelf ID',
+                    shelfIdConfirmController,
+                    width: 150,
+                  ),
+                ],
+              );
+            },
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          // ?? Input s? lu?ng xu?t + Remain (ch? hi?n khi ch?n)
+          // 🔹 Nhập số lượng + Remain
           if (selectedPOBoxId != null)
             Row(
               children: [
@@ -478,34 +486,38 @@ class _StockExportFormState extends State<StockExportForm> {
                     controller: TextEditingController(),
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'TQty',
-                      labelStyle: const TextStyle(fontSize: 18),
+                      labelText: 'Thực tế xuất',
+                      labelStyle: const TextStyle(fontSize: 14),
                       border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                          color: isQtyHighlighted ? Colors.blue : Colors.grey,
-                          width: 2,
+                          color: isQtyHighlighted
+                              ? Colors.blue
+                              : Colors.grey.shade400,
+                          width: 1.5,
                         ),
                       ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue, width: 2),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: Colors.blue.shade600,
+                          width: 2,
+                        ),
                       ),
                       fillColor: isQtyHighlighted
                           ? Colors.blue.shade50
                           : Colors.white,
                       filled: true,
-                      isDense: true,
                       contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
                         vertical: 8,
-                        horizontal: 8,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 16),
                     onSubmitted: (val) {
                       final qty = int.tryParse(val) ?? 0;
                       if (qty > 0 && selectedPOBoxId != null) {
                         _updateExportQty(qty, boxIdStockConfirmController.text);
                       }
-                      // ✅ Sau khi nhập xong thì tắt highlight
                       setState(() => isQtyHighlighted = false);
                     },
                   ),
@@ -517,51 +529,45 @@ class _StockExportFormState extends State<StockExportForm> {
 
           const SizedBox(height: 16),
 
-          // ?? Button hành d?ng
-          // Align(
-          //   alignment: Alignment.centerRight,
-          //   child: _buildActionButton(
-          //     '?? Ðua lên k? ch?',
-          //     Icons.upload,
-          //     Colors.blue,
-          //     () {},
-          //   ),
-          // ),
-          const SizedBox(height: 20),
-
-          // ?? B?ng danh sách box
+          // 🔹 Bảng danh sách Box
           Expanded(child: _buildBoxListTable()),
         ],
       ),
     );
   }
 
-  Widget _buildConfirmField(
+  Widget _buildInputBox(
     String label,
     TextEditingController controller, {
-    double width = 200,
+    double width = 150,
   }) {
     return SizedBox(
       width: width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
-          const SizedBox(height: 4),
-          TextField(
-            controller: controller,
-            readOnly: label != 'BoxID:',
-            decoration: const InputDecoration(
-              isDense: true,
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            ),
-            style: const TextStyle(fontSize: 16),
+          isDense: true,
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey.shade400),
           ),
-        ],
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 10,
+          ),
+        ),
+        style: const TextStyle(fontSize: 14),
       ),
     );
   }

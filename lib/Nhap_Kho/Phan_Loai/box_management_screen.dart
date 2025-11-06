@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 
 import '../../Data/mock_data.dart';
+import '../../widgets/header_bar.dart';
 
 class OrderItem {
   final String No;
@@ -114,7 +115,8 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _buildHeaderBar(),
+            HeaderBar(msnv: '9999', title: 'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ'),
+
             const SizedBox(height: 8),
             Expanded(
               child: LayoutBuilder(
@@ -163,42 +165,94 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
     );
   }
 
-  Widget _buildHeaderBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('MSNV: 9999', style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(
-            'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ',
-            style: TextStyle(
-              color: Color(0xFF1E3A8A),
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              letterSpacing: 0.5,
+  Widget _buildHeaderBar(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    if (!isMobile) {
+      // Desktop / tablet lớn: 3 phần trên 1 dòng
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'MSNV: 9999',
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
-          Row(
-            children: [
-              Icon(Icons.calendar_month, size: 18, color: Colors.grey.shade600),
-              const SizedBox(width: 6),
-              Text(
-                'Ngày: ${DateTime.now().toString().split(' ')[0]}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+            Text(
+              'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ',
+              style: const TextStyle(
+                color: Color(0xFF1E3A8A),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 0.5,
               ),
-            ],
-          ),
-        ],
-      ),
-    );
+            ),
+            Row(
+              children: [
+                Icon(Icons.calendar_month, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(
+                  'Ngày: ${DateTime.now().toString().split(' ')[0]}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Mobile: chuyển thành 2 dòng, căn giữa, có padding hợp lý
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'MSNV: 9999',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFF1E3A8A),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.calendar_month, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(
+                  'Ngày: ${DateTime.now().toString().split(' ')[0]}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildLeftPanel() {

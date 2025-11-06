@@ -12,43 +12,102 @@ class OrderListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
     if (orderList.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(32),
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.shopping_cart_outlined,
-                size: 64,
-                color: Colors.grey[400],
-              ),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          // Giới hạn max kích thước icon dựa theo chiều rộng màn hình, min/max để không quá nhỏ hoặc lớn
+          double iconSize = (constraints.maxWidth * 0.2).clamp(40, 80);
+          double paddingSize = (constraints.maxWidth * 0.1).clamp(16, 48);
+          double titleFontSize = (constraints.maxWidth * 0.05).clamp(14, 22);
+          double subtitleFontSize = (constraints.maxWidth * 0.035).clamp(
+            12,
+            18,
+          );
+
+          return Container(
+            padding: EdgeInsets.all(paddingSize),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(paddingSize * 0.75),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.shopping_cart_outlined,
+                    size: iconSize,
+                    color: Colors.grey[400],
+                  ),
+                ),
+                SizedBox(height: paddingSize * 0.33),
+                Text(
+                  'Chưa có đơn hàng nào',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                    fontSize: titleFontSize,
+                  ),
+                ),
+                SizedBox(height: paddingSize * 0.17),
+                Text(
+                  'Scan mã để thêm đơn hàng',
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: subtitleFontSize,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Chưa có đơn hàng nào',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Scan mã để thêm đơn hàng',
-              style: TextStyle(color: Colors.grey[400]),
-            ),
-          ],
-        ),
+          );
+        },
       );
     }
 
+    if (isMobile) {
+      // Mobile: danh sách thẻ
+      return ListView.builder(
+        itemCount: orderList.length,
+        itemBuilder: (context, index) {
+          final o = orderList[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _infoRow('STT', '${index + 1}'),
+                  _infoRow('Mã đơn hàng', o['po'] ?? ''),
+                  _infoRow('Sản phẩm', o['product'] ?? ''),
+                  _infoRow('Mã SP', o['code'] ?? ''),
+                  _infoRow('Lot', o['lot'] ?? ''),
+                  _infoRow('Số lượng', o['quantity']?.toString() ?? ''),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => _showDeleteConfirmation(context, index),
+                      tooltip: 'Xóa đơn hàng',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    // Desktop/Table: bảng Table như hiện tại
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -144,6 +203,31 @@ class OrderListSection extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: RichText(
+        text: TextSpan(
+          text: '$label: ',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+            fontSize: 14,
+          ),
+          children: [
+            TextSpan(
+              text: value,
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                color: Colors.black54,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
