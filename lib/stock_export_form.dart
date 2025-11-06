@@ -264,46 +264,57 @@ class _StockExportFormState extends State<StockExportForm> {
 
   Widget _buildLeftPanel() {
     return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(8),
+      elevation: 4,
+      margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ?? Ch?n thao tác
+            // 🔹 Chọn thao tác
             Row(
               children: [
+                const Icon(Icons.settings, color: Colors.indigo, size: 22),
+                const SizedBox(width: 8),
                 const Text(
                   'Chọn thao tác:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(width: 12),
-                SizedBox(
-                  width: 170,
-                  child: DropdownButtonFormField<String>(
-                    value: 'CheckBox',
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
+                Expanded(
+                  child: SizedBox(
+                    height: 44,
+                    child: DropdownButtonFormField<String>(
+                      value: 'CheckBox',
+                      decoration: InputDecoration(
+                        isDense: true,
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        prefixIcon: const Icon(Icons.list_alt, size: 20),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                       ),
+                      items: ['CheckBox', 'Other']
+                          .map(
+                            (e) => DropdownMenuItem(value: e, child: Text(e)),
+                          )
+                          .toList(),
+                      onChanged: (_) {},
                     ),
-                    items: ['CheckBox', 'Other']
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                        .toList(),
-                    onChanged: (_) {},
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // ?? Ô nh?p OrderNo
+            // 🔹 Ô nhập OrderNo
             _buildInputField(
               'OrderNo:',
               orderNoScanController,
@@ -312,42 +323,26 @@ class _StockExportFormState extends State<StockExportForm> {
             ),
 
             const SizedBox(height: 16),
+
+            // 🔹 Nút hành động
             if (selectedPOBoxId != null)
-              // ?? Hành d?ng
               Row(
                 children: [
-                  SizedBox(
-                    width: 160,
-                    child: CustomButton(
-                      label: '',
-                      color: Colors.red.shade600,
-                      icon: Icons.delete_forever,
-                      onPressed: _clearAll,
-                    ),
+                  CustomButton(
+                    label: 'Xóa tất cả',
+                    color: Colors.red.shade600,
+                    icon: Icons.delete_forever,
+                    onPressed: _clearAll,
                   ),
-
-                  // const Spacer(),
-                  //
-                  // // ?? Hi?n th? s? lu?ng box
-                  // _buildBadge('Box: $boxQty', Colors.orange),
                 ],
               ),
 
-            const SizedBox(height: 12),
-            const Divider(thickness: 1),
+            const SizedBox(height: 16),
+            const Divider(thickness: 1.2),
 
-            // ?? B?ng danh sách PO
+            // 🔹 Bảng danh sách PO
             const SizedBox(height: 8),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: _buildPOListTable(),
-              ),
-            ),
+            Expanded(child: _buildPOListTable()),
           ],
         ),
       ),
@@ -369,29 +364,45 @@ class _StockExportFormState extends State<StockExportForm> {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Container(
-            color: Colors.indigo.shade800,
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.indigo.shade700,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             child: Row(
-              children: columns.map((c) {
-                return Expanded(
-                  child: Text(
-                    c,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              children: columns
+                  .map(
+                    (c) => Expanded(
+                      child: Text(
+                        c,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }).toList(),
+                  )
+                  .toList(),
             ),
           ),
 
@@ -401,7 +412,7 @@ class _StockExportFormState extends State<StockExportForm> {
                 ? const Center(
                     child: Text(
                       'Chưa có dữ liệu - vui lòng nhập số PO',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.grey, fontSize: 15),
                     ),
                   )
                 : ListView.builder(
@@ -409,45 +420,47 @@ class _StockExportFormState extends State<StockExportForm> {
                     itemBuilder: (ctx, i) {
                       final po = filteredOrderList[i];
                       final isSelected = po['BoxIDStock'] == selectedPOBoxId;
-                      return GestureDetector(
-                        onTap: () => _selectPO(po),
-                        child: Container(
-                          color: isSelected
-                              ? Colors.yellow.shade100
-                              : (i % 2 == 0
-                                    ? Colors.white
-                                    : Colors.grey.shade100),
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: columns.map((col) {
-                              final val = po[col]?.toString() ?? '';
-                              final isNumber = [
-                                'QtyPO',
-                                'QtyInOut',
-                              ].contains(col);
-                              return Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                  ),
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () => _selectPO(po),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            color: isSelected
+                                ? Colors.yellow.shade100
+                                : (i.isEven
+                                      ? Colors.grey.shade50
+                                      : Colors.white),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 6,
+                            ),
+                            child: Row(
+                              children: columns.map((col) {
+                                final val = po[col]?.toString() ?? '';
+                                final isNumber = [
+                                  'QtyPO',
+                                  'QtyInOut',
+                                ].contains(col);
+                                return Expanded(
                                   child: Text(
                                     val,
                                     textAlign: isNumber
                                         ? TextAlign.right
                                         : TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: col == 'BoxIDStock'
-                                          ? FontWeight.bold
+                                          ? FontWeight.w600
                                           : FontWeight.normal,
                                       color: isSelected
-                                          ? Colors.blue.shade800
+                                          ? Colors.indigo.shade800
                                           : Colors.black87,
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
                       );
