@@ -39,6 +39,10 @@ class _StockExportFormState extends State<StockExportForm> {
   String? selectedPOBoxId;
 
   Map<String, dynamic>? selectedBox;
+
+  final TextEditingController exportQtyController = TextEditingController();
+  String? selectedBoxId;
+
   @override
   void initState() {
     super.initState();
@@ -483,7 +487,7 @@ class _StockExportFormState extends State<StockExportForm> {
                   width: 140,
                   child: TextField(
                     focusNode: qtyFocusNode,
-                    controller: TextEditingController(),
+                    controller: exportQtyController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Thực tế xuất',
@@ -515,13 +519,16 @@ class _StockExportFormState extends State<StockExportForm> {
                     ),
                     onSubmitted: (val) {
                       final qty = int.tryParse(val) ?? 0;
-                      if (qty > 0 && selectedPOBoxId != null) {
-                        _updateExportQty(qty, boxIdStockConfirmController.text);
+                      if (qty > 0 &&
+                          selectedPOBoxId != null &&
+                          selectedBoxId != null) {
+                        _updateExportQty(qty, selectedBoxId!);
                       }
                       setState(() => isQtyHighlighted = false);
                     },
                   ),
                 ),
+
                 const SizedBox(width: 12),
                 _buildBadge('Còn lại: $remainQty', Colors.red),
               ],
@@ -582,7 +589,7 @@ class _StockExportFormState extends State<StockExportForm> {
       ),
       child: Column(
         children: [
-          // ?? Header
+          // Header
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
@@ -592,23 +599,22 @@ class _StockExportFormState extends State<StockExportForm> {
               ),
             ),
             child: Row(
-              children: columns
-                  .map(
-                    (c) => Expanded(
-                      child: Text(
-                        c,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+              children: columns.map((c) {
+                return Expanded(
+                  child: Text(
+                    c,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                  )
-                  .toList(),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }).toList(),
             ),
           ),
-          // ?? Danh sách box
+
+          // Body
           Expanded(
             child: displayedBoxes.isEmpty
                 ? const Center(
@@ -621,28 +627,55 @@ class _StockExportFormState extends State<StockExportForm> {
                     itemCount: displayedBoxes.length,
                     itemBuilder: (ctx, i) {
                       final box = displayedBoxes[i];
-                      return Container(
-                        color: i.isEven ? Colors.white : Colors.grey.shade50,
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          children: columns.map((col) {
-                            final val = box[col]?.toString() ?? '';
-                            final isNumber = ['QtyStock'].contains(col);
-                            return Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
+                      final isSelected = box['BoxID'] == selectedBoxId;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedBoxId = box['BoxID'];
+                            exportQtyController.text = box['QtyStock']
+                                .toString();
+                            isQtyHighlighted = true;
+                          });
+
+                          // focus vào ô thực tế xuất
+                          Future.delayed(const Duration(milliseconds: 200), () {
+                            FocusScope.of(context).requestFocus(qtyFocusNode);
+                          });
+                        },
+                        child: Container(
+                          color: isSelected
+                              ? Colors.yellow.shade100
+                              : (i.isEven ? Colors.white : Colors.grey.shade50),
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: columns.map((col) {
+                              final val = box[col]?.toString() ?? '';
+                              final isNumber = ['QtyStock'].contains(col);
+                              return Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                  ),
+                                  child: Text(
+                                    val,
+                                    textAlign: isNumber
+                                        ? TextAlign.right
+                                        : TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: isSelected
+                                          ? Colors.blue.shade700
+                                          : Colors.black,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
                                 ),
-                                child: Text(
-                                  val,
-                                  textAlign: isNumber
-                                      ? TextAlign.right
-                                      : TextAlign.center,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       );
                     },

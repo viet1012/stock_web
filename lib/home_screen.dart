@@ -19,6 +19,13 @@ class _HomeScreenState extends State<HomeScreen> {
   String activeTab = "GIỚI THIỆU HỆ THỐNG";
   String? selectedSubMenu;
 
+  final Map<String, IconData> tabIcons = {
+    "GIỚI THIỆU HỆ THỐNG": Icons.info_outline,
+    "NHẬP KHO": Icons.inventory_2_outlined,
+    "XUẤT KHO": Icons.local_shipping_outlined,
+    "KIỂM KÊ": Icons.fact_check_outlined,
+  };
+
   final Map<String, List<Map<String, dynamic>>> tabButtons = {
     "GIỚI THIỆU HỆ THỐNG": [],
     "NHẬP KHO": [
@@ -31,17 +38,15 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
     "KIỂM KÊ": [
-      {"icon": Icons.local_shipping, "label": "KIỂM KÊ"},
+      {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ"},
     ],
   };
 
-  // Biến quản lý mở Drawer khi màn hình nhỏ
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    // Khởi tạo selectedSubMenu theo tab active ban đầu
     final subList = tabButtons[activeTab];
     selectedSubMenu = (subList != null && subList.isNotEmpty)
         ? subList.first["label"]
@@ -50,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar(bool isMobile) {
     if (isMobile) {
-      // AppBar cho mobile có nút mở Drawer
       return AppBar(
         backgroundColor: Colors.blue[900],
         title: Text(activeTab),
@@ -66,22 +70,26 @@ class _HomeScreenState extends State<HomeScreen> {
             : null,
       );
     } else {
-      // AppBar cho desktop như hiện tại
       return PreferredSize(
         preferredSize: const Size.fromHeight(90),
         child: Column(
           children: [
+            // 🔷 Thanh tab chính
             Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue[900]!, Colors.blue[700]!],
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF002F6C), // xanh đậm
+                    Color(0xFF1565C0), // xanh sáng
+                    Color(0xFF42A5F5), // xanh nhạt
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ],
@@ -91,51 +99,61 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 children: tabButtons.keys.map((tab) {
                   final bool isActive = (tab == activeTab);
+                  final icon = tabIcons[tab];
                   return Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            activeTab = tab;
-                            final subList = tabButtons[tab];
-                            selectedSubMenu =
-                                (subList != null && subList.isNotEmpty)
-                                ? subList.first["label"]
-                                : null;
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                        setState(() {
+                          activeTab = tab;
+                          final subList = tabButtons[tab];
+                          selectedSubMenu =
+                              (subList != null && subList.isNotEmpty)
+                              ? subList.first["label"]
+                              : null;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? Colors.white.withOpacity(0.25)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
                             color: isActive
-                                ? Colors.white.withOpacity(0.2)
+                                ? Colors.white.withOpacity(0.6)
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isActive
-                                  ? Colors.white.withOpacity(0.5)
-                                  : Colors.transparent,
-                              width: 1,
-                            ),
+                            width: 1,
                           ),
-                          child: Text(
-                            tab,
-                            style: TextStyle(
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              icon,
+                              size: 20,
                               color: isActive
                                   ? Colors.white
                                   : Colors.white.withOpacity(0.8),
-                              fontWeight: isActive
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
-                              letterSpacing: 0.5,
                             ),
-                          ),
+                            const SizedBox(width: 6),
+                            Text(
+                              tab,
+                              style: TextStyle(
+                                color: isActive
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.9),
+                                fontWeight: isActive
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -143,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }).toList(),
               ),
             ),
+            // 🔹 Menu con
             if (tabButtons[activeTab]!.isNotEmpty)
               Container(
                 height: 36,
@@ -158,7 +177,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSubMenu(bool isMobile) {
     if (isMobile) {
-      // Trên mobile, menu con là DropdownButton
       return Align(
         alignment: Alignment.centerLeft,
         child: DropdownButton<String>(
@@ -177,16 +195,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               )
               .toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedSubMenu = value;
-            });
-          },
+          onChanged: (value) => setState(() => selectedSubMenu = value),
           underline: Container(height: 0),
         ),
       );
     } else {
-      // Trên desktop, menu con như ListView ngang hiện tại
       return ListView(
         scrollDirection: Axis.horizontal,
         children: tabButtons[activeTab]!.map((item) {
@@ -210,7 +223,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       item["icon"],
@@ -238,30 +250,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    if (activeTab == "GIỚI THIỆU HỆ THỐNG") {
-      return const IntroPage();
-    }
-    if (selectedSubMenu == "PHÂN LOẠI BOX LIST") {
+    if (activeTab == "GIỚI THIỆU HỆ THỐNG") return const IntroPage();
+    if (selectedSubMenu == "PHÂN LOẠI BOX LIST")
       return const BoxManagementScreen();
-    }
-    if (selectedSubMenu == "IN TEM") {
-      return const InTemLenKeMTSScreen();
-    }
-    if (selectedSubMenu == "CHUYỂN HÀNG LÊN KỆ") {
-      return FrmTransShelfScreen();
-    }
-    if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") {
-      return StockExportForm();
-    }
-    if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
+    if (selectedSubMenu == "IN TEM") return const InTemLenKeMTSScreen();
+    if (selectedSubMenu == "CHUYỂN HÀNG LÊN KỆ") return FrmTransShelfScreen();
+    if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") return StockExportForm();
+    if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 2)") return MTSStockExportStep2();
+    if (selectedSubMenu == "XUẤT KHO HÀNG BỘ")
       return MTSStockExportHangBoForm();
-    }
-    if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 2)") {
-      return MTSStockExportStep2();
-    }
-    if (selectedSubMenu == "KIỂM KÊ") {
-      return InventoryManagementScreen();
-    }
+    if (selectedSubMenu == "KIỂM KÊ") return InventoryManagementScreen();
+
     return Center(
       child: Text(
         "Trang nội dung của: $activeTab",
@@ -272,9 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Phân biệt kích thước màn hình
     final isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.grey[100],
@@ -284,6 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 children: tabButtons.keys.map((tab) {
                   return ListTile(
+                    leading: Icon(tabIcons[tab]),
                     title: Text(tab),
                     selected: tab == activeTab,
                     onTap: () {
@@ -295,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? subList.first["label"]
                             : null;
                       });
-                      Navigator.pop(context); // đóng Drawer
+                      Navigator.pop(context);
                     },
                   );
                 }).toList(),
