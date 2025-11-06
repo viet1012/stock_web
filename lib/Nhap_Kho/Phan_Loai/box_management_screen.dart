@@ -382,7 +382,6 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         dataRowHeight: 32,
         headingRowHeight: 34,
         dividerThickness: 0.6,
-        columnSpacing: 120,
         columns: const [
           DataColumn(label: Text('No')),
           DataColumn(label: Text('POQty')),
