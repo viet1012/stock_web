@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/Nhap_Kho/Chuy%E1%BB%83n%20Kho/confirmation_trans_shelf_screen.dart';
+import 'Kiem_Ke/box_confirm_screen.dart';
 import 'Kiem_Ke/inventory_management_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'MTSStockExportStep2.dart';
@@ -39,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ],
     "KIỂM KÊ": [
       {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ"},
+      {"icon": Icons.assignment_turned_in, "label": "IN LẠI TEM"},
     ],
   };
 
@@ -260,6 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "XUẤT KHO HÀNG BỘ")
       return MTSStockExportHangBoForm();
     if (selectedSubMenu == "KIỂM KÊ") return InventoryManagementScreen();
+    if (selectedSubMenu == "IN LẠI TEM") return BoxConfirmScreen();
 
     return Center(
       child: Text(

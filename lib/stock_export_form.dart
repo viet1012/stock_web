@@ -59,9 +59,8 @@ class _StockExportFormState extends State<StockExportForm> {
         'QtyPO': 100,
         'QtyInOut': 0,
         'ShelfIDWait': 'Shelf-1',
-        'BoxIDStock': '123',
+        'POCode': 'PO12345', // 🔹 Thêm PO code riêng
         'Status': 'Chờ',
-        'BoxID': 'BX501',
         'Remark': '',
       },
     ];
@@ -73,12 +72,27 @@ class _StockExportFormState extends State<StockExportForm> {
         'QtyStock': 60,
         'CheckSt': 'OK',
         'ShelfID': 'Shelf-1',
+        'POCode': 'PO12345', // 🔹 Liên kết với PO
+      },
+      {
+        'Firsttime': '2025-11-01 08:10',
+        'BoxID': 'BX502',
+        'QtyStock': 30,
+        'CheckSt': 'OK',
+        'ShelfID': 'Shelf-2',
+        'POCode': 'PO12345', // 🔹 Cùng PO
+      },
+      {
+        'Firsttime': '2025-11-01 08:20',
+        'BoxID': 'BX503',
+        'QtyStock': 20,
+        'CheckSt': 'NG',
+        'ShelfID': 'Shelf-3',
+        'POCode': 'PO12345',
       },
     ];
 
-    // ✅ Thay bằng:
-    filteredOrderList = []; // Bảng trống ban đầu
-
+    filteredOrderList = [];
     displayedBoxes = [];
   }
 
@@ -97,57 +111,71 @@ class _StockExportFormState extends State<StockExportForm> {
     setState(() {
       if (po.isEmpty) return;
 
-      // Tìm PO hợp lệ trong danh sách tổng
       final matches = orderWaitList
-          .where((e) => e['BoxIDStock'].toString().contains(po))
+          .where((e) => e['POCode'].toString().contains(po))
           .toList();
 
       for (var match in matches) {
         final exists = filteredOrderList.any(
-          (item) => item['BoxIDStock'] == match['BoxIDStock'],
+          (item) => item['POCode'] == match['POCode'],
         );
         if (!exists) filteredOrderList.add(match);
       }
 
-      orderNoScanController.clear(); // Xóa input sau khi nhập
+      orderNoScanController.clear();
     });
   }
 
   void _selectPO(Map<String, dynamic> po) {
     setState(() {
-      selectedPOBoxId = po['BoxIDStock'];
+      selectedPOBoxId = po['POCode'];
+
+      // 🔹 Lấy toàn bộ box có cùng POCode
       displayedBoxes = allBoxes
-          .where((box) => box['ShelfID'] == po['ShelfIDWait'])
+          .where((box) => box['POCode'] == po['POCode'])
           .toList();
 
-      orderNoConfirmController.text = po['BoxIDStock'];
+      orderNoConfirmController.text = po['POCode'];
       productIdConfirmController.text = po['PartID'];
       poQtyConfirmController.text = po['QtyPO'].toString();
       shelfIdConfirmController.text = po['ShelfIDWait'];
-      boxIdStockConfirmController.text = po['BoxID'];
 
-      // ✅ Bật highlight
       isQtyHighlighted = true;
     });
 
-    // ✅ Delay nhẹ để đảm bảo UI build xong trước khi focus
     Future.delayed(const Duration(milliseconds: 300), () {
       FocusScope.of(context).requestFocus(qtyFocusNode);
     });
   }
 
   void _updateExportQty(int qtyExport, String boxId) {
-    if (qtyExport <= 0 || selectedPOBoxId == null) return;
+    if (qtyExport <= 0 || selectedPOBoxId == null) {
+      print('⚠️ Dừng: qtyExport <= 0 hoặc selectedPOBoxId null');
+      return;
+    }
+
+    print('========== 🧩 BẮT ĐẦU _updateExportQty ==========');
+    print(
+      '👉 boxId: $boxId | qtyExport: $qtyExport | selectedPOBoxId: $selectedPOBoxId',
+    );
 
     setState(() {
       final poIndex = orderWaitList.indexWhere(
-        (e) => e['BoxIDStock'] == selectedPOBoxId,
+        (e) => e['POCode'] == selectedPOBoxId,
       );
-      if (poIndex == -1) return;
+      if (poIndex == -1) {
+        print(
+          '❌ Không tìm thấy PO trong orderWaitList với POCode = $selectedPOBoxId',
+        );
+        return;
+      }
 
       final po = orderWaitList[poIndex];
       final boxIndex = allBoxes.indexWhere((e) => e['BoxID'] == boxId);
-      if (boxIndex == -1) return;
+      if (boxIndex == -1) {
+        print('❌ Không tìm thấy BoxID $boxId trong allBoxes');
+        return;
+      }
 
       final box = allBoxes[boxIndex];
 
@@ -155,9 +183,16 @@ class _StockExportFormState extends State<StockExportForm> {
       int currentInOut = po['QtyInOut'] as int;
       int poQty = po['QtyPO'] as int;
 
+      print('📦 Trước khi xuất:');
+      print('   ➜ Box: $boxId | Tồn kho = $currentStock');
+      print('   ➜ PO: ${po['BoxIDStock']} | QtyInOut = $currentInOut / $poQty');
+
       // 🔹 Tồn kho không đủ
       if (qtyExport > currentStock) {
         _showMessage('❌ Số lượng vượt quá tồn kho!');
+        print(
+          '🚫 Vượt tồn kho: qtyExport=$qtyExport > currentStock=$currentStock',
+        );
         FocusScope.of(context).requestFocus(qtyFocusNode);
         return;
       }
@@ -166,6 +201,9 @@ class _StockExportFormState extends State<StockExportForm> {
       int remainingPO = poQty - currentInOut;
       if (qtyExport > remainingPO) {
         _showMessage('⚠️ Số lượng vượt quá số còn lại của PO!');
+        print(
+          '🚫 Vượt số còn lại PO: qtyExport=$qtyExport > remainingPO=$remainingPO',
+        );
         return;
       }
 
@@ -173,9 +211,14 @@ class _StockExportFormState extends State<StockExportForm> {
       box['QtyStock'] = currentStock - qtyExport;
       po['QtyInOut'] = currentInOut + qtyExport;
 
+      print('✅ Sau khi cập nhật:');
+      print('   ➜ Box: $boxId | QtyStock = ${box['QtyStock']}');
+      print('   ➜ PO: ${po['BoxIDStock']} | QtyInOut = ${po['QtyInOut']}');
+
       // 🔹 Nếu đã đủ 100% thì cập nhật trạng thái
       if (po['QtyInOut'] >= poQty) {
         po['Status'] = 'Hoàn tất';
+        print('🎯 PO ${po['BoxIDStock']} đã hoàn tất (QtyInOut=$poQty)');
       }
 
       // 🔹 Cập nhật remainQty toàn màn hình
@@ -185,10 +228,13 @@ class _StockExportFormState extends State<StockExportForm> {
           .where((b) => b['ShelfID'] == po['ShelfIDWait'])
           .toList();
 
+      print('🧾 displayedBoxes cập nhật (${displayedBoxes.length} dòng)');
       _showMessage(
         '✅ Xuất $qtyExport từ Box $boxId cho PO ${po['BoxIDStock']}',
       );
     });
+
+    print('========== ✅ KẾT THÚC _updateExportQty ==========\n');
   }
 
   @override
@@ -273,7 +319,7 @@ class _StockExportFormState extends State<StockExportForm> {
                   SizedBox(
                     width: 160,
                     child: CustomButton(
-                      label: 'Xóa tất cả',
+                      label: '',
                       color: Colors.red.shade600,
                       icon: Icons.delete_forever,
                       onPressed: _clearAll,
@@ -519,10 +565,12 @@ class _StockExportFormState extends State<StockExportForm> {
                     ),
                     onSubmitted: (val) {
                       final qty = int.tryParse(val) ?? 0;
+
                       if (qty > 0 &&
                           selectedPOBoxId != null &&
                           selectedBoxId != null) {
                         _updateExportQty(qty, selectedBoxId!);
+                        print("qty: $qty");
                       }
                       setState(() => isQtyHighlighted = false);
                     },
