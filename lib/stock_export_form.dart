@@ -821,30 +821,30 @@ class _StockExportFormState extends State<StockExportForm> {
 
   void _clearAll() {
     setState(() {
-      // ?? Xoá text trong toàn b? controller
+      // 🔹 Xóa text trong toàn bộ controller
       orderNoConfirmController.clear();
       productIdConfirmController.clear();
       poQtyConfirmController.clear();
       boxIdStockConfirmController.clear();
       shelfIdConfirmController.clear();
+      exportQtyController.clear();
 
-      // ?? Reset bi?n t?m
+      // 🔹 Reset biến tạm
       selectedPOBoxId = null;
+      selectedBoxId = null;
       remainQty = 0;
 
-      // ?? Xoá danh sách hi?n th?
-      displayedBoxes.clear();
+      // 🔹 Xóa danh sách hiển thị
+      filteredOrderList.clear();
+      displayedBoxes.clear(); // ✅ thêm dòng này
+      selectedPOList.clear(); // ✅ nếu có multi-select PO
 
-      // (Tu?: n?u b?n có list khác nhu allBoxes, exportedBoxes,... có th? clear thêm)
-      // allBoxes.clear();
-      // exportedBoxes.clear();
-
-      // ?? Focus v? ô d?u tiên
+      // 🔹 Focus về ô đầu tiên
       FocusScope.of(context).requestFocus(FocusNode());
     });
 
-    // ? Hi?n th? thông báo nh?
-    _showMessage('Ðã xóa toàn bộ dữ liệu trên màn hình!');
+    // 🔹 Hiển thị thông báo
+    _showMessage('Đã xóa toàn bộ dữ liệu trên màn hình!');
   }
 
   void _showMessage(String msg) {

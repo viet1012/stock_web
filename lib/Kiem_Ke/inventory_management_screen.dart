@@ -172,70 +172,55 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 800; // < 800px coi là mobile/tablet
+    final isMobile = screenWidth < 800;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 12),
-
-                // 🔹 Panel trên
-                Expanded(
-                  flex: isMobile ? 0 : 2,
-                  child: isMobile
-                      ? Column(
-                          children: [
-                            _buildLeftPanel(),
-                            const SizedBox(height: 12),
-                            _buildCenterPanel(),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(flex: 3, child: _buildLeftPanel()),
-                            const SizedBox(width: 12),
-                            Expanded(flex: 5, child: _buildCenterPanel()),
-                          ],
-                        ),
+      body: SafeArea(
+        child: isMobile
+            ? SingleChildScrollView(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 12),
+                    _buildLeftPanel(),
+                    const SizedBox(height: 12),
+                    _buildCenterPanel(),
+                    const SizedBox(height: 12),
+                    _buildDataTable(
+                      title: 'Danh sách kiểm kê',
+                      items: _filteredItems,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildDataTable(title: 'Danh sách NG', items: _ngItems),
+                  ],
                 ),
-
-                const SizedBox(height: 8),
-
-                // 🔹 Bảng dưới
-                Expanded(
-                  flex: 3,
-                  child: isMobile
-                      ? Column(
-                          children: [
-                            Expanded(
-                              child: _buildDataTable(
-                                title: 'Danh sách kiểm kê',
-                                items: _filteredItems,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Expanded(
-                              child: _buildDataTable(
-                                title: 'Danh sách NG',
-                                items: _ngItems,
-                              ),
-                            ),
-                          ],
-                        )
-                      : _buildBottomTables(),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(flex: 3, child: _buildLeftPanel()),
+                          const SizedBox(width: 12),
+                          Expanded(flex: 5, child: _buildCenterPanel()),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(flex: 3, child: _buildBottomTables()),
+                  ],
                 ),
-              ],
-            );
-          },
-        ),
+              ),
       ),
     );
   }
@@ -632,74 +617,77 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     final isMobile = MediaQuery.of(context).size.width < 800;
 
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(8),
       decoration: _panelDecoration(),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                    child: DataTable(
-                      headingRowColor: MaterialStateColor.resolveWith(
-                        (_) => Colors.indigo.shade700,
-                      ),
-                      headingTextStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      dataRowHeight: isMobile ? 28 : 32,
+          const SizedBox(height: 6),
 
-                      headingRowHeight: 34,
-                      dividerThickness: 0.6,
-                      columnSpacing: 40,
-                      columns: const [
-                        DataColumn(label: Text('STT')),
-                        DataColumn(label: Text('BoxID')),
-                        DataColumn(label: Text('PID')),
-                        DataColumn(label: Text('PName')),
-                        DataColumn(label: Text('Qty')),
-                        DataColumn(label: Text('StatusCheck')),
-                        DataColumn(label: Text('DateInventory')),
-                        DataColumn(label: Text('ShelfID')),
-                      ],
-                      rows: items.asMap().entries.map((e) {
-                        final i = e.key;
-                        final item = e.value;
-                        final isSelected = _selectedItem?.boxId == item.boxId;
-                        return DataRow(
-                          color: MaterialStateProperty.resolveWith(
-                            (_) => isSelected
-                                ? Colors.yellow.shade100
-                                : i.isEven
-                                ? Colors.white
-                                : Colors.grey.shade50,
-                          ),
-                          cells: [
-                            DataCell(Text('${i + 1}')),
-                            DataCell(SelectableText(item.boxId)),
-                            DataCell(SelectableText(item.pid)),
-                            DataCell(SelectableText(item.pName)),
-                            DataCell(SelectableText(item.qty.toString())),
-                            DataCell(SelectableText(item.status)),
-                            DataCell(SelectableText(item.date)),
-                            DataCell(SelectableText(item.shelfId)),
-                          ],
-                        );
-                      }).toList(),
+          // 👉 Bọc bảng trong Expanded để có vùng cuộn ổn định
+          SizedBox(
+            height: isMobile ? 240 : 400, // Giới hạn chiều cao bảng
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 600),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: DataTable(
+                    headingRowColor: MaterialStateColor.resolveWith(
+                      (_) => Colors.indigo.shade700,
                     ),
+                    headingTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    dataRowHeight: isMobile ? 30 : 36,
+                    headingRowHeight: 34,
+                    dividerThickness: 0.6,
+                    columnSpacing: isMobile ? 20 : 40,
+                    columns: const [
+                      DataColumn(label: Text('STT')),
+                      DataColumn(label: Text('BoxID')),
+                      DataColumn(label: Text('PID')),
+                      DataColumn(label: Text('PName')),
+                      DataColumn(label: Text('Qty')),
+                      DataColumn(label: Text('StatusCheck')),
+                      DataColumn(label: Text('DateInventory')),
+                      DataColumn(label: Text('ShelfID')),
+                    ],
+                    rows: items.asMap().entries.map((e) {
+                      final i = e.key;
+                      final item = e.value;
+                      final isSelected = _selectedItem?.boxId == item.boxId;
+                      return DataRow(
+                        color: MaterialStateProperty.resolveWith(
+                          (_) => isSelected
+                              ? Colors.yellow.shade100
+                              : i.isEven
+                              ? Colors.white
+                              : Colors.grey.shade50,
+                        ),
+                        cells: [
+                          DataCell(Text('${i + 1}')),
+                          DataCell(SelectableText(item.boxId)),
+                          DataCell(SelectableText(item.pid)),
+                          DataCell(SelectableText(item.pName)),
+                          DataCell(SelectableText(item.qty.toString())),
+                          DataCell(SelectableText(item.status)),
+                          DataCell(SelectableText(item.date)),
+                          DataCell(SelectableText(item.shelfId)),
+                        ],
+                      );
+                    }).toList(),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
         ],
