@@ -12,12 +12,14 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   final TextEditingController orderItoController = TextEditingController();
   final TextEditingController boxStockController = TextEditingController();
 
+  final FocusNode orderItoFocusNode = FocusNode();
+  final FocusNode boxFocusNode = FocusNode();
+
   List<String> shelfSuggestions = [];
   String? selectedShelf;
   bool isLoadingShelf = false;
   String? shelfError;
 
-  // ✅ Data ảo
   final Map<String, List<Map<String, dynamic>>> dummyPartsByPO = {
     "PO123": [
       {
@@ -26,6 +28,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
         "PName": "Hoa Hồng",
         "POQty": 10,
         "TQty": 0,
+        "QtyExport": 10, // ✅ Thêm
         "IDBox": "BOX001",
       },
       {
@@ -34,6 +37,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
         "PName": "Hoa Ly",
         "POQty": 5,
         "TQty": 0,
+        "QtyExport": 5, // ✅ Thêm
         "IDBox": "BOX002",
       },
     ],
@@ -44,6 +48,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
         "PName": "Hoa Cúc",
         "POQty": 8,
         "TQty": 0,
+        "QtyExport": 8, // ✅ Thêm
         "IDBox": "BOX003",
       },
     ],
@@ -54,6 +59,8 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
 
   @override
   void dispose() {
+    orderItoFocusNode.dispose();
+    boxFocusNode.dispose();
     orderItoController.dispose();
     boxStockController.dispose();
     super.dispose();
@@ -86,11 +93,6 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          const Text(
-            "📦 MTS - Xuất Kho Hàng Bộ",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const Spacer(),
           OutlinedButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.print),
@@ -119,7 +121,8 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
             _buildInputRow(
               "PO:",
               "Nhập số đơn hàng (VD: PO123)",
-              orderItoController,
+              focus: orderItoFocusNode,
+              controller: orderItoController,
               onSubmitted: _onOrderItoEntered,
             ),
             const SizedBox(height: 6),
@@ -128,16 +131,24 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
             _buildInputRow(
               "Box Stock:",
               "Nhập mã box (VD: BOX001)",
-              boxStockController,
+              focus: boxFocusNode,
+              controller: boxStockController,
               onSubmitted: _onBoxStockEntered,
             ),
             const SizedBox(height: 12),
-
             _buildSectionTitle("Danh Sách Part Xuất Kho"),
             const SizedBox(height: 6),
             Expanded(
               child: _buildTable(
-                headers: ["No", "ProductID", "PName", "POQty", "TQty", "IDBox"],
+                headers: [
+                  "No",
+                  "ProductID",
+                  "PName",
+                  "POQty",
+                  "TQty",
+                  "QtyExport",
+                  "IDBox",
+                ],
                 data: partList,
               ),
             ),
@@ -160,7 +171,14 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
             const SizedBox(height: 6),
             Expanded(
               child: _buildTable(
-                headers: ["OutputID", "BoxID", "Shelf", "PO", "Date"],
+                headers: [
+                  "OutputID",
+                  "BoxID",
+                  "Shelf",
+                  "PO",
+                  "QtyExport",
+                  "Date",
+                ],
                 data: successList,
               ),
             ),
@@ -173,8 +191,9 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   // ---------------- UI Helpers ----------------
   Widget _buildInputRow(
     String label,
-    String hint,
-    TextEditingController controller, {
+    String hint, {
+    required FocusNode focus,
+    required TextEditingController controller,
     Function(String)? onSubmitted,
   }) {
     return Row(
@@ -182,6 +201,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
         SizedBox(width: 110, child: Text(label)),
         Expanded(
           child: TextField(
+            focusNode: focus,
             controller: controller,
             onSubmitted: onSubmitted,
             decoration: InputDecoration(
@@ -305,15 +325,16 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
           const SizedBox(height: 6),
           Wrap(
             spacing: 8,
-            children: shelfSuggestions.map((shelf) {
-              return ChoiceChip(
-                label: Text(shelf),
-                selected: selectedShelf == shelf,
-                onSelected: (val) {
-                  setState(() => selectedShelf = val ? shelf : null);
-                },
-              );
-            }).toList(),
+            children: shelfSuggestions
+                .map(
+                  (shelf) => ChoiceChip(
+                    label: Text(shelf),
+                    selected: selectedShelf == shelf,
+                    onSelected: (val) =>
+                        setState(() => selectedShelf = val ? shelf : null),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -370,12 +391,21 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
       return;
     }
 
+    // ✅ Load parts và shelf
     setState(() {
       isLoadingShelf = false;
       shelfSuggestions = shelfMap[upper] ?? [];
-      partList = dummyPartsByPO[upper]!;
-      if (shelfSuggestions.length == 1) selectedShelf = shelfSuggestions.first;
+      partList = List<Map<String, dynamic>>.from(dummyPartsByPO[upper]!);
+
+      // ✅ Nếu chỉ có 1 kệ → chọn luôn
+      // ✅ Nếu có nhiều kệ → chọn mặc định kệ đầu tiên
+      if (shelfSuggestions.isNotEmpty) {
+        selectedShelf = shelfSuggestions.first;
+      }
     });
+
+    // ✅ Sau khi load xong thì focus vào ô Box
+    FocusScope.of(context).requestFocus(boxFocusNode);
   }
 
   void _onBoxStockEntered(String boxId) {
@@ -385,46 +415,69 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
     if (po.isEmpty) {
       _showSnackBar("⚠️ Vui lòng nhập PO trước khi quét Box!", Colors.orange);
       SystemSound.play(SystemSoundType.alert);
+      FocusScope.of(context).requestFocus(orderItoFocusNode);
       return;
     }
 
     if (partList.isEmpty) {
       _showSnackBar("⚠️ Chưa có dữ liệu Part cho PO $po!", Colors.orange);
       SystemSound.play(SystemSoundType.alert);
+      FocusScope.of(context).requestFocus(orderItoFocusNode);
       return;
     }
 
-    final matchedPart = partList.firstWhere(
+    final matchedIndex = partList.indexWhere(
       (p) => p["IDBox"].toString().toUpperCase() == upperBox,
-      orElse: () => {},
     );
 
-    if (matchedPart.isEmpty) {
-      _showSnackBar("❌ Box $upperBox không khớp với IDBox nào!", Colors.red);
+    if (matchedIndex == -1) {
+      _showSnackBar(
+        "❌ Box $upperBox không khớp với IDBox nào trong PO $po!",
+        Colors.red,
+      );
       SystemSound.play(SystemSoundType.alert);
+      boxStockController.clear();
+      FocusScope.of(context).requestFocus(boxFocusNode);
       return;
     }
 
-    // ✅ Cập nhật TQty
-    setState(() {
-      matchedPart["TQty"] = (matchedPart["POQty"] as int);
-    });
-
+    final matchedPart = partList[matchedIndex];
     final newExport = {
       "OutputID": "OUT-${DateTime.now().millisecondsSinceEpoch}",
-      "BoxID": upperBox,
+      "BoxID": matchedPart["IDBox"],
       "Shelf": selectedShelf ?? "Chưa chọn",
       "PO": po,
+      "QtyExport": matchedPart["QtyExport"], // ✅ Thêm dòng này
       "Date": DateTime.now().toString().substring(0, 19),
     };
 
     setState(() {
+      partList.removeAt(matchedIndex);
       successList.insert(0, newExport);
     });
 
-    _showSnackBar("✅ Xuất kho thành công cho Box $upperBox", Colors.green);
+    _showSnackBar("✅ Đã xuất kho Box $upperBox", Colors.green);
     SystemSound.play(SystemSoundType.click);
     boxStockController.clear();
+
+    if (partList.isEmpty) {
+      _showSnackBar("🎉 Đã xuất hết tất cả Box của PO $po!", Colors.blueAccent);
+      SystemSound.play(SystemSoundType.click);
+
+      setState(() {
+        orderItoController.clear();
+        boxStockController.clear();
+        selectedShelf = null;
+        shelfSuggestions = [];
+        shelfError = null;
+      });
+
+      // ✅ Khi xong thì focus về ô PO
+      FocusScope.of(context).requestFocus(orderItoFocusNode);
+    } else {
+      // ✅ Còn box → focus lại ô Box
+      FocusScope.of(context).requestFocus(boxFocusNode);
+    }
   }
 
   void _showSnackBar(String msg, Color color) {

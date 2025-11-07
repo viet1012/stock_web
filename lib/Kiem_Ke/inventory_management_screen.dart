@@ -631,7 +631,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
 
           // 👉 Bọc bảng trong Expanded để có vùng cuộn ổn định
           SizedBox(
-            height: isMobile ? 240 : 400, // Giới hạn chiều cao bảng
+            height: isMobile ? 240 : 450, // Giới hạn chiều cao bảng
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: ConstrainedBox(
