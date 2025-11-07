@@ -175,6 +175,7 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
           _buildSectionTitle('NHẬP ĐƠN HÀNG', Icons.assignment, Colors.teal),
           const SizedBox(height: 10),
           TextField(
+            autofocus: true,
             controller: _sodonhangController,
             onSubmitted: _fetchOrder,
             decoration: InputDecoration(

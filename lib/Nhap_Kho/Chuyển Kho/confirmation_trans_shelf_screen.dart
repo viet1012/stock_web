@@ -335,6 +335,7 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
     void Function(String)? onSubmitted,
   }) {
     return TextField(
+      autofocus: true,
       controller: controller,
       focusNode: focusNode,
       onSubmitted: onSubmitted,

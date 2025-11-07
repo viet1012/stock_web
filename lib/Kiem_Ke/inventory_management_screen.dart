@@ -617,7 +617,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     final isMobile = MediaQuery.of(context).size.width < 800;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(8),
       decoration: _panelDecoration(),
       child: Column(

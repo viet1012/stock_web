@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: isSelected ? Colors.blue[50] : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isSelected ? Colors.blue[400]! : Colors.transparent,
+                    color: isSelected ? Colors.blue[400]! : Colors.brown,
                     width: 1,
                   ),
                 ),

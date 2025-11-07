@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stock_web/widgets/custom_button.dart';
+import 'package:stock_web/widgets/header_bar.dart';
 
 class StockExportForm extends StatefulWidget {
   const StockExportForm({super.key});
@@ -264,6 +265,9 @@ class _StockExportFormState extends State<StockExportForm> {
           padding: const EdgeInsets.all(6),
           child: Column(
             children: [
+              HeaderBar(msnv: '9999', title: 'XUẤT KHO BƯỚC 1'),
+              const SizedBox(height: 12),
+
               Expanded(
                 child: Row(
                   children: [
@@ -328,6 +332,7 @@ class _StockExportFormState extends State<StockExportForm> {
           // 🔹 Ô nhập OrderNo
           _buildInputField(
             'OrderNo:',
+            "Nhập số đơn hàng (VD: 123)",
             orderNoScanController,
             Icons.qr_code_scanner,
             (val) => _filterByPO(val),
@@ -761,6 +766,7 @@ class _StockExportFormState extends State<StockExportForm> {
   // Helper Widgets
   Widget _buildInputField(
     String label,
+    String hint,
     TextEditingController controller,
     IconData icon,
     Function(String) onSubmit,
@@ -774,6 +780,7 @@ class _StockExportFormState extends State<StockExportForm> {
             autofocus: true,
             controller: controller,
             decoration: InputDecoration(
+              labelText: hint,
               prefixIcon: Icon(icon, size: 18),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),

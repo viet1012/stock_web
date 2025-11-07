@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:stock_web/widgets/header_bar.dart';
 
 class MTSStockExportStep2 extends StatefulWidget {
   const MTSStockExportStep2({super.key});
@@ -19,6 +20,8 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   String? selectedShelf;
   bool isLoadingShelf = false;
   String? shelfError;
+
+  bool isPOScanned = false;
 
   final Map<String, List<Map<String, dynamic>>> dummyPartsByPO = {
     "PO123": [
@@ -72,6 +75,8 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
       backgroundColor: Colors.grey[100],
       body: Column(
         children: [
+          HeaderBar(msnv: '9999', title: 'XUẤT KHO BƯỚC 2'),
+          const SizedBox(height: 12),
           _buildHeader(),
           Expanded(
             child: Row(
@@ -100,7 +105,15 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
           ),
           const SizedBox(width: 8),
           OutlinedButton.icon(
-            onPressed: () {},
+            // ✅ Nút in QR chỉ bấm được nếu đã quét PO
+            onPressed: isPOScanned
+                ? () {
+                    _showSnackBar(
+                      "🖨️ In QR Code cho PO ${orderItoController.text}",
+                      Colors.blue,
+                    );
+                  }
+                : null, // 🔒 Disable nếu chưa quét PO
             icon: const Icon(Icons.qr_code),
             label: const Text("In QR Code"),
           ),
@@ -112,6 +125,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   // ---------------- LEFT ----------------
   Widget _buildLeftSection() {
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.all(8),
       elevation: 2,
       child: Padding(
@@ -161,6 +175,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   // ---------------- RIGHT ----------------
   Widget _buildRightSection() {
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.all(8),
       elevation: 2,
       child: Padding(
@@ -198,9 +213,13 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   }) {
     return Row(
       children: [
-        SizedBox(width: 110, child: Text(label)),
+        SizedBox(
+          width: 110,
+          child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
         Expanded(
           child: TextField(
+            autofocus: true,
             focusNode: focus,
             controller: controller,
             onSubmitted: onSubmitted,
@@ -402,6 +421,8 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
       if (shelfSuggestions.isNotEmpty) {
         selectedShelf = shelfSuggestions.first;
       }
+
+      isPOScanned = true; // ✅ Đánh dấu đã quét PO
     });
 
     // ✅ Sau khi load xong thì focus vào ô Box
@@ -470,6 +491,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
         selectedShelf = null;
         shelfSuggestions = [];
         shelfError = null;
+        isPOScanned = false; // ❌ Tắt lại khi PO đã xuất hết
       });
 
       // ✅ Khi xong thì focus về ô PO

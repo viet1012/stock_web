@@ -83,6 +83,7 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
             ? Column(
                 children: [
                   TextField(
+                    autofocus: true,
                     controller: _poController,
                     onSubmitted: _fetchOrder,
                     decoration: InputDecoration(
@@ -129,6 +130,7 @@ class _OrderInfoSectionState extends State<OrderInfoSection> {
                   Expanded(
                     flex: 2,
                     child: TextField(
+                      autofocus: true,
                       controller: _poController,
                       onSubmitted: _fetchOrder,
                       decoration: InputDecoration(

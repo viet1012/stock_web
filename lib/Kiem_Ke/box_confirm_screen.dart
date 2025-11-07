@@ -103,9 +103,10 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                   children: [
                     Expanded(
                       child: TextField(
+                        autofocus: true,
                         controller: boxIdController,
                         decoration: InputDecoration(
-                          labelText: 'Nhập BoxIDConfirm',
+                          labelText: 'Nhập BoxIDConfirm (Ví dụ: 123)',
                           prefixIcon: const Icon(Icons.qr_code_2),
                           filled: true,
                           fillColor: Colors.white,
@@ -118,16 +119,6 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                           ),
                         ),
                         onSubmitted: handleConfirm,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 160,
-                      child: CustomButton(
-                        label: 'Xác nhận',
-                        color: Colors.green,
-                        icon: Icons.check_circle,
-                        onPressed: () => handleConfirm(boxIdController.text),
                       ),
                     ),
                   ],

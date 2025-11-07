@@ -115,14 +115,14 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
                               ),
                             ),
                             const SizedBox(width: 10),
-                            Expanded(
-                              child: CustomButton(
-                                label: 'Thoát',
-                                color: Colors.grey.shade600,
-                                icon: Icons.exit_to_app,
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
+                            // Expanded(
+                            //   child: CustomButton(
+                            //     label: 'Thoát',
+                            //     color: Colors.grey.shade600,
+                            //     icon: Icons.exit_to_app,
+                            //     onPressed: () => Navigator.pop(context),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -191,15 +191,15 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: CustomButton(
-                                label: 'Thoát',
-                                color: Colors.grey.shade600,
-                                icon: Icons.exit_to_app,
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
+                            // SizedBox(
+                            //   width: double.infinity,
+                            //   child: CustomButton(
+                            //     label: 'Thoát',
+                            //     color: Colors.grey.shade600,
+                            //     icon: Icons.exit_to_app,
+                            //     onPressed: () => Navigator.pop(context),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
