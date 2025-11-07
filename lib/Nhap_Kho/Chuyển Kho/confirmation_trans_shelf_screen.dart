@@ -150,7 +150,7 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
             Icons.qr_code_2,
             Colors.blue,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           _buildLabeledTextField(
             "Scan Box",
             _boxController,
@@ -245,8 +245,6 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
                     ),
                   ],
                 ),
-
-          const SizedBox(height: 12),
           Text(
             _statusMessage,
             style: TextStyle(color: _statusColor, fontWeight: FontWeight.bold),

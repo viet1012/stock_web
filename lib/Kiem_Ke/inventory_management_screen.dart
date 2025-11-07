@@ -282,80 +282,129 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
 
   // LEFT PANEL
   Widget _buildLeftPanel() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(8),
-      decoration: _panelDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Điều kiện kiểm kê',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-          ),
-          const SizedBox(height: 8),
-          const Text('Chọn điều kiện:'),
-          const SizedBox(height: 4),
-          DropdownButtonFormField<String>(
-            value: _selectedCondition,
-            items: const [
-              DropdownMenuItem(value: 'By Shelf', child: Text('By Shelf')),
-              DropdownMenuItem(value: 'By Name', child: Text('By Name')),
-              DropdownMenuItem(value: 'All', child: Text('All')),
-            ],
-            onChanged: (val) {
-              setState(() {
-                _selectedCondition = val!;
-                _conditionController.clear();
-              });
-            },
-          ),
-          const SizedBox(height: 5),
-          if (_selectedCondition != 'All') ...[
-            Text(
-              _selectedCondition == 'By Shelf'
-                  ? 'Nhập tên kệ:'
-                  : 'Nhập tên hàng:',
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isMobile = constraints.maxWidth < 600;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: _panelDecoration(),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Điều kiện kiểm kê',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                    fontSize: isMobile ? 16 : 18,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text('Chọn điều kiện:'),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  value: _selectedCondition,
+                  isExpanded: true,
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'By Shelf',
+                      child: Text('By Shelf'),
+                    ),
+                    DropdownMenuItem(value: 'By Name', child: Text('By Name')),
+                    DropdownMenuItem(value: 'All', child: Text('All')),
+                  ],
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedCondition = val!;
+                      _conditionController.clear();
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
+                if (_selectedCondition != 'All') ...[
+                  Text(
+                    _selectedCondition == 'By Shelf'
+                        ? 'Nhập tên kệ:'
+                        : 'Nhập tên hàng:',
+                  ),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: _conditionController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                const Text('Khoảng thời gian:'),
+                const SizedBox(height: 4),
+                DropdownButtonFormField<String>(
+                  value: _selectedRange,
+                  isExpanded: true,
+                  items: const [
+                    DropdownMenuItem(value: '1 tuần', child: Text('1 tuần')),
+                    DropdownMenuItem(value: '1 tháng', child: Text('1 tháng')),
+                    DropdownMenuItem(value: '3 tháng', child: Text('3 tháng')),
+                    DropdownMenuItem(value: '6 tháng', child: Text('6 tháng')),
+                  ],
+                  onChanged: (val) => setState(() => _selectedRange = val!),
+                ),
+                const SizedBox(height: 12),
+                if (isMobile)
+                  Column(
+                    children: [
+                      CustomButton(
+                        label: 'Xóa',
+                        color: Colors.red.shade600,
+                        icon: Icons.delete_forever,
+                        onPressed: () =>
+                            setState(() => _conditionController.clear()),
+                      ),
+                      const SizedBox(height: 8),
+                      CustomButton(
+                        label: 'Thực hiện',
+                        color: Colors.blue,
+                        icon: Icons.play_arrow,
+                        onPressed: _filterItems,
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                          label: 'Xóa',
+                          color: Colors.red.shade600,
+                          icon: Icons.delete_forever,
+                          onPressed: () =>
+                              setState(() => _conditionController.clear()),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: CustomButton(
+                          label: 'Thực hiện',
+                          color: Colors.blue,
+                          icon: Icons.play_arrow,
+                          onPressed: _filterItems,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
             ),
-            const SizedBox(height: 4),
-            TextField(controller: _conditionController),
-            const SizedBox(height: 5),
-          ],
-          const Text('Khoảng thời gian:'),
-          DropdownButtonFormField<String>(
-            value: _selectedRange,
-            items: const [
-              DropdownMenuItem(value: '1 tuần', child: Text('1 tuần')),
-              DropdownMenuItem(value: '1 tháng', child: Text('1 tháng')),
-              DropdownMenuItem(value: '3 tháng', child: Text('3 tháng')),
-              DropdownMenuItem(value: '6 tháng', child: Text('6 tháng')),
-            ],
-            onChanged: (val) => setState(() => _selectedRange = val!),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  label: 'Xóa',
-                  color: Colors.red.shade600,
-                  icon: Icons.delete_forever,
-                  onPressed: () => setState(() => _conditionController.clear()),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: CustomButton(
-                  label: 'Thực hiện',
-                  color: Colors.blue,
-                  icon: Icons.play_arrow,
-                  onPressed: _filterItems,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -249,12 +249,12 @@ class OrderListSection extends StatelessWidget {
   Widget _buildDataCell(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      child: Text(
+      child: SelectableText(
         text,
         textAlign: TextAlign.center,
         style: const TextStyle(color: Colors.black87),
         maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+        // overflow: TextOverflow.ellipsis,
       ),
     );
   }
