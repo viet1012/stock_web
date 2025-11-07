@@ -52,32 +52,10 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          const Expanded(
-            flex: 2,
-            child: Column(
-              children: [
-                Text(
-                  "QUẢN LÝ XUẤT KHO STOCK MTS (Bước 02)",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 6),
-                Text(
-                  "Gợi ý kệ chờ theo PO",
-                  style: TextStyle(color: Colors.blueAccent),
-                ),
-              ],
-            ),
-          ),
-
           // Right buttons
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Wrap(
                   spacing: 8,
@@ -93,15 +71,6 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
                       onPressed: () {},
                       icon: const Icon(Icons.qr_code, size: 18),
                       label: const Text("In QR Code"),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close, size: 18),
-                      label: const Text("Thoát"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
                     ),
                   ],
                 ),
@@ -132,14 +101,19 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
         child: Column(
           children: [
             _buildInputRow(
-              "Order Ito:",
+              "PO:",
+              'Nhập số đơn hàng (VD: PO123)',
               orderItoController,
               onSubmitted: _onOrderItoEntered,
             ),
             const SizedBox(height: 6),
             _buildShelfSuggestionBox(), // ✅ Gợi ý kệ chờ
             const SizedBox(height: 10),
-            _buildInputRow("Box Stock:", boxStockController),
+            _buildInputRow(
+              "Box Stock:",
+              'Nhập mã box (VD: PO123)',
+              boxStockController,
+            ),
             const SizedBox(height: 16),
 
             _buildSectionTitle("Danh Sách Part Xuất Kho"),
@@ -222,6 +196,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   // ------------------- COMMON UI PARTS -------------------
   Widget _buildInputRow(
     String label,
+    String descLabel,
     TextEditingController controller, {
     Function(String)? onSubmitted,
   }) {
@@ -234,6 +209,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
             onSubmitted: onSubmitted,
             decoration: InputDecoration(
               isDense: true,
+              labelText: descLabel,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
