@@ -111,12 +111,24 @@ class _StockExportFormState extends State<StockExportForm> {
 
   void _calculateTotals() {
     boxQty = allBoxes.fold(0, (sum, e) => sum + (e['QtyStock'] as int));
-    int totalPO = orderWaitList.fold(0, (sum, e) => sum + (e['QtyPO'] as int));
-    int totalExport = orderWaitList.fold(
-      0,
-      (sum, e) => sum + (e['QtyInOut'] as int),
-    );
-    remainQty = totalPO - totalExport;
+
+    if (selectedPOBoxId != null) {
+      final po = orderWaitList.firstWhere(
+        (e) => e['POCode'] == selectedPOBoxId,
+        orElse: () => <String, dynamic>{},
+      );
+      if (po.isNotEmpty) {
+        int qtyPO = (po['QtyPO'] ?? 0) as int;
+        int qtyInOut = (po['QtyInOut'] ?? 0) as int;
+        remainQty = qtyPO - qtyInOut;
+      } else {
+        remainQty = 0;
+      }
+    } else {
+      print("VT");
+      remainQty = 0;
+    }
+
     setState(() {});
   }
 
@@ -406,7 +418,7 @@ class _StockExportFormState extends State<StockExportForm> {
                     itemCount: filteredOrderList.length,
                     itemBuilder: (ctx, i) {
                       final po = filteredOrderList[i];
-                      final isSelected = po['BoxIDStock'] == selectedPOBoxId;
+                      final isSelected = po['POCode'] == selectedPOBoxId;
                       return MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
