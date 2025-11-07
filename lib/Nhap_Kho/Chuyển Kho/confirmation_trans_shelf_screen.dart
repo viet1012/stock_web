@@ -168,7 +168,6 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
             onSubmitted: (_) => _confirmTransfer(),
           ),
           const SizedBox(height: 16),
-
           // Responsive buttons and info text
           isPhone
               ? Column(
