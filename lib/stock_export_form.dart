@@ -43,6 +43,8 @@ class _StockExportFormState extends State<StockExportForm> {
   final TextEditingController exportQtyController = TextEditingController();
   String? selectedBoxId;
 
+  List<String> selectedPOList = [];
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +61,18 @@ class _StockExportFormState extends State<StockExportForm> {
         'QtyPO': 100,
         'QtyInOut': 0,
         'ShelfIDWait': 'Shelf-1',
-        'POCode': 'PO12345', // 🔹 Thêm PO code riêng
+        'POCode': '456', // 🔹 Thêm PO code riêng
+        'Status': 'Chờ',
+        'Remark': '',
+      },
+      {
+        'No': 1,
+        'PartID': 'P1002',
+        'PName': 'Ống thép 20mm',
+        'QtyPO': 100,
+        'QtyInOut': 0,
+        'ShelfIDWait': 'Shelf-1',
+        'POCode': '123', // 🔹 Thêm PO code riêng
         'Status': 'Chờ',
         'Remark': '',
       },
@@ -72,7 +85,7 @@ class _StockExportFormState extends State<StockExportForm> {
         'QtyStock': 60,
         'CheckSt': 'OK',
         'ShelfID': 'Shelf-1',
-        'POCode': 'PO12345', // 🔹 Liên kết với PO
+        'POCode': '123', // 🔹 Liên kết với PO
       },
       {
         'Firsttime': '2025-11-01 08:10',
@@ -80,7 +93,7 @@ class _StockExportFormState extends State<StockExportForm> {
         'QtyStock': 30,
         'CheckSt': 'OK',
         'ShelfID': 'Shelf-2',
-        'POCode': 'PO12345', // 🔹 Cùng PO
+        'POCode': '123', // 🔹 Cùng PO
       },
       {
         'Firsttime': '2025-11-01 08:20',
@@ -88,7 +101,7 @@ class _StockExportFormState extends State<StockExportForm> {
         'QtyStock': 20,
         'CheckSt': 'NG',
         'ShelfID': 'Shelf-3',
-        'POCode': 'PO12345',
+        'POCode': '456',
       },
     ];
 
@@ -116,10 +129,17 @@ class _StockExportFormState extends State<StockExportForm> {
           .toList();
 
       for (var match in matches) {
+        final poCode = match['POCode'].toString();
+
         final exists = filteredOrderList.any(
-          (item) => item['POCode'] == match['POCode'],
+          (item) => item['POCode'] == poCode,
         );
         if (!exists) filteredOrderList.add(match);
+
+        // 🔹 Thêm vào danh sách PO đang được chọn
+        if (!selectedPOList.contains(poCode)) {
+          selectedPOList.add(poCode);
+        }
       }
 
       orderNoScanController.clear();
@@ -150,14 +170,8 @@ class _StockExportFormState extends State<StockExportForm> {
 
   void _updateExportQty(int qtyExport, String boxId) {
     if (qtyExport <= 0 || selectedPOBoxId == null) {
-      print('⚠️ Dừng: qtyExport <= 0 hoặc selectedPOBoxId null');
       return;
     }
-
-    print('========== 🧩 BẮT ĐẦU _updateExportQty ==========');
-    print(
-      '👉 boxId: $boxId | qtyExport: $qtyExport | selectedPOBoxId: $selectedPOBoxId',
-    );
 
     setState(() {
       final poIndex = orderWaitList.indexWhere(
@@ -183,16 +197,9 @@ class _StockExportFormState extends State<StockExportForm> {
       int currentInOut = po['QtyInOut'] as int;
       int poQty = po['QtyPO'] as int;
 
-      print('📦 Trước khi xuất:');
-      print('   ➜ Box: $boxId | Tồn kho = $currentStock');
-      print('   ➜ PO: ${po['BoxIDStock']} | QtyInOut = $currentInOut / $poQty');
-
       // 🔹 Tồn kho không đủ
       if (qtyExport > currentStock) {
         _showMessage('❌ Số lượng vượt quá tồn kho!');
-        print(
-          '🚫 Vượt tồn kho: qtyExport=$qtyExport > currentStock=$currentStock',
-        );
         FocusScope.of(context).requestFocus(qtyFocusNode);
         return;
       }
@@ -211,14 +218,9 @@ class _StockExportFormState extends State<StockExportForm> {
       box['QtyStock'] = currentStock - qtyExport;
       po['QtyInOut'] = currentInOut + qtyExport;
 
-      print('✅ Sau khi cập nhật:');
-      print('   ➜ Box: $boxId | QtyStock = ${box['QtyStock']}');
-      print('   ➜ PO: ${po['BoxIDStock']} | QtyInOut = ${po['QtyInOut']}');
-
       // 🔹 Nếu đã đủ 100% thì cập nhật trạng thái
       if (po['QtyInOut'] >= poQty) {
         po['Status'] = 'Hoàn tất';
-        print('🎯 PO ${po['BoxIDStock']} đã hoàn tất (QtyInOut=$poQty)');
       }
 
       // 🔹 Cập nhật remainQty toàn màn hình
@@ -227,14 +229,7 @@ class _StockExportFormState extends State<StockExportForm> {
       displayedBoxes = allBoxes
           .where((b) => b['ShelfID'] == po['ShelfIDWait'])
           .toList();
-
-      print('🧾 displayedBoxes cập nhật (${displayedBoxes.length} dòng)');
-      _showMessage(
-        '✅ Xuất $qtyExport từ Box $boxId cho PO ${po['BoxIDStock']}',
-      );
     });
-
-    print('========== ✅ KẾT THÚC _updateExportQty ==========\n');
   }
 
   @override
@@ -243,7 +238,7 @@ class _StockExportFormState extends State<StockExportForm> {
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(6),
           child: Column(
             children: [
               Expanded(
@@ -263,88 +258,80 @@ class _StockExportFormState extends State<StockExportForm> {
   }
 
   Widget _buildLeftPanel() {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.all(12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🔹 Chọn thao tác
-            Row(
-              children: [
-                const Icon(Icons.settings, color: Colors.indigo, size: 22),
-                const SizedBox(width: 8),
-                const Text(
-                  'Chọn thao tác:',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: SizedBox(
-                    height: 44,
-                    child: DropdownButtonFormField<String>(
-                      value: 'CheckBox',
-                      decoration: InputDecoration(
-                        isDense: true,
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        prefixIcon: const Icon(Icons.list_alt, size: 20),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                      ),
-                      items: ['CheckBox', 'Other']
-                          .map(
-                            (e) => DropdownMenuItem(value: e, child: Text(e)),
-                          )
-                          .toList(),
-                      onChanged: (_) {},
+    return Container(
+      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 🔹 Chọn thao tác
+          Row(
+            children: [
+              const Icon(Icons.settings, color: Colors.indigo, size: 22),
+              const SizedBox(width: 8),
+              const Text(
+                'Chọn thao tác:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 180,
+                child: DropdownButtonFormField<String>(
+                  value: 'CheckBox',
+                  decoration: InputDecoration(
+                    isDense: true,
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    prefixIcon: const Icon(Icons.list_alt, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
                     ),
                   ),
+                  items: ['CheckBox', 'Other']
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  onChanged: (_) {},
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // 🔹 Ô nhập OrderNo
+          _buildInputField(
+            'OrderNo:',
+            orderNoScanController,
+            Icons.qr_code_scanner,
+            (val) => _filterByPO(val),
+          ),
+
+          const SizedBox(height: 16),
+
+          // 🔹 Nút hành động
+          if (selectedPOBoxId != null)
+            Row(
+              children: [
+                CustomButton(
+                  label: 'Xóa tất cả',
+                  color: Colors.red.shade600,
+                  icon: Icons.delete_forever,
+                  onPressed: _clearAll,
                 ),
               ],
             ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          const Divider(thickness: 1.2),
 
-            // 🔹 Ô nhập OrderNo
-            _buildInputField(
-              'OrderNo:',
-              orderNoScanController,
-              Icons.qr_code_scanner,
-              (val) => _filterByPO(val),
-            ),
-
-            const SizedBox(height: 16),
-
-            // 🔹 Nút hành động
-            if (selectedPOBoxId != null)
-              Row(
-                children: [
-                  CustomButton(
-                    label: 'Xóa tất cả',
-                    color: Colors.red.shade600,
-                    icon: Icons.delete_forever,
-                    onPressed: _clearAll,
-                  ),
-                ],
-              ),
-
-            const SizedBox(height: 16),
-            const Divider(thickness: 1.2),
-
-            // 🔹 Bảng danh sách PO
-            const SizedBox(height: 8),
-            Expanded(child: _buildPOListTable()),
-          ],
-        ),
+          // 🔹 Bảng danh sách PO
+          const SizedBox(height: 8),
+          Expanded(child: _buildPOListTable()),
+        ],
       ),
     );
   }
@@ -412,7 +399,7 @@ class _StockExportFormState extends State<StockExportForm> {
                 ? const Center(
                     child: Text(
                       'Chưa có dữ liệu - vui lòng nhập số PO',
-                      style: TextStyle(color: Colors.grey, fontSize: 15),
+                      style: TextStyle(color: Colors.grey),
                     ),
                   )
                 : ListView.builder(
@@ -475,7 +462,7 @@ class _StockExportFormState extends State<StockExportForm> {
   Widget _buildRightPanel() {
     return Container(
       decoration: _cardDecoration(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -595,7 +582,7 @@ class _StockExportFormState extends State<StockExportForm> {
               ],
             ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
           // 🔹 Bảng danh sách Box
           Expanded(child: _buildBoxListTable()),
