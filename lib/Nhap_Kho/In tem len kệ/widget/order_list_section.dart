@@ -127,7 +127,7 @@ class OrderListSection extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300),
-              color: Colors.grey.shade300,
+              color: Colors.indigo.shade700,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -238,7 +238,10 @@ class OrderListSection extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }

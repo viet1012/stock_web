@@ -189,10 +189,10 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                     ),
                     child: DataTable2(
                       headingRowColor: MaterialStateColor.resolveWith(
-                        (_) => Colors.grey.shade200,
+                        (_) => Colors.indigo.shade700,
                       ),
                       headingTextStyle: const TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),

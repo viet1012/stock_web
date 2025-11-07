@@ -406,7 +406,7 @@ class _StockExportFormState extends State<StockExportForm> {
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -459,7 +459,7 @@ class _StockExportFormState extends State<StockExportForm> {
                                         ? TextAlign.right
                                         : TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 16,
                                       fontWeight: col == 'BoxIDStock'
                                           ? FontWeight.w600
                                           : FontWeight.normal,
@@ -664,7 +664,7 @@ class _StockExportFormState extends State<StockExportForm> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: Colors.indigo.shade700,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(8),
               ),
@@ -675,6 +675,7 @@ class _StockExportFormState extends State<StockExportForm> {
                   child: Text(
                     c,
                     style: const TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),

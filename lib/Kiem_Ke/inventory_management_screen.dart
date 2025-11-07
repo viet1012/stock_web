@@ -601,15 +601,14 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
                     constraints: BoxConstraints(minWidth: constraints.maxWidth),
                     child: DataTable(
                       headingRowColor: MaterialStateColor.resolveWith(
-                        (_) => Colors.grey.shade200,
+                        (_) => Colors.indigo.shade700,
                       ),
-
-                      dataRowHeight: isMobile ? 28 : 32,
-                      headingTextStyle: TextStyle(
-                        color: Colors.black87,
+                      headingTextStyle: const TextStyle(
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: isMobile ? 13 : 16,
+                        fontSize: 16,
                       ),
+                      dataRowHeight: isMobile ? 28 : 32,
 
                       headingRowHeight: 34,
                       dividerThickness: 0.6,

@@ -336,10 +336,10 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
       scrollDirection: Axis.horizontal,
       child: DataTable(
         headingRowColor: MaterialStateColor.resolveWith(
-          (_) => Colors.grey.shade200,
+          (_) => Colors.indigo.shade700,
         ),
         headingTextStyle: const TextStyle(
-          color: Colors.black87,
+          color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),

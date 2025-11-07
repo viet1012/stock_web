@@ -280,7 +280,12 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
                   ),
                   child: DataTable(
                     headingRowColor: MaterialStateColor.resolveWith(
-                      (_) => Colors.grey.shade200,
+                      (_) => Colors.indigo.shade700,
+                    ),
+                    headingTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                     columns: const [
                       DataColumn(label: Text("ID")),
@@ -288,7 +293,7 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
                       DataColumn(label: Text("ProductID")),
                       DataColumn(label: Text("ProductName")),
                       DataColumn(label: Text("Qty")),
-                      DataColumn(label: Text("idBlock")),
+                      DataColumn(label: Text("IdBlock")),
                       DataColumn(label: Text("MSNV")),
                       DataColumn(label: Text("firstTime")),
                       DataColumn(label: Text("POFirst")),
