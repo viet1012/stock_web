@@ -125,7 +125,6 @@ class _StockExportFormState extends State<StockExportForm> {
         remainQty = 0;
       }
     } else {
-      print("VT");
       remainQty = 0;
     }
 
@@ -162,7 +161,7 @@ class _StockExportFormState extends State<StockExportForm> {
     setState(() {
       selectedPOBoxId = po['POCode'];
 
-      // 🔹 Lấy toàn bộ box có cùng POCode
+      // Lấy toàn bộ box có cùng POCode
       displayedBoxes = allBoxes
           .where((box) => box['POCode'] == po['POCode'])
           .toList();
@@ -172,12 +171,24 @@ class _StockExportFormState extends State<StockExportForm> {
       poQtyConfirmController.text = po['QtyPO'].toString();
       shelfIdConfirmController.text = po['ShelfIDWait'];
 
+      // Tự động chọn dòng box đầu tiên nếu có box
+      if (displayedBoxes.isNotEmpty) {
+        selectedBoxId = displayedBoxes[0]['BoxID'];
+        exportQtyController.text = displayedBoxes[0]['QtyStock'].toString();
+      } else {
+        selectedBoxId = null;
+        exportQtyController.clear();
+      }
+
       isQtyHighlighted = true;
     });
 
     Future.delayed(const Duration(milliseconds: 300), () {
       FocusScope.of(context).requestFocus(qtyFocusNode);
     });
+
+    // Cập nhật lại remainQty sau khi chọn PO
+    _calculateTotals();
   }
 
   void _updateExportQty(int qtyExport, String boxId) {
