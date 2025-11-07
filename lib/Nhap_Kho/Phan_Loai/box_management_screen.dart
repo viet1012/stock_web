@@ -312,10 +312,11 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
 
   Widget _buildBottomTable() {
     return Container(
+      width: double.infinity, // ✅ mở rộng full theo cha
       decoration: _panelStyle(),
       padding: const EdgeInsets.all(12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
             'Danh sách đơn hàng đang chờ nhập tem box:',
@@ -326,53 +327,68 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          SizedBox(height: 400, child: _buildDataTable()),
+
+          // ✅ Expanded để bảng chiếm hết chiều cao còn lại (nếu cần)
+          SizedBox(
+            height: 650,
+            width: double.infinity, // ✅ chiếm full ngang
+            child: _buildDataTable(),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildDataTable() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        headingRowColor: MaterialStateColor.resolveWith(
-          (_) => Colors.indigo.shade700,
-        ),
-        headingTextStyle: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
-        dataRowHeight: 32,
-        headingRowHeight: 34,
-        dividerThickness: 0.6,
-        columns: const [
-          DataColumn(label: Text('No')),
-          DataColumn(label: Text('POQty')),
-          DataColumn(label: Text('PName')),
-          DataColumn(label: Text('PartID')),
-          DataColumn(label: Text('InDateTime')),
-          DataColumn(label: Text('BoxWait')),
-        ],
-        rows: _orderItems.asMap().entries.map((e) {
-          final i = e.key;
-          final item = e.value;
-          return DataRow(
-            color: MaterialStateProperty.resolveWith(
-              (_) => i.isEven ? Colors.white : Colors.grey.shade50,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: constraints.maxWidth, // ✅ full width theo cha
             ),
-            cells: [
-              DataCell(Text(item.No)),
-              DataCell(Text(item.poQty)),
-              DataCell(Text(item.pName)),
-              DataCell(Text(item.partID)),
-              DataCell(Text(item.inDateTime.split(' ')[0])),
-              DataCell(Text(item.boxWait)),
-            ],
-          );
-        }).toList(),
-      ),
+            child: DataTable(
+              headingRowColor: MaterialStateColor.resolveWith(
+                (_) => Colors.indigo.shade700,
+              ),
+              headingTextStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              dataRowHeight: 32,
+              headingRowHeight: 34,
+              dividerThickness: 0.6,
+              columns: const [
+                DataColumn(label: Text('No')),
+                DataColumn(label: Text('POQty')),
+                DataColumn(label: Text('PName')),
+                DataColumn(label: Text('PartID')),
+                DataColumn(label: Text('InDateTime')),
+                DataColumn(label: Text('BoxWait')),
+              ],
+              rows: _orderItems.asMap().entries.map((e) {
+                final i = e.key;
+                final item = e.value;
+                return DataRow(
+                  color: MaterialStateProperty.resolveWith(
+                    (_) => i.isEven ? Colors.white : Colors.grey.shade50,
+                  ),
+                  cells: [
+                    DataCell(SelectableText(item.No)),
+                    DataCell(SelectableText(item.poQty)),
+                    DataCell(SelectableText(item.pName)),
+                    DataCell(SelectableText(item.partID)),
+                    DataCell(SelectableText(item.inDateTime.split(' ')[0])),
+                    DataCell(SelectableText(item.boxWait)),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 
