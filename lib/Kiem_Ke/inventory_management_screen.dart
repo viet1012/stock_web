@@ -10,6 +10,7 @@ class InventoryItem {
   final String date;
   final String shelfId;
   final int qty;
+  final int? qtyActual; // thêm trường mới
 
   InventoryItem({
     required this.boxId,
@@ -19,6 +20,7 @@ class InventoryItem {
     required this.date,
     required this.shelfId,
     required this.qty,
+    this.qtyActual, // có thể null
   });
 }
 
@@ -65,21 +67,33 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
   }
 
   void _mockData() {
+    List<String> productNames = [
+      'Ốc vít M6',
+      'Bulong M8',
+      'Bánh răng nhỏ',
+      'Trục thép',
+      'Lò xo nén',
+      'Thanh ren',
+      'Mặt bích',
+      'Piston',
+    ];
+
+    List<String> shelfIds = ['A1', 'B2', 'C3', 'D4'];
+
     _allItems = List.generate(20, (i) {
       return InventoryItem(
         boxId: 'BOX${1000 + i}',
         pid: 'P${i + 1}',
-        pName: i % 2 == 0 ? 'Hoa hồng' : 'Hoa lan',
+        pName: productNames[i % productNames.length], // chọn tên sản phẩm
         status: 'Chưa kiểm',
         date: '2025-11-05',
-        shelfId: i % 3 == 0
-            ? 'A1'
-            : i % 3 == 1
-            ? 'B2'
-            : 'C3',
-        qty: 100 + i * 5, // ví dụ: số lượng chuẩn trong hệ thống
+        shelfId: shelfIds[i % shelfIds.length], // chọn kệ
+        qty: 50 + i * 5, // số lượng chuẩn trong hệ thống
       );
     });
+
+    // Khi mock NG Items, có thể thêm qtyActual để test cột QtyAct
+    _ngItems = [];
   }
 
   void _filterItems() {
@@ -126,6 +140,7 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
             date: DateTime.now().toString().split(' ')[0],
             shelfId: item.shelfId,
             qty: item.qty,
+            qtyActual: qtyActual, // lưu số lượng thực tế
           ),
         );
         _allItems.removeWhere((e) => e.boxId == item.boxId);
@@ -604,7 +619,11 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: _buildDataTable(title: 'Danh sách NG', items: _ngItems),
+          child: _buildDataTable(
+            title: 'Danh sách NG',
+            items: _ngItems,
+            showQtyActual: true, // bật cột QtyAct cho NG
+          ),
         ),
       ],
     );
@@ -613,11 +632,12 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
   Widget _buildDataTable({
     required String title,
     required List<InventoryItem> items,
+    bool showQtyActual = false, // thêm tham số cho NG
   }) {
-    final isMobile = MediaQuery.of(context).size.width < 800;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 800;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(8),
       decoration: _panelDecoration(),
       child: Column(
@@ -628,67 +648,83 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
-
-          // 👉 Bọc bảng trong Expanded để có vùng cuộn ổn định
-          SizedBox(
-            height: isMobile ? 240 : 450, // Giới hạn chiều cao bảng
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 600),
+          // 👉 Dùng LayoutBuilder để giới hạn chiều rộng và scroll nếu overflow
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SizedBox(
+                height: isMobile ? 240 : 330,
                 child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    headingRowColor: MaterialStateColor.resolveWith(
-                      (_) => Colors.indigo.shade700,
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth < 600
+                          ? 600
+                          : constraints.maxWidth,
                     ),
-                    headingTextStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    dataRowHeight: isMobile ? 30 : 36,
-                    headingRowHeight: 34,
-                    dividerThickness: 0.6,
-                    columnSpacing: isMobile ? 20 : 40,
-                    columns: const [
-                      DataColumn(label: Text('STT')),
-                      DataColumn(label: Text('BoxID')),
-                      DataColumn(label: Text('PID')),
-                      DataColumn(label: Text('PName')),
-                      DataColumn(label: Text('Qty')),
-                      DataColumn(label: Text('StatusCheck')),
-                      DataColumn(label: Text('DateInventory')),
-                      DataColumn(label: Text('ShelfID')),
-                    ],
-                    rows: items.asMap().entries.map((e) {
-                      final i = e.key;
-                      final item = e.value;
-                      final isSelected = _selectedItem?.boxId == item.boxId;
-                      return DataRow(
-                        color: MaterialStateProperty.resolveWith(
-                          (_) => isSelected
-                              ? Colors.yellow.shade100
-                              : i.isEven
-                              ? Colors.white
-                              : Colors.grey.shade50,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        headingRowColor: MaterialStateColor.resolveWith(
+                          (_) => Colors.indigo.shade700,
                         ),
-                        cells: [
-                          DataCell(Text('${i + 1}')),
-                          DataCell(SelectableText(item.boxId)),
-                          DataCell(SelectableText(item.pid)),
-                          DataCell(SelectableText(item.pName)),
-                          DataCell(SelectableText(item.qty.toString())),
-                          DataCell(SelectableText(item.status)),
-                          DataCell(SelectableText(item.date)),
-                          DataCell(SelectableText(item.shelfId)),
+                        headingTextStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        dataRowHeight: isMobile ? 30 : 36,
+                        headingRowHeight: 34,
+                        dividerThickness: 0.6,
+                        columnSpacing: isMobile ? 12 : 18,
+                        columns: [
+                          const DataColumn(label: Text('STT')),
+                          const DataColumn(label: Text('BoxID')),
+                          const DataColumn(label: Text('PID')),
+                          const DataColumn(label: Text('PName')),
+                          const DataColumn(label: Text('Qty')),
+                          if (showQtyActual)
+                            const DataColumn(label: Text('QtyAct')),
+                          const DataColumn(label: Text('StatusCheck')),
+                          const DataColumn(label: Text('DateInventory')),
+                          const DataColumn(label: Text('ShelfID')),
                         ],
-                      );
-                    }).toList(),
+                        rows: items.asMap().entries.map((e) {
+                          final i = e.key;
+                          final item = e.value;
+                          final isSelected = _selectedItem?.boxId == item.boxId;
+
+                          return DataRow(
+                            color: MaterialStateProperty.resolveWith(
+                              (_) => isSelected
+                                  ? Colors.yellow.shade100
+                                  : i.isEven
+                                  ? Colors.white
+                                  : Colors.grey.shade50,
+                            ),
+                            cells: [
+                              DataCell(Text('${i + 1}')),
+                              DataCell(SelectableText(item.boxId)),
+                              DataCell(SelectableText(item.pid)),
+                              DataCell(SelectableText(item.pName)),
+                              DataCell(SelectableText(item.qty.toString())),
+                              if (showQtyActual)
+                                DataCell(
+                                  SelectableText(
+                                    item.qtyActual?.toString() ?? '-',
+                                  ),
+                                ),
+                              DataCell(SelectableText(item.status)),
+                              DataCell(SelectableText(item.date)),
+                              DataCell(SelectableText(item.shelfId)),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

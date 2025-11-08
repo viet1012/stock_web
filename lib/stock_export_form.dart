@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 import 'package:stock_web/widgets/header_bar.dart';
 
@@ -91,7 +90,7 @@ class _StockExportFormState extends State<StockExportForm> {
       {
         'Firsttime': '2025-11-01 08:10',
         'BoxID': 'BX502',
-        'QtyStock': 30,
+        'QtyStock': 40,
         'CheckSt': 'OK',
         'ShelfID': 'Shelf-2',
         'POCode': '123', // 🔹 Cùng PO
@@ -318,7 +317,7 @@ class _StockExportFormState extends State<StockExportForm> {
                       vertical: 8,
                     ),
                   ),
-                  items: ['CheckBox', 'Other']
+                  items: ['CheckBox', 'Confirm']
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (_) {},

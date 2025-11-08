@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/Nhap_Kho/Chuy%E1%BB%83n%20Kho/confirmation_trans_shelf_screen.dart';
+
 import 'Kiem_Ke/box_confirm_screen.dart';
 import 'Kiem_Ke/inventory_management_screen.dart';
-import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
-import 'stock_export_form.dart';
+import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
 import 'intro_page.dart';
+import 'stock_export_form.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,8 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final Map<String, IconData> tabIcons = {
     "GIỚI THIỆU HỆ THỐNG": Icons.info_outline,
     "NHẬP KHO": Icons.inventory_2_outlined,
-    "XUẤT KHO": Icons.local_shipping_outlined,
+    "XUẤT KHO": Icons.outbox,
     "KIỂM KÊ": Icons.fact_check_outlined,
+    "GOM HÀNG": Icons.all_inbox_outlined,
+    "BÁO CÁO": Icons.bar_chart_outlined,
   };
 
   final Map<String, List<Map<String, dynamic>>> tabButtons = {
@@ -35,13 +38,15 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.add_box, "label": "CHUYỂN HÀNG LÊN KỆ"},
     ],
     "XUẤT KHO": [
-      {"icon": Icons.local_shipping, "label": "XUẤT HÀNG (BƯỚC 1)"},
+      {"icon": Icons.outbox, "label": "XUẤT HÀNG (BƯỚC 1)"},
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
     "KIỂM KÊ": [
       {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ"},
       {"icon": Icons.assignment_turned_in, "label": "IN LẠI TEM"},
     ],
+    "GOM HÀNG": [],
+    "BÁO CÁO": [],
   };
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
