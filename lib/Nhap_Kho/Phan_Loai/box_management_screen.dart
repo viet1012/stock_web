@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 
 import '../../Data/mock_data.dart';
-import '../../widgets/header_bar.dart';
 
 class OrderItem {
   final String No;
@@ -115,9 +114,8 @@ class _BoxManagementScreenState extends State<BoxManagementScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            HeaderBar(msnv: '9999', title: 'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ'),
-
-            const SizedBox(height: 8),
+            // HeaderBar(msnv: '9999', title: 'PHÂN LOẠI HÀNG ĐƯA VÀO BOX CHỜ'),
+            // const SizedBox(height: 8),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {

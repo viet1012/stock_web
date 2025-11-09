@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+
 import '../../widgets/custom_button.dart';
-import '../../widgets/header_bar.dart';
 import 'widget/order_info_section.dart';
 import 'widget/order_list_section.dart';
 
@@ -65,8 +65,8 @@ class _InTemLenKeMTSScreenState extends State<InTemLenKeMTSScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            HeaderBar(msnv: '9999', title: 'IN TEM & LÊN KỆ'),
-            const SizedBox(height: 12),
+            // HeaderBar(msnv: '9999', title: 'IN TEM & LÊN KỆ'),
+            // const SizedBox(height: 12),
 
             /// ====== Ô LẤY HÀNG RA KHỎI KỆ ======
             Container(

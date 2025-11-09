@@ -7,6 +7,7 @@ import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
+import 'frm_stock_report_screen.dart';
 import 'intro_page.dart';
 import 'stock_export_form.dart';
 
@@ -46,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.assignment_turned_in, "label": "IN LẠI TEM"},
     ],
     "GOM HÀNG": [],
-    "BÁO CÁO": [],
+    "BÁO CÁO": [
+      {"icon": Icons.bar_chart_outlined, "label": "BÁO CÁO"},
+    ],
   };
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -269,6 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "KIỂM KÊ") return InventoryManagementScreen();
     if (selectedSubMenu == "IN LẠI TEM") return BoxConfirmScreen();
 
+    if (selectedSubMenu == "BÁO CÁO") return StockReportChartsScreen();
     return Center(
       child: Text(
         "Trang nội dung của: $activeTab",

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
-import 'package:stock_web/widgets/header_bar.dart';
 
 class FrmTransShelfScreen extends StatefulWidget {
   const FrmTransShelfScreen({super.key});
@@ -17,6 +16,7 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
 
   String _statusMessage = "";
   Color _statusColor = Colors.black;
+  bool _isBoxValid = false; // ✅ Cờ kiểm tra Box hợp lệ
 
   List<Map<String, dynamic>> _waitingBoxes = [
     {
@@ -54,17 +54,45 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
     super.dispose();
   }
 
-  void _confirmTransfer() {
+  // ✅ Hàm xác nhận Box trước khi cho nhập ShelfID
+  void _checkBoxValid() {
     final idBlockInput = _boxController.text.trim();
-    final shelfId = _shelfController.text.trim();
 
     if (idBlockInput.isEmpty) {
-      _setStatus("Vui lòng nhập idBlock cần chuyển", Colors.red);
+      _setStatus("⚠️ Vui lòng nhập mã BoxID", Colors.red);
+      _isBoxValid = false;
       _boxFocus.requestFocus();
       return;
     }
+
+    final exists = _waitingBoxes.any((b) => b['idBlock'] == idBlockInput);
+
+    if (!exists) {
+      _setStatus("❌ BoxID không tồn tại, vui lòng kiểm tra lại", Colors.red);
+      _isBoxValid = false;
+      _shelfController.clear();
+      _boxFocus.requestFocus();
+    } else {
+      _setStatus("✅ Box hợp lệ! Vui lòng nhập ShelfID", Colors.green);
+      _isBoxValid = true;
+      FocusScope.of(context).requestFocus(_shelfFocus);
+    }
+
+    setState(() {});
+  }
+
+  void _confirmTransfer() {
+    if (!_isBoxValid) {
+      _setStatus("⚠️ Box chưa hợp lệ, không thể nhập ShelfID!", Colors.red);
+      _boxFocus.requestFocus();
+      return;
+    }
+
+    final idBlockInput = _boxController.text.trim();
+    final shelfId = _shelfController.text.trim();
+
     if (shelfId.isEmpty || shelfId.length > 15) {
-      _setStatus("Quẹt sai kệ, vui lòng kiểm tra lại", Colors.red);
+      _setStatus("❌ Quẹt sai kệ, vui lòng kiểm tra lại", Colors.red);
       _shelfController.clear();
       _shelfFocus.requestFocus();
       return;
@@ -75,17 +103,19 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
     );
 
     if (existingBoxIndex == -1) {
-      _setStatus("idBlock không tồn tại, vui lòng kiểm tra lại", Colors.red);
+      _setStatus("❌ idBlock không tồn tại, vui lòng kiểm tra lại", Colors.red);
       _boxController.clear();
+      _isBoxValid = false;
       _boxFocus.requestFocus();
       return;
     }
 
     setState(() {
       _waitingBoxes[existingBoxIndex]['shelfId'] = shelfId;
-      _setStatus("Xác nhận chuyển kệ thành công", Colors.green);
+      _setStatus("✅ Xác nhận chuyển kệ thành công", Colors.green);
       _boxController.clear();
       _shelfController.clear();
+      _isBoxValid = false; // reset lại
       _boxFocus.requestFocus();
     });
   }
@@ -108,8 +138,8 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            HeaderBar(msnv: '9999', title: "XÁC NHẬN BOX CẦN CHUYỂN LÊN KỆ"),
-            const SizedBox(height: 10),
+            // HeaderBar(msnv: '9999', title: "XÁC NHẬN BOX CẦN CHUYỂN LÊN KỆ"),
+            // const SizedBox(height: 10),
             // Dùng Flexible để không bị bó chặt khi chiều cao nhỏ
             Flexible(
               child: isPhone
@@ -141,7 +171,7 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
   Widget _buildTopPanel(bool isPhone) {
     return Container(
       decoration: _panelStyle(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -151,99 +181,63 @@ class _FrmTransShelfScreenState extends State<FrmTransShelfScreen> {
             Colors.blue,
           ),
           const SizedBox(height: 8),
+
+          // ✅ Scan BoxID
           _buildLabeledTextField(
-            "Scan Box",
+            "Scan BoxID",
             _boxController,
             Icons.qr_code_scanner,
             focusNode: _boxFocus,
-            onSubmitted: (_) =>
-                FocusScope.of(context).requestFocus(_shelfFocus),
+            onSubmitted: (_) => _checkBoxValid(), // kiểm tra ngay khi nhập xong
           ),
-          const SizedBox(height: 12),
-          _buildLabeledTextField(
-            "Scan ShelfID",
-            _shelfController,
-            Icons.inventory_2,
+          const SizedBox(height: 8),
+
+          // ✅ Scan ShelfID — chỉ bật khi Box hợp lệ
+          TextField(
+            controller: _shelfController,
             focusNode: _shelfFocus,
+            enabled: _isBoxValid, // ✅ chỉ bật khi box hợp lệ
             onSubmitted: (_) => _confirmTransfer(),
+            decoration: InputDecoration(
+              labelText: _isBoxValid
+                  ? "Scan ShelfID"
+                  : "Vui lòng quét đúng Box trước",
+              prefixIcon: const Icon(Icons.inventory_2),
+              filled: true,
+              fillColor: _isBoxValid ? Colors.white : Colors.grey.shade200,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
-          // Responsive buttons and info text
-          isPhone
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      "Box còn lại: ${_waitingBoxes.where((b) => b['shelfId'] == 'Waiting').length}",
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            label: "XÁC NHẬN",
-                            color: Colors.green,
-                            icon: Icons.check_circle_outline,
-                            onPressed: _confirmTransfer,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: CustomButton(
-                            label: "XÓA DỮ LIỆU",
-                            color: Colors.red,
-                            icon: Icons.delete_outline,
-                            onPressed: () {
-                              _boxController.clear();
-                              _shelfController.clear();
-                              _setStatus("", Colors.black);
-                              _boxFocus.requestFocus();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    Text(
-                      "Box còn lại: ${_waitingBoxes.where((b) => b['shelfId'] == 'Waiting').length}",
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Spacer(),
-                    SizedBox(
-                      width: 300,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                              label: "XÁC NHẬN",
-                              color: Colors.green,
-                              icon: Icons.check_circle_outline,
-                              onPressed: _confirmTransfer,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: CustomButton(
-                              label: "XÓA DỮ LIỆU",
-                              color: Colors.red,
-                              icon: Icons.delete_outline,
-                              onPressed: () {
-                                _boxController.clear();
-                                _shelfController.clear();
-                                _setStatus("", Colors.black);
-                                _boxFocus.requestFocus();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+          const SizedBox(height: 8),
+
+          // Nút reset + trạng thái
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Box còn lại: ${_waitingBoxes.where((b) => b['shelfId'] == 'Waiting').length}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
+              ),
+              CustomButton(
+                label: "XÓA DỮ LIỆU",
+                color: Colors.red,
+                icon: Icons.delete_outline,
+                onPressed: () {
+                  _boxController.clear();
+                  _shelfController.clear();
+                  _isBoxValid = false;
+                  _setStatus("", Colors.black);
+                  _boxFocus.requestFocus();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           Text(
             _statusMessage,
             style: TextStyle(color: _statusColor, fontWeight: FontWeight.bold),
