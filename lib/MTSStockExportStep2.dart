@@ -27,32 +27,41 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
     "PO123": [
       {
         "No": 1,
-        "ProductID": "P1001",
-        "PName": "Hoa Hồng",
-        "POQty": 10,
+        "ProductID": "M1001",
+        "PName": "Bạc đạn trục chính SKF 6205",
+        "POQty": 20,
         "TQty": 0,
-        "QtyExport": 10, // ✅ Thêm
+        "QtyExport": 20,
         "IDBox": "BOX001",
       },
       {
         "No": 2,
-        "ProductID": "P1002",
-        "PName": "Hoa Ly",
-        "POQty": 5,
+        "ProductID": "M1002",
+        "PName": "Bánh răng thép 40 răng M1.5",
+        "POQty": 15,
         "TQty": 0,
-        "QtyExport": 5, // ✅ Thêm
+        "QtyExport": 15,
         "IDBox": "BOX002",
       },
     ],
     "PO456": [
       {
         "No": 1,
-        "ProductID": "P2001",
-        "PName": "Hoa Cúc",
-        "POQty": 8,
+        "ProductID": "M2001",
+        "PName": "Trục truyền động Inox Ø25x300mm",
+        "POQty": 10,
         "TQty": 0,
-        "QtyExport": 8, // ✅ Thêm
+        "QtyExport": 10,
         "IDBox": "BOX003",
+      },
+      {
+        "No": 2,
+        "ProductID": "M2002",
+        "PName": "Bu lông lục giác M10x50",
+        "POQty": 50,
+        "TQty": 0,
+        "QtyExport": 50,
+        "IDBox": "BOX004",
       },
     ],
   };

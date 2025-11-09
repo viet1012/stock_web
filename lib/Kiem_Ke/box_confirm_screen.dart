@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
-
-import '../widgets/custom_button.dart';
+import 'package:flutter/material.dart';
 
 class BoxConfirmScreen extends StatefulWidget {
   const BoxConfirmScreen({super.key});
@@ -12,6 +10,8 @@ class BoxConfirmScreen extends StatefulWidget {
 
 class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
   final TextEditingController boxIdController = TextEditingController();
+  final TextEditingController qtyController =
+      TextEditingController(); // 🆕 ô nhập số lượng
 
   final List<Map<String, dynamic>> mockBoxes = [
     {'BoxID': '123', 'PName': 'Motor Fan', 'PID': 'P1001', 'QtyBox': 50},
@@ -32,7 +32,8 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
     if (foundBox.isNotEmpty) {
       setState(() {
         currentBoxInfo = foundBox;
-        confirmedBoxes.add(foundBox);
+        qtyController.text = foundBox['QtyBox']
+            .toString(); // 🆕 gợi ý số lượng ban đầu
       });
     } else {
       setState(() => currentBoxInfo = null);
@@ -50,14 +51,23 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
   int get totalQty =>
       confirmedBoxes.fold(0, (sum, item) => sum + (item['QtyBox'] as int));
 
-  void printLabel(Map<String, dynamic> box) {
+  void printLabel(Map<String, dynamic> box, int newQty) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('🖨️ Đang in lại tem cho BoxID: ${box['BoxID']}'),
+        content: Text(
+          '🖨️ In tem cho BoxID: ${box['BoxID']} với số lượng $newQty',
+        ),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
     );
+
+    // 🆕 Cập nhật lại danh sách confirmedBoxes
+    setState(() {
+      confirmedBoxes.add({...box, 'QtyBox': newQty});
+      currentBoxInfo = null;
+      qtyController.clear();
+    });
   }
 
   @override
@@ -86,19 +96,11 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                         color: Color(0xFF333333),
                       ),
                     ),
-                    Text(
-                      'Tổng số lượng: $totalQty',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.teal,
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
 
-                // Ô nhập BoxID + nút xác nhận
+                // Ô nhập BoxID
                 Row(
                   children: [
                     Expanded(
@@ -106,16 +108,12 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                         autofocus: true,
                         controller: boxIdController,
                         decoration: InputDecoration(
-                          labelText: 'Nhập BoxIDConfirm (Ví dụ: 123)',
+                          labelText: 'Nhập BoxID (VD: 123)',
                           prefixIcon: const Icon(Icons.qr_code_2),
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 14,
-                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
                         onSubmitted: handleConfirm,
@@ -126,7 +124,7 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
 
                 const SizedBox(height: 20),
 
-                // Thông tin Box hiện tại
+                // Thông tin box hiện tại + nhập số lượng mới
                 if (currentBoxInfo != null)
                   Card(
                     elevation: 3,
@@ -135,27 +133,86 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 16,
                         vertical: 16,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      child: Column(
                         children: [
-                          _infoItem(
-                            Icons.inventory_2,
-                            "BoxID",
-                            currentBoxInfo!['BoxID'],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _infoItem(
+                                Icons.inventory_2,
+                                "BoxID",
+                                currentBoxInfo!['BoxID'],
+                              ),
+                              _infoItem(
+                                Icons.widgets,
+                                "PName",
+                                currentBoxInfo!['PName'],
+                              ),
+                              _infoItem(
+                                Icons.label,
+                                "PID",
+                                currentBoxInfo!['PID'],
+                              ),
+                              _infoItem(
+                                Icons.format_list_numbered,
+                                "QtyBox",
+                                currentBoxInfo!['QtyBox'].toString(),
+                              ),
+                            ],
                           ),
-                          _infoItem(
-                            Icons.widgets,
-                            "PName",
-                            currentBoxInfo!['PName'],
-                          ),
-                          _infoItem(Icons.label, "PID", currentBoxInfo!['PID']),
-                          _infoItem(
-                            Icons.format_list_numbered,
-                            "QtyBox",
-                            currentBoxInfo!['QtyBox'].toString(),
+                          const SizedBox(height: 16),
+
+                          // 🆕 Nhập số lượng mới và in tem
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                child: TextField(
+                                  controller: qtyController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: 'Số lượng thực té',
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.print),
+                                label: const Text('In tem'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 14,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  final qty = int.tryParse(qtyController.text);
+                                  if (qty == null || qty <= 0) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          '⚠️ Nhập số lượng hợp lệ!',
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  } else {
+                                    printLabel(currentBoxInfo!, qty);
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -212,29 +269,17 @@ class _BoxConfirmScreenState extends State<BoxConfirmScreen> {
                             DataCell(Text(box['PID'].toString())),
                             DataCell(Text(box['QtyBox'].toString())),
                             DataCell(
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.print,
-                                      color: Colors.blueAccent,
-                                    ),
-                                    tooltip: 'In lại tem',
-                                    onPressed: () => printLabel(box),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete_outline,
-                                      color: Colors.redAccent,
-                                    ),
-                                    tooltip: 'Xóa dòng',
-                                    onPressed: () {
-                                      setState(() {
-                                        confirmedBoxes.remove(box);
-                                      });
-                                    },
-                                  ),
-                                ],
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.redAccent,
+                                ),
+                                tooltip: 'Xóa dòng',
+                                onPressed: () {
+                                  setState(() {
+                                    confirmedBoxes.remove(box);
+                                  });
+                                },
                               ),
                             ),
                           ],
