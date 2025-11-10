@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 import 'package:stock_web/widgets/header_bar.dart';
 
+import 'Xuat_Kho/Xuất Kho Bước 1/Xac_Nhan_Box/confirm_boxId_input.dart';
+import 'Xuat_Kho/Xuất Kho Bước 1/widgets/badge_widget.dart';
+import 'Xuat_Kho/Xuất Kho Bước 1/widgets/box_list_panel.dart';
+import 'Xuat_Kho/Xuất Kho Bước 1/widgets/input_field.dart';
+import 'Xuat_Kho/Xuất Kho Bước 1/Đưa lên kệ chờ/confirm_shelf_dialog.dart';
+
 class StockExportForm extends StatefulWidget {
   const StockExportForm({super.key});
 
@@ -45,6 +51,10 @@ class _StockExportFormState extends State<StockExportForm> {
 
   List<String> selectedPOList = [];
 
+  String selectedAction = 'CheckBox'; // 🔹 Mặc định
+  final TextEditingController boxConfirmController = TextEditingController();
+  final TextEditingController shelfConfirmController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -60,10 +70,11 @@ class _StockExportFormState extends State<StockExportForm> {
         'PName': 'Ống thép 20mm',
         'QtyPO': 100,
         'QtyInOut': 0,
-        'ShelfIDWait': 'Shelf-1',
+        'ShelfIDWait': '',
         'POCode': '456', // 🔹 Thêm PO code riêng
         'Status': 'Chờ',
         'Remark': '',
+        'BoxIDStock': 'VT1012',
       },
       {
         'No': 1,
@@ -71,10 +82,11 @@ class _StockExportFormState extends State<StockExportForm> {
         'PName': 'Ống thép 20mm',
         'QtyPO': 100,
         'QtyInOut': 0,
-        'ShelfIDWait': 'Shelf-1',
+        'ShelfIDWait': '',
         'POCode': '123', // 🔹 Thêm PO code riêng
         'Status': 'Chờ',
         'Remark': '',
+        'BoxIDStock': 'VTA1012',
       },
     ];
 
@@ -84,7 +96,7 @@ class _StockExportFormState extends State<StockExportForm> {
         'BoxID': 'BX501',
         'QtyStock': 60,
         'CheckSt': 'OK',
-        'ShelfID': 'Shelf-1',
+        'ShelfID': '',
         'POCode': '123', // 🔹 Liên kết với PO
       },
       {
@@ -242,9 +254,9 @@ class _StockExportFormState extends State<StockExportForm> {
       po['QtyInOut'] = currentInOut + qtyExport;
 
       // 🔹 Nếu đã đủ 100% thì cập nhật trạng thái
-      if (po['QtyInOut'] >= poQty) {
-        po['Status'] = 'Hoàn tất';
-      }
+      // if (po['QtyInOut'] >= poQty) {
+      //   po['Status'] = 'Hoàn tất';
+      // }
 
       // 🔹 Cập nhật remainQty toàn màn hình
       _calculateTotals();
@@ -264,7 +276,7 @@ class _StockExportFormState extends State<StockExportForm> {
           padding: const EdgeInsets.all(6),
           child: Column(
             children: [
-              HeaderBar(msnv: '9999', title: 'XUẤT KHO BƯỚC 1'),
+              // HeaderBar(msnv: '9999', title: 'XUẤT KHO BƯỚC 1'),
               const SizedBox(height: 12),
 
               Expanded(
@@ -279,6 +291,20 @@ class _StockExportFormState extends State<StockExportForm> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _openConfirmShelfDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmShelfDialog(
+        orderWaitList: orderWaitList,
+        onUpdate: (updatedList) {
+          setState(() {
+            orderWaitList = updatedList;
+          });
+        },
       ),
     );
   }
@@ -303,7 +329,7 @@ class _StockExportFormState extends State<StockExportForm> {
               SizedBox(
                 width: 180,
                 child: DropdownButtonFormField<String>(
-                  value: 'CheckBox',
+                  value: selectedAction,
                   decoration: InputDecoration(
                     isDense: true,
                     filled: true,
@@ -320,21 +346,46 @@ class _StockExportFormState extends State<StockExportForm> {
                   items: ['CheckBox', 'Confirm']
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
-                  onChanged: (_) {},
+                  onChanged: (val) {
+                    setState(() {
+                      selectedAction = val!;
+                    });
+                  },
                 ),
+              ),
+              const SizedBox(width: 12),
+              CustomButton(
+                onPressed: _openConfirmShelfDialog,
+                label: 'Xác nhận kệ chờ',
+                color: Colors.blue,
               ),
             ],
           ),
 
-          const SizedBox(height: 20),
+          if (selectedAction == 'Confirm')
+            ConfirmBoxIdInput(
+              orderWaitList: orderWaitList,
+              onUpdate: (updatedList) {
+                setState(() {
+                  orderWaitList = updatedList;
+                });
+              },
+              showMessage: (msg) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(msg)));
+              },
+            ),
+
+          const SizedBox(height: 10),
 
           // 🔹 Ô nhập OrderNo
-          _buildInputField(
-            'OrderNo:',
-            "Nhập số đơn hàng (VD: 123)",
-            orderNoScanController,
-            Icons.qr_code_scanner,
-            (val) => _filterByPO(val),
+          InputField(
+            label: 'OrderNo:',
+            hint: "Nhập số đơn hàng (VD: 123)",
+            controller: orderNoScanController,
+            icon: Icons.qr_code_scanner,
+            onSubmit: (val) => _filterByPO(val),
           ),
 
           const SizedBox(height: 16),
@@ -605,14 +656,35 @@ class _StockExportFormState extends State<StockExportForm> {
                 ),
 
                 const SizedBox(width: 12),
-                _buildBadge('Còn lại: $remainQty', Colors.red),
+                BadgeWidget(
+                  text: 'Còn lại: $remainQty',
+                  color: remainQty > 10 ? Colors.green : Colors.red,
+                ),
               ],
             ),
 
           const SizedBox(height: 8),
 
           // 🔹 Bảng danh sách Box
-          Expanded(child: _buildBoxListTable()),
+          // Thay vì gọi _buildBoxListTable()
+          Expanded(
+            child: BoxListPanel(
+              displayedBoxes: displayedBoxes,
+              selectedBoxId: selectedBoxId,
+              onSelectBox: (boxId, qtyStock) {
+                setState(() {
+                  selectedBoxId = boxId;
+                  exportQtyController.text = qtyStock.toString();
+                  isQtyHighlighted = true;
+                });
+
+                // focus vào ô thực tế xuất
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  FocusScope.of(context).requestFocus(qtyFocusNode);
+                });
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -650,163 +722,6 @@ class _StockExportFormState extends State<StockExportForm> {
           ),
         ),
         style: const TextStyle(fontSize: 14),
-      ),
-    );
-  }
-
-  Widget _buildBoxListTable() {
-    final columns = ['Firsttime', 'BoxID', 'QtyStock', 'CheckSt', 'ShelfID'];
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.indigo.shade700,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(8),
-              ),
-            ),
-            child: Row(
-              children: columns.map((c) {
-                return Expanded(
-                  child: Text(
-                    c,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-
-          // Body
-          Expanded(
-            child: displayedBoxes.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Không có box nào trong kệ chờ',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: displayedBoxes.length,
-                    itemBuilder: (ctx, i) {
-                      final box = displayedBoxes[i];
-                      final isSelected = box['BoxID'] == selectedBoxId;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedBoxId = box['BoxID'];
-                            exportQtyController.text = box['QtyStock']
-                                .toString();
-                            isQtyHighlighted = true;
-                          });
-
-                          // focus vào ô thực tế xuất
-                          Future.delayed(const Duration(milliseconds: 200), () {
-                            FocusScope.of(context).requestFocus(qtyFocusNode);
-                          });
-                        },
-                        child: Container(
-                          color: isSelected
-                              ? Colors.yellow.shade100
-                              : (i.isEven ? Colors.white : Colors.grey.shade50),
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: columns.map((col) {
-                              final val = box[col]?.toString() ?? '';
-                              final isNumber = ['QtyStock'].contains(col);
-                              return Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                  ),
-                                  child: Text(
-                                    val,
-                                    textAlign: isNumber
-                                        ? TextAlign.right
-                                        : TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: isSelected
-                                          ? Colors.blue.shade700
-                                          : Colors.black,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper Widgets
-  Widget _buildInputField(
-    String label,
-    String hint,
-    TextEditingController controller,
-    IconData icon,
-    Function(String) onSubmit,
-  ) {
-    return Row(
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: TextField(
-            autofocus: true,
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: hint,
-              prefixIcon: Icon(icon, size: 18),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-            ),
-            onSubmitted: onSubmit,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
       ),
     );
   }

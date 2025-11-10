@@ -6,8 +6,8 @@ import 'Kiem_Ke/inventory_management_screen.dart';
 import 'MTSStockExportStep2.dart';
 import 'MTS_stock_export_hangbo_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
+
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
-import 'frm_stock_report_screen.dart';
 import 'intro_page.dart';
 import 'stock_export_form.dart';
 
@@ -261,18 +261,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBody() {
     if (activeTab == "GIỚI THIỆU HỆ THỐNG") return const IntroPage();
-    if (selectedSubMenu == "PHÂN LOẠI BOX LIST")
+    if (selectedSubMenu == "PHÂN LOẠI BOX LIST") {
       return const BoxManagementScreen();
+    }
     if (selectedSubMenu == "IN TEM") return const InTemLenKeMTSScreen();
     if (selectedSubMenu == "CHUYỂN HÀNG LÊN KỆ") return FrmTransShelfScreen();
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") return StockExportForm();
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 2)") return MTSStockExportStep2();
-    if (selectedSubMenu == "XUẤT KHO HÀNG BỘ")
+    if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
       return MTSStockExportHangBoForm();
+    }
     if (selectedSubMenu == "KIỂM KÊ") return InventoryManagementScreen();
     if (selectedSubMenu == "IN LẠI TEM") return BoxConfirmScreen();
 
-    if (selectedSubMenu == "BÁO CÁO") return StockReportChartsScreen();
+    // if (selectedSubMenu == "BÁO CÁO") return StockReportChartsScreen();
     return Center(
       child: Text(
         "Trang nội dung của: $activeTab",
