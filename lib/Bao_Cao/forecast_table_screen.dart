@@ -11,7 +11,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
   late ScrollController _horizontalController;
   late ScrollController _verticalController;
 
-  final List<Map<String, dynamic>> data = [
+  static List<Map<String, dynamic>> data = [
     {
       'SKU': 'SKU-A3-100',
       'Tồn kho': 161,
@@ -44,39 +44,27 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
       'Tuần 7 Kho': 131,
       'Tuần 8 Kho': 170,
     },
-    {
-      'SKU': 'SKU-B2-200',
-      'Tồn kho': 245,
-      'Trung bình 6 tháng': 412,
-      'Trung bình 3 tháng': 520,
-      'LT đặt hàng (ngày)': 20,
-      'MOQ': 300,
-      'Tuần 1 Nhận': 150,
-      'Tuần 2 Nhận': '-',
-      'Tuần 3 Nhận': '-',
-      'Tuần 4 Nhận': '-',
-      'Tuần 5 Nhận': 200,
-      'Tuần 6 Nhận': '-',
-      'Tuần 7 Nhận': '-',
-      'Tuần 8 Nhận': '-',
-      'Tuần 1 Xuất': 50,
-      'Tuần 2 Xuất': 45,
-      'Tuần 3 Xuất': '-',
-      'Tuần 4 Xuất': 100,
-      'Tuần 5 Xuất': '-',
-      'Tuần 6 Xuất': 80,
-      'Tuần 7 Xuất': 60,
-      'Tuần 8 Xuất': '-',
-      'Tuần 1 Kho': 345,
-      'Tuần 2 Kho': 300,
-      'Tuần 3 Kho': 300,
-      'Tuần 4 Kho': 200,
-      'Tuần 5 Kho': 400,
-      'Tuần 6 Kho': 320,
-      'Tuần 7 Kho': 260,
-      'Tuần 8 Kho': 260,
-    },
   ];
+
+  // Tạo nhiều bản sao với thay đổi SKU và một số giá trị
+  final List<Map<String, dynamic>> bigData = List.generate(50, (index) {
+    final base = data[index % data.length];
+
+    // Clone map để không thay đổi gốc
+    final Map<String, dynamic> newItem = Map<String, dynamic>.from(base);
+
+    // Sửa SKU cho khác nhau
+    newItem['SKU'] = base['SKU'] + '-${index + 1}';
+
+    // Thay đổi 'Tồn kho' + tăng dần cho demo
+    if (newItem['Tồn kho'] is int) {
+      newItem['Tồn kho'] = (newItem['Tồn kho'] as int) + index * 5;
+    }
+
+    // Bạn có thể thêm chỉnh sửa các trường khác nếu muốn
+
+    return newItem;
+  });
 
   @override
   void initState() {
@@ -125,7 +113,9 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final columns = data.isNotEmpty ? data.first.keys.toList() : <String>[];
+    final columns = bigData.isNotEmpty
+        ? bigData.first.keys.toList()
+        : <String>[];
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -171,7 +161,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
           // Legend
           Container(
             color: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Row(
               children: [
                 _buildLegendItem('Nhập kho', Colors.green[50]!),
@@ -246,7 +236,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                                 }).toList(),
                               ),
                               // Data rows
-                              ...data.map((row) {
+                              ...bigData.map((row) {
                                 return TableRow(
                                   decoration: BoxDecoration(
                                     color: Colors.white,
