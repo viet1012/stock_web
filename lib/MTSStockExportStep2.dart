@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stock_web/widgets/header_bar.dart';
 
+import 'Data/mock_inventory_data.dart';
+
 class MTSStockExportStep2 extends StatefulWidget {
   const MTSStockExportStep2({super.key});
 
@@ -23,48 +25,41 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
 
   bool isPOScanned = false;
 
-  final Map<String, List<Map<String, dynamic>>> dummyPartsByPO = {
-    "123": [
-      {
-        "No": 1,
-        "ProductID": "M1001",
-        "PName": "Bạc đạn trục chính SKF 6205",
-        "POQty": 20,
-        "TQty": 0,
-        "QtyExport": 20,
-        "IDBox": "BOX001",
-      },
-      {
-        "No": 2,
-        "ProductID": "M1002",
-        "PName": "Bánh răng thép 40 răng M1.5",
-        "POQty": 15,
-        "TQty": 0,
-        "QtyExport": 15,
-        "IDBox": "BOX002",
-      },
-    ],
-    "PO456": [
-      {
-        "No": 1,
-        "ProductID": "M2001",
-        "PName": "Trục truyền động Inox Ø25x300mm",
-        "POQty": 10,
-        "TQty": 0,
-        "QtyExport": 10,
-        "IDBox": "BOX003",
-      },
-      {
-        "No": 2,
-        "ProductID": "M2002",
-        "PName": "Bu lông lục giác M10x50",
-        "POQty": 50,
-        "TQty": 0,
-        "QtyExport": 50,
-        "IDBox": "BOX004",
-      },
-    ],
-  };
+  late final Map<String, List<Map<String, dynamic>>> dummyPartsByPO;
+
+  @override
+  void initState() {
+    super.initState();
+    dummyPartsByPO = buildPartsByPOFromMock();
+  }
+
+  Map<String, List<Map<String, dynamic>>> buildPartsByPOFromMock() {
+    final orders = MockInventoryData.getOrderWaitList();
+    final boxes = MockInventoryData.getAllBoxes();
+
+    final Map<String, List<Map<String, dynamic>>> partsByPO = {};
+
+    for (var order in orders) {
+      final po = order['POCode'];
+      final boxList = boxes.where((b) => b['POCode'] == po).toList();
+
+      partsByPO[po] = boxList.asMap().entries.map((entry) {
+        final idx = entry.key + 1;
+        final box = entry.value;
+        return {
+          "No": idx,
+          "ProductID": order['PartID'],
+          "PName": order['PName'],
+          "POQty": order['QtyPO'],
+          "TQty": 0,
+          "QtyExport": box['QtyStock'],
+          "IDBox": box['BoxID'],
+        };
+      }).toList();
+    }
+
+    return partsByPO;
+  }
 
   List<Map<String, dynamic>> partList = [];
   List<Map<String, dynamic>> successList = [];

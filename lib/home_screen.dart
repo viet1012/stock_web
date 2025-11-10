@@ -8,7 +8,7 @@ import 'Bao_Cao/inventory_statistics_screen.dart';
 import 'Kiem_Ke/box_confirm_screen.dart';
 import 'Kiem_Ke/inventory_management_screen.dart';
 import 'MTSStockExportStep2.dart';
-import 'MTS_stock_export_hangbo_screen.dart';
+
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
@@ -279,9 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "CHUYỂN HÀNG LÊN KỆ") return FrmTransShelfScreen();
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") return StockExportForm();
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 2)") return MTSStockExportStep2();
-    if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
-      return MTSStockExportHangBoForm();
-    }
+
     if (selectedSubMenu == "KIỂM KÊ SP") return InventoryManagementScreen();
     if (selectedSubMenu == "IN LẠI TEM") return BoxConfirmScreen();
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../Data/mock_inventory_data.dart';
 import '../Xuat_Kho/Xuất Kho Bước 1/Đưa lên kệ chờ/confirm_shelf_dialog.dart';
 import '../widgets/custom_button.dart';
 
@@ -18,6 +19,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
   List<Map<String, dynamic>> _allItems = [];
   List<Map<String, dynamic>> _filteredItems = [];
   Set<int> _selectedIndices = {};
+  List<String> _confirmedBoxIds = []; // 🔹 Danh sách các BoxIDConfirm đã quét
 
   // Danh sách đã chọn
   List<Map<String, dynamic>> _selectedItems = [];
@@ -27,31 +29,14 @@ class _GomHangScreenState extends State<GomHangScreen> {
   void initState() {
     super.initState();
     _initializeMockData();
-    _filteredItems = List.from(_allItems);
   }
 
   void _initializeMockData() {
-    final products = [
-      {'ProductID': 'HN000009', 'ProductName': 'Vòng bi Q'},
-      {'ProductID': 'HN000010', 'ProductName': 'Bánh răng A'},
-      {'ProductID': 'HN000011', 'ProductName': 'Trục thép B'},
-      {'ProductID': 'HN000012', 'ProductName': 'Bulong M6'},
-    ];
+    // 🔹 Lấy dữ liệu từ class MockInventoryData
+    final mockData = MockInventoryData.initializeAll();
 
-    _allItems = List.generate(80, (i) {
-      final product = products[i % products.length]; // chia đều 4 loại
-      final boxCount = (i % 3) + 1; // mỗi sản phẩm có 1–3 box
-
-      return {
-        'TT': i + 1,
-        'ShelfId': 'PR-${['K', 'J', 'L'][i % 3]}${i + 1}-${(i % 5) + 1}',
-        'ProductID': product['ProductID'],
-        'ProductName': product['ProductName'],
-        'Qty': (i % 5) + 1,
-        'BoxList': '[VT]_B_${boxCount}_Box [VT]', // thay đổi box
-        'checked': false,
-      };
-    });
+    _allItems = mockData['shelfItems']; // danh sách sản phẩm
+    _filteredItems = List.from(_allItems); // gán ban đầu để hiển thị
   }
 
   void _search() {
@@ -112,6 +97,37 @@ class _GomHangScreenState extends State<GomHangScreen> {
     _selectedItems = _selectedIndices
         .map((idx) => Map<String, dynamic>.from(_filteredItems[idx]))
         .toList();
+  }
+
+  void _onBoxScanned(String boxId) {
+    final normalized = boxId.trim().toUpperCase();
+
+    setState(() {
+      // Nếu chưa đủ số lượng quét và chưa có box này
+      if (!_confirmedBoxIds.contains(normalized)) {
+        _confirmedBoxIds.add(normalized);
+      }
+
+      _boxIdConfirmController.clear();
+
+      if (_confirmedBoxIds.length < _selectedItems.length) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Đã quét ${_confirmedBoxIds.length}/${_selectedItems.length} BoxID. Cần quét thêm!',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else if (_confirmedBoxIds.length == _selectedItems.length) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Đã quét đủ tất cả BoxID!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
   }
 
   void _confirmGomHang() {
@@ -421,6 +437,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
                   '',
                   controller: _boxIdConfirmController,
                   icon: Icons.qr_code_scanner,
+                  onSubmitted: _onBoxScanned, // 🔹 gọi khi người dùng quét xong
                 ),
               ],
             ),
@@ -442,10 +459,14 @@ class _GomHangScreenState extends State<GomHangScreen> {
                         dense: true,
                         title: Text(
                           item['ShelfId'],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                         subtitle: Text(
                           '${item['ProductName']} - Qty: ${item['Qty']}',
+                          style: const TextStyle(fontSize: 16),
                         ),
                         trailing: IconButton(
                           icon: const Icon(
@@ -497,6 +518,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
     String value, {
     TextEditingController? controller,
     IconData? icon,
+    Function(String)? onSubmitted, // ✅ thêm callback
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -513,6 +535,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
             child: controller != null
                 ? TextField(
                     controller: controller,
+                    onSubmitted: onSubmitted, // ✅ thêm chỗ này
                     decoration: InputDecoration(
                       prefixIcon: icon != null ? Icon(icon, size: 16) : null,
                       border: OutlineInputBorder(

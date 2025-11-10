@@ -1,5 +1,30 @@
 class MockInventoryData {
-  // Danh sách đơn hàng chờ
+  /// 🔹 Mock danh sách sản phẩm trên kệ
+  static List<Map<String, dynamic>> getShelfItems() {
+    final products = [
+      {'ProductID': 'HN000009', 'ProductName': 'Vòng bi Q'},
+      {'ProductID': 'HN000010', 'ProductName': 'Bánh răng A'},
+      {'ProductID': 'HN000011', 'ProductName': 'Trục thép B'},
+      {'ProductID': 'HN000012', 'ProductName': 'Bulong M6'},
+    ];
+
+    return List.generate(80, (i) {
+      final product = products[i % products.length]; // chia đều 4 loại
+      final boxCount = (i % 3) + 1; // mỗi sản phẩm có 1–3 box
+
+      return {
+        'TT': i + 1,
+        'ShelfId': 'PR-${['K', 'J', 'L'][i % 3]}${i + 1}-${(i % 5) + 1}',
+        'ProductID': product['ProductID'],
+        'ProductName': product['ProductName'],
+        'Qty': (i % 5) + 1,
+        'BoxList': '[VT]_B_${boxCount}_Box [VT]',
+        'checked': false,
+      };
+    });
+  }
+
+  /// 🔹 Mock danh sách đơn hàng chờ xử lý
   static List<Map<String, dynamic>> getOrderWaitList() {
     return [
       {
@@ -9,7 +34,7 @@ class MockInventoryData {
         'QtyPO': 100,
         'QtyInOut': 0,
         'ShelfIDWait': '',
-        'POCode': '456', // 🔹 Mã PO riêng
+        'POCode': '456',
         'Status': 'Chờ',
         'Remark': '',
         'BoxIDStock': 'VT1012',
@@ -29,7 +54,7 @@ class MockInventoryData {
     ];
   }
 
-  // Danh sách Box tồn kho
+  /// 🔹 Mock danh sách box tồn kho (liên kết với POCode)
   static List<Map<String, dynamic>> getAllBoxes() {
     return [
       {
@@ -38,7 +63,7 @@ class MockInventoryData {
         'QtyStock': 60,
         'CheckSt': 'OK',
         'ShelfID': '',
-        'POCode': '123', // 🔹 Liên kết với PO
+        'POCode': '123',
       },
       {
         'Firsttime': '2025-11-01 08:10',
@@ -57,5 +82,14 @@ class MockInventoryData {
         'POCode': '456',
       },
     ];
+  }
+
+  /// 🔹 Hàm tổng hợp tiện lợi (nếu cần khởi tạo 1 lần)
+  static Map<String, dynamic> initializeAll() {
+    return {
+      'shelfItems': getShelfItems(),
+      'orderWaitList': getOrderWaitList(),
+      'allBoxes': getAllBoxes(),
+    };
   }
 }
