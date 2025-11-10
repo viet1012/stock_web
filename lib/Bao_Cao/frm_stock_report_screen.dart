@@ -38,11 +38,22 @@ class InventoryChartScreen extends StatelessWidget {
           primaryXAxis: DateTimeAxis(
             intervalType: DateTimeIntervalType.days,
             dateFormat: DateFormat.Md(),
-            majorGridLines: const MajorGridLines(width: 0),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ), // tắt major grid lines trục X
+            minorGridLines: const MinorGridLines(
+              width: 0,
+            ), // tắt minor grid lines trục X
           ),
           primaryYAxis: NumericAxis(
             title: AxisTitle(text: 'Nhập / Xuất'),
             numberFormat: NumberFormat.compact(),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ), // tắt major grid lines trục Y chính
+            minorGridLines: const MinorGridLines(
+              width: 0,
+            ), // tắt minor grid lines trục Y chính
           ),
           axes: <ChartAxis>[
             NumericAxis(
@@ -50,6 +61,12 @@ class InventoryChartScreen extends StatelessWidget {
               opposedPosition: true,
               title: AxisTitle(text: 'Tồn kho'),
               numberFormat: NumberFormat.compact(),
+              majorGridLines: const MajorGridLines(
+                width: 0,
+              ), // tắt major grid lines trục phụ
+              minorGridLines: const MinorGridLines(
+                width: 0,
+              ), // tắt minor grid lines trục phụ
             ),
           ],
           tooltipBehavior: TooltipBehavior(enable: true),
@@ -59,12 +76,27 @@ class InventoryChartScreen extends StatelessWidget {
               dataSource: data,
               xValueMapper: (_InventoryData d, _) => d.date,
               yValueMapper: (_InventoryData d, _) => d.nhap,
-              color: Colors.blue,
+              color: Colors.blue.withOpacity(.8),
               borderRadius: const BorderRadius.all(Radius.circular(3)),
-              dataLabelSettings: const DataLabelSettings(
+              dataLabelSettings: DataLabelSettings(
                 isVisible: true,
-                labelAlignment: ChartDataLabelAlignment.top,
-                textStyle: TextStyle(color: Colors.black),
+                labelAlignment: ChartDataLabelAlignment.bottom,
+                builder:
+                    (
+                      dynamic data,
+                      dynamic point,
+                      dynamic series,
+                      int pointIndex,
+                      int seriesIndex,
+                    ) {
+                      return RotatedBox(
+                        quarterTurns: 3, // xoay 270 độ, chữ đứng dọc
+                        child: Text(
+                          data.nhap.toString(),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
               ),
             ),
             ColumnSeries<_InventoryData, DateTime>(
@@ -72,14 +104,36 @@ class InventoryChartScreen extends StatelessWidget {
               dataSource: data,
               xValueMapper: (_InventoryData d, _) => d.date,
               yValueMapper: (_InventoryData d, _) => d.xuat,
-              color: Colors.red,
+              color: Colors.indigo.withOpacity(.7),
               borderRadius: const BorderRadius.all(Radius.circular(3)),
-              dataLabelSettings: const DataLabelSettings(
+              dataLabelSettings: DataLabelSettings(
                 isVisible: true,
-                labelAlignment: ChartDataLabelAlignment.top,
-                textStyle: TextStyle(color: Colors.black),
+                labelAlignment: ChartDataLabelAlignment.bottom, // hoặc middle
+                margin: const EdgeInsets.only(
+                  top: 8,
+                ), // tạo khoảng cách label ra khỏi cột
+                builder:
+                    (
+                      dynamic data,
+                      dynamic point,
+                      dynamic series,
+                      int pointIndex,
+                      int seriesIndex,
+                    ) {
+                      return RotatedBox(
+                        quarterTurns: 3, // xoay 270 độ
+                        child: Text(
+                          data.nhap.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      );
+                    },
               ),
             ),
+
             LineSeries<_InventoryData, DateTime>(
               name: 'Tồn kho',
               dataSource: data,
@@ -88,10 +142,27 @@ class InventoryChartScreen extends StatelessWidget {
               yAxisName: 'secondaryYAxis',
               markerSettings: const MarkerSettings(isVisible: true),
               color: Colors.green,
-              width: 4, // tăng độ dày đường line
-              dataLabelSettings: const DataLabelSettings(
+              width: 4,
+              dataLabelSettings: DataLabelSettings(
                 isVisible: true,
                 labelAlignment: ChartDataLabelAlignment.top,
+                builder:
+                    (
+                      dynamic data,
+                      dynamic point,
+                      dynamic series,
+                      int pointIndex,
+                      int seriesIndex,
+                    ) {
+                      return Text(
+                        data.tonKho
+                            .toString(), // hiển thị số nguyên, không rút gọn
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      );
+                    },
               ),
             ),
           ],

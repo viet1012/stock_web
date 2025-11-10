@@ -24,6 +24,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
   // Danh sách đã chọn
   List<Map<String, dynamic>> _selectedItems = [];
   List<Map<String, dynamic>> orderWaitList = [];
+  List<Map<String, dynamic>> _confirmedItems = [];
 
   @override
   void initState() {
@@ -32,11 +33,21 @@ class _GomHangScreenState extends State<GomHangScreen> {
   }
 
   void _initializeMockData() {
-    // 🔹 Lấy dữ liệu từ class MockInventoryData
     final mockData = MockInventoryData.initializeAll();
 
-    _allItems = mockData['shelfItems']; // danh sách sản phẩm
-    _filteredItems = List.from(_allItems); // gán ban đầu để hiển thị
+    _allItems = mockData['shelfItems'];
+    _sortItems(_allItems); // Sắp xếp danh sách gốc
+    _filteredItems = List.from(_allItems);
+  }
+
+  void _sortItems(List<Map<String, dynamic>> list) {
+    list.sort((a, b) {
+      int cmp = (a['ProductName'] as String).compareTo(
+        b['ProductName'] as String,
+      );
+      if (cmp != 0) return cmp;
+      return (a['Qty'] as int).compareTo(b['Qty'] as int);
+    });
   }
 
   void _search() {
@@ -49,6 +60,8 @@ class _GomHangScreenState extends State<GomHangScreen> {
             item['ProductName'].toString().toLowerCase().contains(tenHang);
         return matchTenHang;
       }).toList();
+
+      _sortItems(_filteredItems); // Sắp xếp danh sách sau khi filter
       _selectedIndices.clear();
     });
   }
@@ -149,6 +162,39 @@ class _GomHangScreenState extends State<GomHangScreen> {
     });
   }
 
+  void _confirmSelection() {
+    if (_selectedItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng chọn ít nhất một hàng để xác nhận!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      // Thêm các item đang chọn vào danh sách đã xác nhận,
+      // tránh trùng (có thể check theo ShelfId hoặc ProductID + ShelfId)
+      for (var item in _selectedItems) {
+        bool exists = _confirmedItems.any(
+          (e) => e['ShelfId'] == item['ShelfId'],
+        );
+        if (!exists) {
+          _confirmedItems.add(item);
+        }
+      }
+
+      // Reset lựa chọn hiện tại để có thể chọn tiếp
+      _selectedIndices.clear();
+      _selectedItems.clear();
+
+      // Nếu muốn reset luôn mã xác nhận BoxID:
+      _boxIdConfirmController.clear();
+      _confirmedBoxIds.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,6 +226,12 @@ class _GomHangScreenState extends State<GomHangScreen> {
                         Icons.search,
                         Colors.blue,
                         _search,
+                      ),
+                      _buildActionButton(
+                        'Xác nhận',
+                        Icons.done_all,
+                        Colors.blue,
+                        _confirmSelection, // Hàm mới bạn cần tạo
                       ),
                     ],
                   ),

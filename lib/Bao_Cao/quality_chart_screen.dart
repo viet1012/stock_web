@@ -57,20 +57,15 @@ class QualityChartScreen extends StatelessWidget {
           ],
           tooltipBehavior: TooltipBehavior(enable: true),
           series: <CartesianSeries<_QualityData, DateTime>>[
-            ColumnSeries<_QualityData, DateTime>(
+            StackedColumnSeries<_QualityData, DateTime>(
               name: 'OK',
               dataSource: data,
               xValueMapper: (_QualityData d, _) => d.date,
               yValueMapper: (_QualityData d, _) => d.ok,
-              dataLabelSettings: const DataLabelSettings(
-                isVisible: true,
-                labelAlignment: ChartDataLabelAlignment.top,
-                textStyle: TextStyle(color: Colors.black),
-              ),
               color: Colors.green,
               borderRadius: const BorderRadius.all(Radius.circular(3)),
             ),
-            ColumnSeries<_QualityData, DateTime>(
+            StackedColumnSeries<_QualityData, DateTime>(
               name: 'NG',
               dataSource: data,
               xValueMapper: (_QualityData d, _) => d.date,
@@ -92,6 +87,26 @@ class QualityChartScreen extends StatelessWidget {
               markerSettings: const MarkerSettings(isVisible: true),
               color: Colors.orange,
               width: 4,
+              dataLabelSettings: DataLabelSettings(
+                isVisible: true,
+                labelAlignment: ChartDataLabelAlignment.top,
+                builder:
+                    (
+                      dynamic data,
+                      dynamic point,
+                      dynamic series,
+                      int pointIndex,
+                      int seriesIndex,
+                    ) {
+                      return Text(
+                        '${data.ngPercent.toString()}%', // hiển thị số nguyên, không rút gọn
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      );
+                    },
+              ),
             ),
           ],
         ),

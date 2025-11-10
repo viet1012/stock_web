@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 
+import '../Data/mock_inventory_data.dart';
+
 class InventoryItem {
   final String boxId;
   final String pid;
@@ -66,33 +68,24 @@ class _InventoryManagementScreenState extends State<InventoryManagementScreen> {
     super.dispose();
   }
 
+  InventoryItem inventoryItemFromMap(Map<String, dynamic> map) {
+    return InventoryItem(
+      boxId: map['BoxID'] ?? '',
+      pid: map['POCode'] ?? '',
+      pName: '', // Không có trong dữ liệu, để trống hoặc map tùy ý
+      status: '',
+      date: (map['Firsttime'] ?? '').toString().split(' ').first,
+      shelfId: map['ShelfID'] ?? '',
+      qty: map['QtyStock'] ?? 0,
+    );
+  }
+
   void _mockData() {
-    List<String> productNames = [
-      'Ốc vít M6',
-      'Bulong M8',
-      'Bánh răng nhỏ',
-      'Trục thép',
-      'Lò xo nén',
-      'Thanh ren',
-      'Mặt bích',
-      'Piston',
-    ];
+    final allBoxesRaw = MockInventoryData.getAllBoxes();
 
-    List<String> shelfIds = ['A1', 'B2', 'C3', 'D4'];
+    _allItems = allBoxesRaw.map((map) => inventoryItemFromMap(map)).toList();
 
-    _allItems = List.generate(20, (i) {
-      return InventoryItem(
-        boxId: 'BOX${1000 + i}',
-        pid: 'P${i + 1}',
-        pName: productNames[i % productNames.length], // chọn tên sản phẩm
-        status: 'Chưa kiểm',
-        date: '2025-11-05',
-        shelfId: shelfIds[i % shelfIds.length], // chọn kệ
-        qty: 50 + i * 5, // số lượng chuẩn trong hệ thống
-      );
-    });
-
-    // Khi mock NG Items, có thể thêm qtyActual để test cột QtyAct
+    _filteredItems = List.from(_allItems);
     _ngItems = [];
   }
 

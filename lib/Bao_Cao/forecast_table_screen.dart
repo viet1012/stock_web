@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ForecastTableScreen extends StatefulWidget {
-  ForecastTableScreen({Key? key}) : super(key: key);
+  const ForecastTableScreen({Key? key}) : super(key: key);
 
   @override
   State<ForecastTableScreen> createState() => _ForecastTableScreenState();
@@ -11,7 +11,8 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
   late ScrollController _horizontalController;
   late ScrollController _verticalController;
 
-  static List<Map<String, dynamic>> data = [
+  // Dữ liệu mẫu
+  static List<Map<String, dynamic>> baseData = [
     {
       'SKU': 'SKU-A3-100',
       'Tồn kho': 161,
@@ -19,58 +20,48 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
       'Trung bình 3 tháng': 452,
       'LT đặt hàng (ngày)': 15,
       'MOQ': 200,
-      'Tuần 1 Nhận': '-',
-      'Tuần 2 Nhận': '-',
-      'Tuần 3 Nhận': '-',
-      'Tuần 4 Nhận': 80,
-      'Tuần 5 Nhận': '-',
-      'Tuần 6 Nhận': 51,
-      'Tuần 7 Nhận': '-',
-      'Tuần 8 Nhận': 39,
-      'Tuần 1 Xuất': '-',
-      'Tuần 2 Xuất': '-',
-      'Tuần 3 Xuất': '-',
-      'Tuần 4 Xuất': 75,
-      'Tuần 5 Xuất': 86,
-      'Tuần 6 Xuất': '-',
-      'Tuần 7 Xuất': '-',
-      'Tuần 8 Xuất': '-',
-      'Tuần 1 Kho': 161,
-      'Tuần 2 Kho': 161,
-      'Tuần 3 Kho': 161,
-      'Tuần 4 Kho': 166,
-      'Tuần 5 Kho': 80,
-      'Tuần 6 Kho': 131,
-      'Tuần 7 Kho': 131,
-      'Tuần 8 Kho': 170,
+      // Nhận
+      'T1_Nhận': '-', 'T2_Nhận': '-', 'T3_Nhận': '-', 'T4_Nhận': 80,
+      'T5_Nhận': '-', 'T6_Nhận': 51, 'T7_Nhận': '-', 'T8_Nhận': 39,
+      // Xuất
+      'T1_Xuất': '-', 'T2_Xuất': '-', 'T3_Xuất': '-', 'T4_Xuất': 75,
+      'T5_Xuất': 86, 'T6_Xuất': '-', 'T7_Xuất': '-', 'T8_Xuất': '-',
+      // Kho
+      'T1_Kho': 161, 'T2_Kho': 161, 'T3_Kho': 161, 'T4_Kho': 166,
+      'T5_Kho': 80, 'T6_Kho': 131, 'T7_Kho': 131, 'T8_Kho': 170,
     },
   ];
 
-  // Tạo nhiều bản sao với thay đổi SKU và một số giá trị
-  final List<Map<String, dynamic>> bigData = List.generate(50, (index) {
-    final base = data[index % data.length];
-
-    // Clone map để không thay đổi gốc
-    final Map<String, dynamic> newItem = Map<String, dynamic>.from(base);
-
-    // Sửa SKU cho khác nhau
-    newItem['SKU'] = base['SKU'] + '-${index + 1}';
-
-    // Thay đổi 'Tồn kho' + tăng dần cho demo
-    if (newItem['Tồn kho'] is int) {
-      newItem['Tồn kho'] = (newItem['Tồn kho'] as int) + index * 5;
-    }
-
-    // Bạn có thể thêm chỉnh sửa các trường khác nếu muốn
-
-    return newItem;
-  });
+  late List<Map<String, dynamic>> bigData;
 
   @override
   void initState() {
     super.initState();
     _horizontalController = ScrollController();
     _verticalController = ScrollController();
+
+    // Tạo 50 dòng dữ liệu mẫu
+    bigData = List.generate(50, (index) {
+      final base = baseData[0];
+      final Map<String, dynamic> item = Map.from(base);
+
+      item['SKU'] = 'SKU-A3-10${index + 1}';
+      item['Tồn kho'] = 161 + index * 3;
+
+      // Tạo biến động ngẫu nhiên cho nhận/xuất
+      for (int w = 1; w <= 8; w++) {
+        if (index % 3 == 0) {
+          item['T${w}_Nhận'] = w % 2 == 0 ? 50 + index : '-';
+          item['T${w}_Xuất'] = w % 3 == 0 ? 60 + index : '-';
+        } else {
+          item['T${w}_Nhận'] = '-';
+          item['T${w}_Xuất'] = '-';
+        }
+        item['T${w}_Kho'] = item['Tồn kho'] + (w * 10) - index;
+      }
+
+      return item;
+    });
   }
 
   @override
@@ -80,25 +71,49 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     super.dispose();
   }
 
+  // === Sắp xếp cột theo thứ tự: Nhận → Xuất → Kho cho từng tuần ===
+  List<String> _getOrderedColumns() {
+    final baseCols = [
+      'SKU',
+      'Tồn kho',
+      'Trung bình 6 tháng',
+      'Trung bình 3 tháng',
+      'LT đặt hàng (ngày)',
+      'MOQ',
+    ];
+    final weekCols = <String>[];
+    for (int w = 1; w <= 8; w++) {
+      weekCols.add('T${w}_Nhận');
+      weekCols.add('T${w}_Xuất');
+      weekCols.add('T${w}_Kho');
+    }
+    return [...baseCols, ...weekCols];
+  }
+
   Color _getCellColor(String columnName, dynamic value) {
-    if (columnName.contains('Nhận')) {
+    if (columnName.contains('_Nhận'))
       return value != '-' ? Colors.green[50]! : Colors.grey[50]!;
-    } else if (columnName.contains('Xuất')) {
+    if (columnName.contains('_Xuất'))
       return value != '-' ? Colors.orange[50]! : Colors.grey[50]!;
-    } else if (columnName.contains('Kho')) {
-      if (value < 100) return Colors.red[50]!;
-      if (value < 200) return Colors.yellow[50]!;
+    if (columnName.contains('_Kho')) {
+      final val = int.tryParse(value.toString()) ?? 0;
+      if (val < 100) return Colors.red[50]!;
+      if (val < 200) return Colors.yellow[50]!;
       return Colors.blue[50]!;
     }
     return Colors.white;
   }
 
   TextStyle _getCellTextStyle(String columnName, dynamic value) {
-    if (columnName.contains('SKU')) {
-      return const TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
+    if (columnName == 'SKU') {
+      return const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.black87,
+      );
     }
-    if (columnName.contains('Kho') && value != '-') {
-      int val = int.tryParse(value.toString()) ?? 0;
+    if (columnName.contains('_Kho')) {
+      final val = int.tryParse(value.toString()) ?? 0;
       if (val < 100)
         return TextStyle(color: Colors.red[700], fontWeight: FontWeight.bold);
       if (val < 200)
@@ -108,49 +123,50 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         );
       return TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold);
     }
-    return const TextStyle(fontSize: 16);
+    return const TextStyle(fontSize: 13);
   }
 
   @override
   Widget build(BuildContext context) {
-    final columns = bigData.isNotEmpty
-        ? bigData.first.keys.toList()
-        : <String>[];
+    final columns = _getOrderedColumns();
+    final fixedColsCount = 6; // Số cột cố định bên trái
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        elevation: 0,
         backgroundColor: Colors.white,
+        elevation: 1,
         title: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blue[700],
+                color: const Color(0xFF1E40AF),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.analytics, color: Colors.white, size: 24),
+              child: const Icon(Icons.analytics, color: Colors.white, size: 22),
             ),
-            SizedBox(width: 12),
-            Text(
-              'Bảng dự báo kế hoạch',
+            const SizedBox(width: 12),
+            const Text(
+              'BẢNG DỰ BÁO KẾ HOẠCH',
               style: TextStyle(
-                color: Colors.blue[900],
+                color: Color(0xFF1E40AF),
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
               ),
             ),
           ],
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 16),
             child: Center(
               child: Text(
-                'Tổng SKU: ${data.length}',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                'Tổng SKU: ${bigData.length}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
             ),
           ),
@@ -158,109 +174,99 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
       ),
       body: Column(
         children: [
-          // Legend
+          // === LEGEND ===
           Container(
             color: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildLegendItem('Nhập kho', Colors.green[50]!),
-                SizedBox(width: 20),
+                const SizedBox(width: 24),
                 _buildLegendItem('Xuất kho', Colors.orange[50]!),
-                SizedBox(width: 20),
+                const SizedBox(width: 24),
                 _buildLegendItem('Kho <100', Colors.red[50]!),
-                SizedBox(width: 20),
+                const SizedBox(width: 24),
                 _buildLegendItem('Kho 100-200', Colors.yellow[50]!),
-                SizedBox(width: 20),
+                const SizedBox(width: 24),
                 _buildLegendItem('Kho >200', Colors.blue[50]!),
               ],
             ),
           ),
-          // Table
+
+          // === TABLE ===
           Expanded(
             child: Container(
               color: Colors.white,
-              child: ScrollConfiguration(
-                behavior: ScrollBehavior().copyWith(scrollbars: true),
+              margin: const EdgeInsets.all(12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
                 child: Scrollbar(
                   controller: _horizontalController,
+                  thumbVisibility: true,
                   child: Scrollbar(
                     controller: _verticalController,
+                    thumbVisibility: true,
                     child: SingleChildScrollView(
                       controller: _horizontalController,
                       scrollDirection: Axis.horizontal,
                       child: SingleChildScrollView(
                         controller: _verticalController,
-                        child: SizedBox(
-                          width: (columns.length * 100.0).clamp(
-                            0,
-                            double.infinity,
+                        child: DataTable(
+                          headingRowHeight: 56,
+                          dataRowHeight: 52,
+                          columnSpacing: 8,
+                          headingRowColor: MaterialStateColor.resolveWith(
+                            (_) => const Color(0xFF1E40AF),
                           ),
-                          child: Table(
-                            border: TableBorder.all(
-                              color: Colors.grey[300]!,
-                              width: 1,
-                            ),
-                            columnWidths: {
-                              for (int i = 0; i < columns.length; i++)
-                                i: FixedColumnWidth(100),
-                            },
-                            children: [
-                              // Header row
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Colors.blue[800]!,
-                                      Colors.blue[600]!,
-                                    ],
-                                  ),
+                          border: TableBorder.all(
+                            color: Colors.grey.shade300,
+                            width: 0.8,
+                          ),
+                          columns: columns.map((col) {
+                            final isFixed =
+                                columns.indexOf(col) < fixedColsCount;
+                            return DataColumn(
+                              label: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
                                 ),
-                                children: columns.map((col) {
-                                  return Container(
-                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                child: Text(
+                                  _formatColumnName(col),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          rows: bigData.map((row) {
+                            return DataRow(
+                              cells: columns.map((col) {
+                                final value = row[col] ?? '-';
+                                final isFixed =
+                                    columns.indexOf(col) < fixedColsCount;
+                                return DataCell(
+                                  Container(
+                                    color: _getCellColor(col, value),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                    ),
                                     child: Center(
                                       child: Text(
-                                        col,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
+                                        value.toString(),
+                                        style: _getCellTextStyle(col, value),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
-                                  );
-                                }).toList(),
-                              ),
-                              // Data rows
-                              ...bigData.map((row) {
-                                return TableRow(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
                                   ),
-                                  children: columns.map((col) {
-                                    final value = row[col];
-                                    return Container(
-                                      color: _getCellColor(col, value),
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          value.toString(),
-                                          style: _getCellTextStyle(col, value),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
                                 );
                               }).toList(),
-                            ],
-                          ),
+                            );
+                          }).toList(),
                         ),
                       ),
                     ),
@@ -274,22 +280,29 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     );
   }
 
+  String _formatColumnName(String col) {
+    if (col.contains('_Nhận')) return 'T${col[1]} Nhận';
+    if (col.contains('_Xuất')) return 'T${col[1]} Xuất';
+    if (col.contains('_Kho')) return 'T${col[1]} Kho';
+    return col;
+  }
+
   Widget _buildLegendItem(String label, Color color) {
     return Row(
       children: [
         Container(
-          width: 16,
-          height: 16,
+          width: 18,
+          height: 18,
           decoration: BoxDecoration(
             color: color,
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
       ],
     );
