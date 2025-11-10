@@ -89316,13 +89316,9 @@ s.toString
 A.aDf(new A.aqt(this),s,t.z)},
 aaQ(){var s=null,r=this.Pb(),q=A.aN(s,B.ak9,B.m,B.eN,s,s,s,s,s,B.aL,s,s,s),p=A.j1(new A.aqh()),o=this.r
 return A.aN(s,A.b5(A.b([q,A.bq(A.ei(A.zL(s,s,B.m,32,B.QT,s,48,s,s,s,p,40,s,s,s,s,new A.dV(o,A.O(o).i("dV<1>")).gfR().fF(0,new A.aqi(this),t.VZ).ep(0),!1,!0,!0,s),s,s,s,B.ac),1)],t.p),B.r,B.n,B.o),B.m,s,s,r,s,s,B.e_,s,s,s,s)},
-a92(){var s,r,q=this,p=null,o=q.Pb(),n=A.aN(p,B.akc,B.m,B.qH,p,p,p,p,p,B.aL,p,p,p),m=q.y
-m=q.OV("+ ProductID :",m.length!==0?B.c.gak(m).h(0,"ProductID"):"")
-s=q.y
-r=t.p
-s=A.b5(A.b([m,q.OV("+ BoxIDStock :",new A.Z(s,new A.aql(),A.O(s).i("Z<1,@>")).cq(0,", ")),B.aU,q.OW("+ BoxIDConfirm :","",q.e,B.mR,q.galG())],r),B.a2,B.n,B.o)
-m=q.y.length
-return A.aN(p,A.b5(A.b([n,new A.aB(B.dx,s,p),B.MC,A.bq(m===0?B.J8:A.Bw(new A.aqm(q),m),1)],r),B.r,B.n,B.o),B.m,p,p,o,p,p,B.Nf,p,p,p,p)},
+a92(){var s=this,r=null,q=s.Pb(),p=A.aN(r,B.akc,B.m,B.qH,r,r,r,r,r,B.aL,r,r,r),o=s.Q,n=t.p,m=A.b5(A.b([s.OV("+ ProductID :",o.length!==0?B.c.gak(o).h(0,"ProductID"):""),s.OV("+ BoxIDStock :",new A.Z(o,new A.aql(),A.O(o).i("Z<1,@>")).cq(0,", ")),B.aU,s.OW("+ BoxIDConfirm :","",s.e,B.mR,s.galG())],n),B.a2,B.n,B.o)
+o=o.length
+return A.aN(r,A.b5(A.b([p,new A.aB(B.dx,m,r),B.MC,A.bq(o===0?B.J8:A.Bw(new A.aqm(s),o),1)],n),B.r,B.n,B.o),B.m,r,r,q,r,r,B.Nf,r,r,r,r)},
 OW(a,b,c,d,e){var s,r=null,q=A.c0(A.a2(a,r,r,r,B.ah5,r,r,r),r,150)
 if(c!=null){s=d!=null?A.ev(d,r,r,16):r
 s=A.dO(!1,c,A.dU(r,new A.ci(4,A.aT(6),B.bU),r,r,r,r,r,r,!0,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,!0,r,r,r,!0,!0,r,s,r,r,r,r,r,r,r,r,r,r,r,r),r,r,r,r,e,r,r)}else s=A.a2(b,r,r,r,B.ai1,r,r,r)
@@ -89362,13 +89358,14 @@ A.aqy.prototype={
 $1(a){return A.aBf(this.a.r[a],t.N,t.z)},
 $S:106}
 A.aqq.prototype={
-$0(){var s,r=null,q=this.a,p=q.x,o=this.b
-if(!B.c.n(p,o))p.push(o)
-q.e.ck(B.X)
-o=p.length
-s=q.y.length
-if(o<s)q.c.a4(t.J).f.du(A.h2(r,r,r,B.da,r,B.C,r,A.a2("\u0110\xe3 qu\xe9t "+p.length+"/"+q.y.length+" BoxID. C\u1ea7n qu\xe9t th\xeam!",r,r,r,r,r,r,r),r,B.aw,r,r,r,r,r,r,r,r,r))
-else if(o===s)q.c.a4(t.J).f.du(B.add)},
+$0(){var s,r,q=null,p=this.a,o=p.x,n=this.b
+if(!B.c.n(o,n))o.push(n)
+p.e.ck(B.X)
+n=o.length
+s=p.Q
+r=s.length
+if(n<r)p.c.a4(t.J).f.du(A.h2(q,q,q,B.da,q,B.C,q,A.a2("\u0110\xe3 qu\xe9t "+o.length+"/"+s.length+" BoxID. C\u1ea7n qu\xe9t th\xeam!",q,q,q,q,q,q,q),q,B.aw,q,q,q,q,q,q,q,q,q))
+else if(n===r)p.c.a4(t.J).f.du(B.add)},
 $S:0}
 A.aqn.prototype={
 $0(){var s=this.a
@@ -89430,7 +89427,7 @@ A.aql.prototype={
 $1(a){return a.h(0,"BoxList")},
 $S:546}
 A.aqm.prototype={
-$2(a,b){var s=null,r=this.a,q=r.y[b],p=A.a2(q.h(0,"ShelfId"),s,s,s,B.FA,s,s,s)
+$2(a,b){var s=null,r=this.a,q=r.Q[b],p=A.a2(q.h(0,"ShelfId"),s,s,s,B.FA,s,s,s)
 return A.aGh(!0,s,s,!1,A.a2(A.w(q.h(0,"ProductName"))+" - Qty: "+A.w(q.h(0,"Qty")),s,s,s,B.kN,s,s,s),p,A.no(s,s,B.OI,s,s,new A.aqk(r,q),s,s,s))},
 $S:547}
 A.aqk.prototype={
