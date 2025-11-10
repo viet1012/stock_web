@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/Nhap_Kho/Chuy%E1%BB%83n%20Kho/confirmation_trans_shelf_screen.dart';
+import 'package:stock_web/quality_chart_screen.dart';
 
 import 'Kiem_Ke/box_confirm_screen.dart';
 import 'Kiem_Ke/inventory_management_screen.dart';
@@ -8,6 +9,7 @@ import 'MTS_stock_export_hangbo_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
+import 'frm_stock_report_screen.dart';
 import 'intro_page.dart';
 import 'stock_export_form.dart';
 
@@ -43,12 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
     "KIỂM KÊ": [
-      {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ"},
+      {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ SP"},
       {"icon": Icons.assignment_turned_in, "label": "IN LẠI TEM"},
     ],
     "GOM HÀNG": [],
     "BÁO CÁO": [
-      {"icon": Icons.bar_chart_outlined, "label": "BÁO CÁO"},
+      {"icon": Icons.bar_chart_outlined, "label": "NHẬP-XUẤT-TỒN KHO"},
+      {"icon": Icons.bar_chart_outlined, "label": "KIỂM KÊ"},
     ],
   };
 
@@ -271,10 +274,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedSubMenu == "XUẤT KHO HÀNG BỘ") {
       return MTSStockExportHangBoForm();
     }
-    if (selectedSubMenu == "KIỂM KÊ") return InventoryManagementScreen();
+    if (selectedSubMenu == "KIỂM KÊ SP") return InventoryManagementScreen();
     if (selectedSubMenu == "IN LẠI TEM") return BoxConfirmScreen();
 
-    // if (selectedSubMenu == "BÁO CÁO") return StockReportChartsScreen();
+    if (selectedSubMenu == "NHẬP-XUẤT-TỒN KHO") return InventoryChartScreen();
+    if (selectedSubMenu == "KIỂM KÊ") return QualityChartScreen();
+
     return Center(
       child: Text(
         "Trang nội dung của: $activeTab",
