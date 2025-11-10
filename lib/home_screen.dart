@@ -44,11 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.outbox, "label": "XUẤT HÀNG (BƯỚC 1)"},
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
+    "GOM HÀNG": [],
     "KIỂM KÊ": [
       {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ SP"},
       {"icon": Icons.assignment_turned_in, "label": "IN LẠI TEM"},
     ],
-    "GOM HÀNG": [],
+
     "BÁO CÁO": [
       {"icon": Icons.bar_chart_outlined, "label": "NHẬP-XUẤT-TỒN KHO"},
       {"icon": Icons.bar_chart_outlined, "label": "KIỂM KÊ"},
