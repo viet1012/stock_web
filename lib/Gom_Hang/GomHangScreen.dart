@@ -123,16 +123,16 @@ class _GomHangScreenState extends State<GomHangScreen> {
 
       _boxIdConfirmController.clear();
 
-      if (_confirmedBoxIds.length < _selectedItems.length) {
+      if (_confirmedBoxIds.length < _confirmedItems.length) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Đã quét ${_confirmedBoxIds.length}/${_selectedItems.length} BoxID. Cần quét thêm!',
+              'Đã quét ${_confirmedBoxIds.length}/${_confirmedItems.length} BoxID. Cần quét thêm!',
             ),
             backgroundColor: Colors.orange,
           ),
         );
-      } else if (_confirmedBoxIds.length == _selectedItems.length) {
+      } else if (_confirmedBoxIds.length == _confirmedItems.length) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Đã quét đủ tất cả BoxID!'),
@@ -473,14 +473,14 @@ class _GomHangScreenState extends State<GomHangScreen> {
               children: [
                 _buildConfirmRow(
                   '+ ProductID :',
-                  _selectedItems.isNotEmpty
-                      ? _selectedItems.first['ProductID']
+                  _confirmedItems.isNotEmpty
+                      ? _confirmedItems.first['ProductID']
                       : '',
                 ),
                 // _buildConfirmRow('+ TQty :', _selectedItems.fold(0, (sum, e) => sum + e['Qty']).toString()),
                 _buildConfirmRow(
                   '+ BoxIDStock :',
-                  _selectedItems.map((e) => e['BoxList']).join(', '),
+                  _confirmedItems.map((e) => e['BoxList']).join(', '),
                 ),
 
                 const SizedBox(height: 12),
@@ -496,7 +496,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
           ),
           const Divider(height: 1),
           Expanded(
-            child: _selectedItems.isEmpty
+            child: _confirmedItems.isEmpty
                 ? const Center(
                     child: Text(
                       'Chưa chọn hàng nào',
@@ -504,9 +504,9 @@ class _GomHangScreenState extends State<GomHangScreen> {
                     ),
                   )
                 : ListView.builder(
-                    itemCount: _selectedItems.length,
+                    itemCount: _confirmedItems.length,
                     itemBuilder: (ctx, i) {
-                      final item = _selectedItems[i];
+                      final item = _confirmedItems[i];
                       return ListTile(
                         dense: true,
                         title: Text(
