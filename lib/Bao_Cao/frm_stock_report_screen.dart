@@ -61,6 +61,11 @@ class InventoryChartScreen extends StatelessWidget {
               yValueMapper: (_InventoryData d, _) => d.nhap,
               color: Colors.blue,
               borderRadius: const BorderRadius.all(Radius.circular(3)),
+              dataLabelSettings: const DataLabelSettings(
+                isVisible: true,
+                labelAlignment: ChartDataLabelAlignment.top,
+                textStyle: TextStyle(color: Colors.black),
+              ),
             ),
             ColumnSeries<_InventoryData, DateTime>(
               name: 'Xuất',
@@ -69,16 +74,25 @@ class InventoryChartScreen extends StatelessWidget {
               yValueMapper: (_InventoryData d, _) => d.xuat,
               color: Colors.red,
               borderRadius: const BorderRadius.all(Radius.circular(3)),
+              dataLabelSettings: const DataLabelSettings(
+                isVisible: true,
+                labelAlignment: ChartDataLabelAlignment.top,
+                textStyle: TextStyle(color: Colors.black),
+              ),
             ),
             LineSeries<_InventoryData, DateTime>(
               name: 'Tồn kho',
               dataSource: data,
               xValueMapper: (_InventoryData d, _) => d.date,
               yValueMapper: (_InventoryData d, _) => d.tonKho,
-              yAxisName: 'secondaryYAxis', // gán trục Y phụ
+              yAxisName: 'secondaryYAxis',
               markerSettings: const MarkerSettings(isVisible: true),
               color: Colors.green,
-              width: 2,
+              width: 4, // tăng độ dày đường line
+              dataLabelSettings: const DataLabelSettings(
+                isVisible: true,
+                labelAlignment: ChartDataLabelAlignment.top,
+              ),
             ),
           ],
         ),

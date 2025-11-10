@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
 import 'package:stock_web/widgets/header_bar.dart';
 
+import 'Data/mock_inventory_data.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/Xac_Nhan_Box/confirm_boxId_input.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/badge_widget.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/box_list_panel.dart';
@@ -63,60 +64,8 @@ class _StockExportFormState extends State<StockExportForm> {
   }
 
   void _initializeMockData() {
-    orderWaitList = [
-      {
-        'No': 1,
-        'PartID': 'P1001',
-        'PName': 'Ống thép 20mm',
-        'QtyPO': 100,
-        'QtyInOut': 0,
-        'ShelfIDWait': '',
-        'POCode': '456', // 🔹 Thêm PO code riêng
-        'Status': 'Chờ',
-        'Remark': '',
-        'BoxIDStock': 'VT1012',
-      },
-      {
-        'No': 1,
-        'PartID': 'P1002',
-        'PName': 'Ống thép 20mm',
-        'QtyPO': 100,
-        'QtyInOut': 0,
-        'ShelfIDWait': '',
-        'POCode': '123', // 🔹 Thêm PO code riêng
-        'Status': 'Chờ',
-        'Remark': '',
-        'BoxIDStock': 'VTA1012',
-      },
-    ];
-
-    allBoxes = [
-      {
-        'Firsttime': '2025-11-01 08:00',
-        'BoxID': 'BX501',
-        'QtyStock': 60,
-        'CheckSt': 'OK',
-        'ShelfID': '',
-        'POCode': '123', // 🔹 Liên kết với PO
-      },
-      {
-        'Firsttime': '2025-11-01 08:10',
-        'BoxID': 'BX502',
-        'QtyStock': 40,
-        'CheckSt': 'OK',
-        'ShelfID': 'Shelf-2',
-        'POCode': '123', // 🔹 Cùng PO
-      },
-      {
-        'Firsttime': '2025-11-01 08:20',
-        'BoxID': 'BX503',
-        'QtyStock': 20,
-        'CheckSt': 'NG',
-        'ShelfID': 'Shelf-3',
-        'POCode': '456',
-      },
-    ];
-
+    orderWaitList = MockInventoryData.getOrderWaitList();
+    allBoxes = MockInventoryData.getAllBoxes();
     filteredOrderList = [];
     displayedBoxes = [];
   }

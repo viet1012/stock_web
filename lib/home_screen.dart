@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:stock_web/Gom_Hang/GomHangScreen.dart';
 import 'package:stock_web/Nhap_Kho/Chuy%E1%BB%83n%20Kho/confirmation_trans_shelf_screen.dart';
-import 'package:stock_web/quality_chart_screen.dart';
+import 'package:stock_web/Bao_Cao/quality_chart_screen.dart';
 
+import 'Bao_Cao/forecast_table_screen.dart';
+import 'Bao_Cao/inventory_statistics_screen.dart';
 import 'Kiem_Ke/box_confirm_screen.dart';
 import 'Kiem_Ke/inventory_management_screen.dart';
 import 'MTSStockExportStep2.dart';
@@ -9,7 +12,7 @@ import 'MTS_stock_export_hangbo_screen.dart';
 import 'Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 
 import 'Nhap_Kho/Phan_Loai/box_management_screen.dart';
-import 'frm_stock_report_screen.dart';
+import 'Bao_Cao/frm_stock_report_screen.dart';
 import 'intro_page.dart';
 import 'stock_export_form.dart';
 
@@ -44,7 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
       {"icon": Icons.outbox, "label": "XUẤT HÀNG (BƯỚC 1)"},
       {"icon": Icons.print, "label": "XUẤT HÀNG (BƯỚC 2)"},
     ],
-    "GOM HÀNG": [],
+    "GOM HÀNG": [
+      {"icon": Icons.featured_play_list, "label": "DANH SÁCH GOM HÀNG"},
+    ],
     "KIỂM KÊ": [
       {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ SP"},
       {"icon": Icons.assignment_turned_in, "label": "IN LẠI TEM"},
@@ -53,6 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
     "BÁO CÁO": [
       {"icon": Icons.bar_chart_outlined, "label": "NHẬP-XUẤT-TỒN KHO"},
       {"icon": Icons.bar_chart_outlined, "label": "KIỂM KÊ"},
+      {"icon": Icons.calendar_month, "label": "DỰ BÁO"},
+      {"icon": Icons.analytics, "label": "THỐNG KÊ"},
     ],
   };
 
@@ -280,6 +287,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (selectedSubMenu == "NHẬP-XUẤT-TỒN KHO") return InventoryChartScreen();
     if (selectedSubMenu == "KIỂM KÊ") return QualityChartScreen();
+    if (selectedSubMenu == "DỰ BÁO") return ForecastTableScreen();
+    if (selectedSubMenu == "THỐNG KÊ") return InventoryStatisticsScreen();
+
+    if (selectedSubMenu == "DANH SÁCH GOM HÀNG") return GomHangScreen();
 
     return Center(
       child: Text(

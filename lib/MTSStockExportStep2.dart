@@ -24,7 +24,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
   bool isPOScanned = false;
 
   final Map<String, List<Map<String, dynamic>>> dummyPartsByPO = {
-    "PO123": [
+    "123": [
       {
         "No": 1,
         "ProductID": "M1001",
@@ -143,7 +143,7 @@ class _MTSStockExportStep2State extends State<MTSStockExportStep2> {
           children: [
             _buildInputRow(
               "PO:",
-              "Nhập số đơn hàng (VD: PO123)",
+              "Nhập số đơn hàng (VD: 123)",
               focus: orderItoFocusNode,
               controller: orderItoController,
               onSubmitted: _onOrderItoEntered,
