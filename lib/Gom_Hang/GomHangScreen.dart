@@ -19,8 +19,24 @@ class _GomHangScreenState extends State<GomHangScreen> {
   List<Map<String, dynamic>> _allItems = [];
   List<Map<String, dynamic>> _filteredItems = [];
   Set<int> _selectedIndices = {};
-  List<String> _confirmedBoxIds = []; // 🔹 Danh sách các BoxIDConfirm đã quét
+  // List<String> _confirmedBoxIds = []; // 🔹 Danh sách các BoxIDConfirm đã quét
+  Map<String, bool> _boxIdScanStatus =
+      {}; // Key: BoxID, Value: đã quét đúng chưa
+  // XÓA DÒNG NÀY:
 
+  // THAY BẰNG 2 DÒNG SAU:
+  Map<String, Color> _productColorMap = {}; // Key: ProductID → Color cố định
+  final List<Color> _availableColors = [
+    Colors.green.shade400,
+    Colors.orange.shade400,
+    Colors.purple.shade400,
+    Colors.blue.shade400,
+    Colors.teal.shade400,
+    Colors.pink.shade400,
+    Colors.red.shade400,
+    Colors.indigo.shade400,
+  ];
+  int _nextColorIndex = 0; // Để cấp phát màu lần lượt
   // Danh sách đã chọn
   List<Map<String, dynamic>> _selectedItems = [];
   List<Map<String, dynamic>> orderWaitList = [];
@@ -35,9 +51,54 @@ class _GomHangScreenState extends State<GomHangScreen> {
   void _initializeMockData() {
     final mockData = MockInventoryData.initializeAll();
     orderWaitList = MockInventoryData.getOrderWaitList();
-    _allItems = mockData['shelfItems'];
+    // Lọc ra các item theo yêu cầu
+    final shelfItems = mockData['shelfItems'] as List<Map<String, dynamic>>;
+    _allItems = filterByProductAndUniqueBoxList(shelfItems);
     _sortItems(_allItems); // Sắp xếp danh sách gốc
     _filteredItems = List.from(_allItems);
+  }
+
+  List<Map<String, dynamic>> filterUniqueBoxList(
+    List<Map<String, dynamic>> items,
+  ) {
+    final seenBoxLists = <String>{};
+    final filtered = <Map<String, dynamic>>[];
+
+    for (var item in items) {
+      final boxList = item['BoxList'] as String;
+      if (!seenBoxLists.contains(boxList)) {
+        seenBoxLists.add(boxList);
+        filtered.add(item);
+      }
+    }
+
+    return filtered;
+  }
+
+  List<Map<String, dynamic>> filterByProductAndUniqueBoxList(
+    List<Map<String, dynamic>> items,
+  ) {
+    // Map key: 'ProductID|ProductName' -> Set chứa BoxList đã gặp
+    final Map<String, Set<String>> productBoxLists = {};
+    final List<Map<String, dynamic>> result = [];
+
+    for (var item in items) {
+      final productKey = '${item['ProductID']}|${item['ProductName']}';
+      final boxList = item['BoxList'] as String;
+
+      if (!productBoxLists.containsKey(productKey)) {
+        productBoxLists[productKey] = <String>{};
+      }
+
+      // Nếu boxList này chưa xuất hiện trong nhóm product đó
+      if (!productBoxLists[productKey]!.contains(boxList)) {
+        productBoxLists[productKey]!.add(boxList);
+        result.add(item);
+      }
+      // Nếu đã có rồi thì bỏ qua để tránh trùng boxList cho cùng product
+    }
+
+    return result;
   }
 
   void _sortItems(List<Map<String, dynamic>> list) {
@@ -113,33 +174,61 @@ class _GomHangScreenState extends State<GomHangScreen> {
   }
 
   void _onBoxScanned(String boxId) {
-    final normalized = boxId.trim().toUpperCase();
+    final scanned = boxId.trim().toUpperCase();
 
     setState(() {
-      // Nếu chưa đủ số lượng quét và chưa có box này
-      if (!_confirmedBoxIds.contains(normalized)) {
-        _confirmedBoxIds.add(normalized);
+      if (_boxIdScanStatus.containsKey(scanned)) {
+        if (!_boxIdScanStatus[scanned]!) {
+          _boxIdScanStatus[scanned] = true;
+
+          // Đếm số BoxID đã quét đúng
+          final totalRequired = _boxIdScanStatus.length;
+          final scannedCorrectly = _boxIdScanStatus.values
+              .where((v) => v)
+              .length;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Đúng BoxID! Đã quét đúng $scannedCorrectly/$totalRequired',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          if (scannedCorrectly == totalRequired) {
+            setState(() {
+              _selectedIndices.clear();
+              _selectedItems.clear();
+              _confirmedItems.clear();
+              _boxIdConfirmController.clear();
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('HOÀN TẤT! Đã quét đúng tất cả BoxID!'),
+                backgroundColor: Colors.deepPurple,
+                duration: Duration(seconds: 4),
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('BoxID này đã quét rồi!'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('SAI BoxID! Không thuộc danh sách cần gom!'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
 
       _boxIdConfirmController.clear();
-
-      if (_confirmedBoxIds.length < _confirmedItems.length) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Đã quét ${_confirmedBoxIds.length}/${_confirmedItems.length} BoxID. Cần quét thêm!',
-            ),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      } else if (_confirmedBoxIds.length == _confirmedItems.length) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Đã quét đủ tất cả BoxID!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
     });
   }
 
@@ -166,7 +255,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
     if (_selectedItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vui lòng chọn ít nhất một hàng để xác nhận!'),
+          content: Text('Vui lòng chọn ít nhất một hàng!'),
           backgroundColor: Colors.red,
         ),
       );
@@ -174,24 +263,41 @@ class _GomHangScreenState extends State<GomHangScreen> {
     }
 
     setState(() {
-      // Thêm các item đang chọn vào danh sách đã xác nhận,
-      // tránh trùng (có thể check theo ShelfId hoặc ProductID + ShelfId)
+      // Lấy ProductID của lô hàng đang chọn (tất cả cùng 1 loại nên lấy cái đầu)
+      final String productId = _selectedItems.first['ProductID'];
+
+      // Nếu chưa có màu cho sản phẩm này → gán màu mới (cố định mãi mãi)
+      if (!_productColorMap.containsKey(productId)) {
+        _productColorMap[productId] =
+            _availableColors[_nextColorIndex % _availableColors.length];
+        _nextColorIndex++;
+      }
+
+      final Color productColor = _productColorMap[productId]!;
+
       for (var item in _selectedItems) {
         bool exists = _confirmedItems.any(
           (e) => e['ShelfId'] == item['ShelfId'],
         );
         if (!exists) {
           _confirmedItems.add(item);
+
+          // Khởi tạo trạng thái quét BoxID
+          final boxList = item['BoxList'] as String;
+          final boxIds = boxList
+              .split(',')
+              .map((e) => e.trim().toUpperCase())
+              .toList();
+          for (var boxId in boxIds) {
+            _boxIdScanStatus[boxId] = false;
+          }
         }
       }
 
-      // Reset lựa chọn hiện tại để có thể chọn tiếp
+      // Reset lựa chọn
       _selectedIndices.clear();
       _selectedItems.clear();
-
-      // Nếu muốn reset luôn mã xác nhận BoxID:
       _boxIdConfirmController.clear();
-      _confirmedBoxIds.clear();
     });
   }
 
@@ -483,7 +589,10 @@ class _GomHangScreenState extends State<GomHangScreen> {
                   '+ BoxIDStock :',
                   _confirmedItems.map((e) => e['BoxList']).join(', '),
                 ),
-
+                _buildConfirmRow(
+                  '+ ShelfId :',
+                  _confirmedItems.map((e) => e['ShelfId']).join(', '),
+                ),
                 const SizedBox(height: 12),
                 _buildConfirmRow(
                   '+ BoxIDConfirm :',
@@ -510,16 +619,33 @@ class _GomHangScreenState extends State<GomHangScreen> {
                       final item = _confirmedItems[i];
                       return ListTile(
                         dense: true,
+                        tileColor: _productColorMap[item['ProductID']]
+                            ?.withOpacity(0.15),
+                        leading:
+                            _confirmedItems[i]['BoxList']
+                                .toString()
+                                .split(',')
+                                .map((e) => e.trim().toUpperCase())
+                                .every((box) => _boxIdScanStatus[box] == true)
+                            ? Icon(
+                                Icons.check_circle,
+                                color: _productColorMap[item['ProductID']],
+                              )
+                            : const Icon(Icons.pending, color: Colors.grey),
                         title: Text(
                           item['ShelfId'],
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
+                            color: _productColorMap[item['ProductID']],
                           ),
                         ),
                         subtitle: Text(
                           '${item['ProductName']} - Qty: ${item['Qty']}',
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: _productColorMap[item['ProductID']],
+                          ),
                         ),
                         trailing: IconButton(
                           icon: const Icon(
@@ -527,11 +653,26 @@ class _GomHangScreenState extends State<GomHangScreen> {
                             color: Colors.red,
                           ),
                           onPressed: () {
-                            final globalIndex = _filteredItems.indexWhere(
-                              (e) => e['ShelfId'] == item['ShelfId'],
-                            );
-                            if (globalIndex != -1)
-                              _toggleSelection(globalIndex);
+                            setState(() {
+                              final index = _confirmedItems.indexWhere(
+                                (e) => e['ShelfId'] == item['ShelfId'],
+                              );
+                              if (index != -1) {
+                                final removedItem = _confirmedItems.removeAt(
+                                  index,
+                                );
+                                final boxList = removedItem['BoxList']
+                                    .toString()
+                                    .split(',')
+                                    .map((e) => e.trim().toUpperCase());
+                                for (var box in boxList) {
+                                  _boxIdScanStatus.remove(box);
+                                }
+
+                                // Nếu không còn dòng nào của sản phẩm này → có thể xóa màu (tùy anh)
+                                // Hoặc giữ lại để lần sau dùng lại màu cũ → em giữ lại cho đẹp
+                              }
+                            });
                           },
                         ),
                       );
@@ -597,7 +738,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
                       isDense: true,
                     ),
                   )
-                : Text(
+                : SelectableText(
                     value,
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
