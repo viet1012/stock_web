@@ -27,6 +27,8 @@ class InventoryChartScreen extends StatelessWidget {
     _InventoryData(DateTime(2025, 10, 19), 1632, 2151, 202037),
   ];
 
+  final numberFormatter = NumberFormat('#,###'); // định dạng có dấu phẩy
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,15 +92,19 @@ class InventoryChartScreen extends StatelessWidget {
                       int seriesIndex,
                     ) {
                       return RotatedBox(
-                        quarterTurns: 3, // xoay 270 độ, chữ đứng dọc
+                        quarterTurns: 3,
                         child: Text(
-                          data.nhap.toString(),
-                          style: const TextStyle(color: Colors.white),
+                          numberFormatter.format(data.nhap),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                         ),
                       );
                     },
               ),
             ),
+
             ColumnSeries<_InventoryData, DateTime>(
               name: 'Xuất',
               dataSource: data,
@@ -108,10 +114,8 @@ class InventoryChartScreen extends StatelessWidget {
               borderRadius: const BorderRadius.all(Radius.circular(3)),
               dataLabelSettings: DataLabelSettings(
                 isVisible: true,
-                labelAlignment: ChartDataLabelAlignment.bottom, // hoặc middle
-                margin: const EdgeInsets.only(
-                  top: 8,
-                ), // tạo khoảng cách label ra khỏi cột
+                labelAlignment: ChartDataLabelAlignment.bottom,
+                margin: const EdgeInsets.only(top: 8),
                 builder:
                     (
                       dynamic data,
@@ -121,9 +125,9 @@ class InventoryChartScreen extends StatelessWidget {
                       int seriesIndex,
                     ) {
                       return RotatedBox(
-                        quarterTurns: 3, // xoay 270 độ
+                        quarterTurns: 3,
                         child: Text(
-                          data.nhap.toString(),
+                          numberFormatter.format(data.xuat), // Đã sửa ở đây
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -155,8 +159,7 @@ class InventoryChartScreen extends StatelessWidget {
                       int seriesIndex,
                     ) {
                       return Text(
-                        data.tonKho
-                            .toString(), // hiển thị số nguyên, không rút gọn
+                        numberFormatter.format(data.tonKho),
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,

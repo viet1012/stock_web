@@ -227,6 +227,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
                         Colors.blue,
                         _search,
                       ),
+                      const SizedBox(width: 12),
                       _buildActionButton(
                         'Xác nhận',
                         Icons.done_all,

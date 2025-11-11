@@ -138,6 +138,12 @@ class IntroPage extends StatelessWidget {
                           "Kiểm kê kho",
                           Colors.blue.shade700,
                         ),
+                        const SizedBox(height: 12),
+                        _buildFeatureItem(
+                          Icons.addchart_rounded,
+                          "Báo cáo",
+                          Colors.greenAccent.shade700,
+                        ),
                       ],
                     ),
                   ),
