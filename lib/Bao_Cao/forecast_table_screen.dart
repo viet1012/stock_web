@@ -430,6 +430,8 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                         },
                         children: [
                           // HÀNG 1: Nhóm cột
+                          // THAY TOÀN BỘ HÀNG HEADER NHÓM (HÀNG 1) BẰNG ĐOẠN NÀY:
+                          // Thay vì _mergeCell với width 480, chỉ để 120 và set màu cho cả 4 ô liên tiếp.
                           TableRow(
                             decoration: const BoxDecoration(
                               color: Color(0xFF1E40AF),
@@ -441,34 +443,62 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                               _fixedHeader('TB 3 tháng'),
                               _fixedHeader('LT (ngày)'),
                               _fixedHeader('MOQ'),
-                              _groupHeader(
+
+                              // KẾ HOẠCH NHẬN (4 cột)
+                              _fixedHeaderColored(
                                 'KẾ HOẠCH NHẬN',
                                 Colors.green.shade700,
                               ),
-                              const SizedBox(),
-                              const SizedBox(),
-                              const SizedBox(),
-                              _groupHeader(
+                              ...List.generate(
+                                3,
+                                (_) => Container(
+                                  height: 60,
+                                  width: 120,
+                                  color: Colors.green.shade700,
+                                ),
+                              ),
+
+                              // KẾ HOẠCH XUẤT (4 cột)
+                              _fixedHeaderColored(
                                 'KẾ HOẠCH XUẤT',
                                 Colors.orange.shade700,
                               ),
-                              const SizedBox(),
-                              const SizedBox(),
-                              const SizedBox(),
-                              _groupHeader(
+                              ...List.generate(
+                                3,
+                                (_) => Container(
+                                  height: 60,
+                                  width: 120,
+                                  color: Colors.orange.shade700,
+                                ),
+                              ),
+
+                              // TỒN KHO DỰ BÁO (4 cột)
+                              _fixedHeaderColored(
                                 'TỒN KHO DỰ BÁO',
                                 Colors.blue.shade700,
                               ),
-                              const SizedBox(),
-                              const SizedBox(),
-                              const SizedBox(),
-                              _groupHeader(
+                              ...List.generate(
+                                3,
+                                (_) => Container(
+                                  height: 60,
+                                  width: 120,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+
+                              // KẾ HOẠCH ĐẶT HÀNG (4 cột)
+                              _fixedHeaderColored(
                                 'KẾ HOẠCH ĐẶT HÀNG',
                                 Colors.purple.shade700,
                               ),
-                              const SizedBox(),
-                              const SizedBox(),
-                              const SizedBox(),
+                              ...List.generate(
+                                3,
+                                (_) => Container(
+                                  height: 60,
+                                  width: 120,
+                                  color: Colors.purple.shade700,
+                                ),
+                              ),
                             ],
                           ),
 
@@ -536,6 +566,22 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     );
   }
 
+  Widget _fixedHeaderColored(String text, Color color) => Container(
+    height: 60,
+    width: 120,
+    alignment: Alignment.center,
+    color: color,
+    child: Text(
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 13,
+      ),
+      textAlign: TextAlign.center,
+    ),
+  );
+
   Widget _fixedHeader(String text) => Container(
     height: 60,
     alignment: Alignment.center,
@@ -547,20 +593,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         fontSize: 14,
       ),
       textAlign: TextAlign.center,
-    ),
-  );
-
-  Widget _groupHeader(String text, Color? color) => Container(
-    height: 60,
-    color: color,
-    alignment: Alignment.center,
-    child: Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: 15,
-      ),
     ),
   );
 
