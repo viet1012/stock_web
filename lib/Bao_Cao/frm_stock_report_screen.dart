@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class InventoryChartScreen extends StatelessWidget {
-  InventoryChartScreen({Key? key}) : super(key: key);
+  InventoryChartScreen({Key? key, required int month}) : super(key: key);
 
   final List<_InventoryData> data = [
     _InventoryData(DateTime(2025, 10, 1), 2000, 3000, 200000),

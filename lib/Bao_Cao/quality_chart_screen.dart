@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class QualityChartScreen extends StatelessWidget {
-  QualityChartScreen({Key? key}) : super(key: key);
+  QualityChartScreen({Key? key, required int month}) : super(key: key);
 
   final List<_QualityData> data = [
     _QualityData(DateTime(2025, 10, 1), 2000, 5, 0.25),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ForecastTableScreen extends StatefulWidget {
-  const ForecastTableScreen({Key? key}) : super(key: key);
+  const ForecastTableScreen({Key? key, required int month}) : super(key: key);
 
   @override
   State<ForecastTableScreen> createState() => _ForecastTableScreenState();

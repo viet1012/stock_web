@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class InventoryStatisticsScreen extends StatefulWidget {
-  const InventoryStatisticsScreen({Key? key}) : super(key: key);
+  const InventoryStatisticsScreen({Key? key, required int month})
+    : super(key: key);
 
   @override
   State<InventoryStatisticsScreen> createState() =>
