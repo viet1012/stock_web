@@ -197,12 +197,12 @@ class _GomHangScreenState extends State<GomHangScreen> {
           );
 
           if (scannedCorrectly == totalRequired) {
-            setState(() {
-              _selectedIndices.clear();
-              _selectedItems.clear();
-              _confirmedItems.clear();
-              _boxIdConfirmController.clear();
-            });
+            // setState(() {
+            //   _selectedIndices.clear();
+            //   _selectedItems.clear();
+            //   _confirmedItems.clear();
+            //   _boxIdConfirmController.clear();
+            // });
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('HOÀN TẤT! Đã quét đúng tất cả BoxID!'),
@@ -394,7 +394,9 @@ class _GomHangScreenState extends State<GomHangScreen> {
                       () {
                         setState(() {
                           _selectedIndices.clear();
-                          _updateSelectedItems();
+                          _selectedItems.clear();
+                          _confirmedItems.clear();
+                          _boxIdConfirmController.clear();
                         });
                       },
                     ),
@@ -415,13 +417,25 @@ class _GomHangScreenState extends State<GomHangScreen> {
   }
 
   void _openConfirmShelfDialog() {
+    // Lấy toàn bộ BoxID từ các dòng đã xác nhận
+    final allowedBoxIds = _confirmedItems
+        .expand(
+          (e) => e['BoxList']
+              .toString()
+              .split(',')
+              .map((x) => x.trim().toUpperCase()),
+        )
+        .toSet()
+        .toList();
+    print("allowedBoxID: ${allowedBoxIds}");
     showDialog(
       context: context,
       builder: (context) => ConfirmShelfDialog(
-        orderWaitList: orderWaitList,
+        orderWaitList: _filteredItems,
+        allowedBoxIds: allowedBoxIds, // ✅ truyền danh sách BoxID được phép quét
         onUpdate: (updatedList) {
           setState(() {
-            orderWaitList = updatedList;
+            _filteredItems = updatedList;
           });
         },
       ),

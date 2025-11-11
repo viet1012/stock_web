@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:stock_web/widgets/custom_button.dart';
-import 'package:stock_web/widgets/header_bar.dart';
 
 import 'Data/mock_inventory_data.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/Xac_Nhan_Box/confirm_boxId_input.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/badge_widget.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/box_list_panel.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/input_field.dart';
-import 'Xuat_Kho/Xuất Kho Bước 1/Đưa lên kệ chờ/confirm_shelf_dialog.dart';
 
 class StockExportForm extends StatefulWidget {
   const StockExportForm({super.key});
@@ -245,17 +243,17 @@ class _StockExportFormState extends State<StockExportForm> {
   }
 
   void _openConfirmShelfDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => ConfirmShelfDialog(
-        orderWaitList: orderWaitList,
-        onUpdate: (updatedList) {
-          setState(() {
-            orderWaitList = updatedList;
-          });
-        },
-      ),
-    );
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => ConfirmShelfDialog(
+    //     orderWaitList: orderWaitList,
+    //     onUpdate: (updatedList) {
+    //       setState(() {
+    //         orderWaitList = updatedList;
+    //       });
+    //     },
+    //   ),
+    // );
   }
 
   Widget _buildLeftPanel() {
