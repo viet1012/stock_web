@@ -11,7 +11,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
   late ScrollController _hController;
   late ScrollController _vController;
 
-  // Chỉ còn 4 tuần thôi nha
   static const int weekCount = 4;
 
   late List<Map<String, dynamic>> bigData;
@@ -22,25 +21,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     _hController = ScrollController();
     _vController = ScrollController();
 
-    //   bigData = List.generate(80, (i) {
-    //     final item = <String, dynamic>{
-    //       'SKU': 'SKU-A${1000 + i}',
-    //       'Tồn kho': 50 + (i * 7) % 300,
-    //       'Trung bình 6 tháng': 200 + (i * 5) % 400,
-    //       'Trung bình 3 tháng': 220 + (i * 3) % 350,
-    //       'LT đặt hàng (ngày)': [7, 10, 14, 15, 21][i % 5],
-    //       'MOQ': [100, 200, 300, 500][i % 4],
-    //     };
-    //
-    //     for (int w = 1; w <= weekCount; w++) {
-    //       item['T${w}_Nhận'] = (i % 5 == 0) ? 100 + w * 20 : '-';
-    //       item['T${w}_Xuất'] = (i % 4 == 0) ? 80 + w * 15 : '-';
-    //       item['T${w}_Kho'] = item['Tồn kho'] + (w * 25) - (i % 50);
-    //     }
-    //     return item;
-    //   });
-
-    // === DỮ LIỆU THẬT ===
+    // ==== DỮ LIỆU MẪU (ĐÃ CÓ KẾ HOẠCH ĐẶT HÀNG) ====
     bigData = [
       {
         'SKU': 'SKU-A3-100',
@@ -61,6 +42,10 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         'T2_Kho': 161,
         'T3_Kho': 161,
         'T4_Kho': 166,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
       },
       {
         'SKU': 'SKU-A4-100',
@@ -81,6 +66,10 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         'T2_Kho': 64,
         'T3_Kho': -117,
         'T4_Kho': -173,
+        'T1_ĐH': 200,
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
       },
       {
         'SKU': 'SKU-A5-100',
@@ -101,6 +90,10 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         'T2_Kho': 496,
         'T3_Kho': 456,
         'T4_Kho': 456,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
       },
       {
         'SKU': 'SKU-A6-100',
@@ -121,6 +114,10 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         'T2_Kho': 723,
         'T3_Kho': 723,
         'T4_Kho': 777,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
       },
       {
         'SKU': 'SKU-A8-100',
@@ -141,6 +138,10 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         'T2_Kho': 1744,
         'T3_Kho': 1822,
         'T4_Kho': 1822,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
       },
       {
         'SKU': 'SKU-A10-100',
@@ -161,8 +162,83 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         'T2_Kho': 1253,
         'T3_Kho': 1337,
         'T4_Kho': 1301,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
       },
-      // 👉 bạn copy tương tự cho toàn bộ dữ liệu còn lại
+      {
+        'SKU': 'SKU-A13-100',
+        'Tồn kho': 600,
+        'Trung bình 6 tháng': 187,
+        'Trung bình 3 tháng': 41,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 100,
+        'T1_Nhận': 70,
+        'T2_Nhận': '-',
+        'T3_Nhận': '-',
+        'T4_Nhận': 92,
+        'T1_Xuất': 100,
+        'T2_Xuất': 200,
+        'T3_Xuất': '-',
+        'T4_Xuất': 500,
+        'T1_Kho': 570,
+        'T2_Kho': 370,
+        'T3_Kho': 370,
+        'T4_Kho': -38,
+        'T1_ĐH': '-',
+        'T2_ĐH': 100,
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
+      },
+      {
+        'SKU': 'SKU-A16-100',
+        'Tồn kho': 1501,
+        'Trung bình 6 tháng': 240,
+        'Trung bình 3 tháng': 217,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 100,
+        'T1_Nhận': '-',
+        'T2_Nhận': 74,
+        'T3_Nhận': '-',
+        'T4_Nhận': 9,
+        'T1_Xuất': '-',
+        'T2_Xuất': 82,
+        'T3_Xuất': 73,
+        'T4_Xuất': '-',
+        'T1_Kho': 1501,
+        'T2_Kho': 1493,
+        'T3_Kho': 1420,
+        'T4_Kho': 1429,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
+      },
+      {
+        'SKU': 'SKU-A20-100',
+        'Tồn kho': 161,
+        'Trung bình 6 tháng': 18,
+        'Trung bình 3 tháng': 72,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 100,
+        'T1_Nhận': '-',
+        'T2_Nhận': '-',
+        'T3_Nhận': '-',
+        'T4_Nhận': '-',
+        'T1_Xuất': '-',
+        'T2_Xuất': 22,
+        'T3_Xuất': '-',
+        'T4_Xuất': '-',
+        'T1_Kho': 161,
+        'T2_Kho': 139,
+        'T3_Kho': 139,
+        'T4_Kho': 139,
+        'T1_ĐH': '-',
+        'T2_ĐH': '-',
+        'T3_ĐH': '-',
+        'T4_ĐH': '-',
+      },
     ];
   }
 
@@ -173,6 +249,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     super.dispose();
   }
 
+  // Màu nền
   Color _bgColor(String col, dynamic val) {
     if (col.contains('_Nhận')) {
       return val != '-' ? Colors.green.shade100 : Colors.grey.shade50;
@@ -186,16 +263,21 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
       if (v < 200) return Colors.amber.shade100;
       return Colors.blue.shade100;
     }
+    if (col.contains('_ĐH')) {
+      return val != '-' ? Colors.purple.shade100 : Colors.grey.shade50;
+    }
     return Colors.white;
   }
 
+  // Style chữ
   TextStyle _textStyle(String col, dynamic val) {
-    if (col == 'SKU')
+    if (col == 'SKU') {
       return const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 14,
         color: Colors.black87,
       );
+    }
 
     if (col.contains('_Kho')) {
       final v = int.tryParse(val.toString()) ?? 0;
@@ -218,6 +300,11 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
       if (col.contains('_Xuất'))
         return const TextStyle(
           color: Colors.orange,
+          fontWeight: FontWeight.w600,
+        );
+      if (col.contains('_ĐH'))
+        return const TextStyle(
+          color: Colors.purple,
           fontWeight: FontWeight.w600,
         );
     }
@@ -276,7 +363,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
 
       body: Column(
         children: [
-          // LEGEND SIÊU ĐẸP
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -298,6 +384,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
               children: [
                 _legend('Có nhập kho', Colors.green[400]!),
                 _legend('Có xuất kho', Colors.orange[400]!),
+                _legend('Có đặt hàng', Colors.purple[400]!),
                 _legend('Tồn < 100', Colors.red[400]!),
                 _legend('Tồn 100-199', Colors.amber[600]!),
                 _legend('Tồn ≥ 200', Colors.blue[600]!),
@@ -305,7 +392,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
             ),
           ),
 
-          // BẢNG CHÍNH - ĐẸP NHƯ ERP THẬT
+          // BẢNG DỮ LIỆU
           Expanded(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -326,7 +413,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                   controller: _hController,
                   thumbVisibility: true,
                   thickness: 10,
-                  radius: const Radius.circular(10),
                   child: SingleChildScrollView(
                     controller: _hController,
                     scrollDirection: Axis.horizontal,
@@ -338,20 +424,12 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                           width: 1.2,
                         ),
                         columnWidths: {
-                          // Cột cố định
-                          0: const FixedColumnWidth(140), // SKU
-                          1: const FixedColumnWidth(100), // Tồn kho
-                          2: const FixedColumnWidth(120),
-                          3: const FixedColumnWidth(120),
-                          4: const FixedColumnWidth(130),
-                          5: const FixedColumnWidth(90), // MOQ
-                          // 12 cột tuần (4 tuần x 3 nhóm)
-                          for (int i = 0; i < 12; i++)
-                            (i + 6): const FixedColumnWidth(130),
+                          0: const FixedColumnWidth(140),
+                          for (int i = 1; i < 6 + (4 * 4); i++)
+                            i: const FixedColumnWidth(120),
                         },
                         children: [
-                          // HEADER NHÓM - MERGE ĐẸP LUNG LINH
-                          // HEADER NHÓM - ĐÃ SỬA ĐỂ SPAN ĐÚNG 4 CỘT MỖI NHÓM
+                          // HÀNG 1: Nhóm cột
                           TableRow(
                             decoration: const BoxDecoration(
                               color: Color(0xFF1E40AF),
@@ -363,42 +441,38 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                               _fixedHeader('TB 3 tháng'),
                               _fixedHeader('LT (ngày)'),
                               _fixedHeader('MOQ'),
-
-                              // Mỗi nhóm chiếm đúng 4 cột → dùng TableCell + colspan thủ công
-                              TableCell(
-                                child: _groupHeader(
-                                  'KẾ HOẠCH NHẬN',
-                                  Colors.green.shade700,
-                                ),
+                              _groupHeader(
+                                'KẾ HOẠCH NHẬN',
+                                Colors.green.shade700,
                               ),
-                              // 3 ô trống để span 4 cột
-                              const TableCell(child: SizedBox()),
-                              const TableCell(child: SizedBox()),
-                              const TableCell(child: SizedBox()),
-
-                              TableCell(
-                                child: _groupHeader(
-                                  'KẾ HOẠCH XUẤT',
-                                  Colors.orange.shade700,
-                                ),
+                              const SizedBox(),
+                              const SizedBox(),
+                              const SizedBox(),
+                              _groupHeader(
+                                'KẾ HOẠCH XUẤT',
+                                Colors.orange.shade700,
                               ),
-                              const TableCell(child: SizedBox()),
-                              const TableCell(child: SizedBox()),
-                              const TableCell(child: SizedBox()),
-
-                              TableCell(
-                                child: _groupHeader(
-                                  'TỒN KHO DỰ BÁO',
-                                  Colors.blue.shade700,
-                                ),
+                              const SizedBox(),
+                              const SizedBox(),
+                              const SizedBox(),
+                              _groupHeader(
+                                'TỒN KHO DỰ BÁO',
+                                Colors.blue.shade700,
                               ),
-                              const TableCell(child: SizedBox()),
-                              const TableCell(child: SizedBox()),
-                              const TableCell(child: SizedBox()),
+                              const SizedBox(),
+                              const SizedBox(),
+                              const SizedBox(),
+                              _groupHeader(
+                                'KẾ HOẠCH ĐẶT HÀNG',
+                                Colors.purple.shade700,
+                              ),
+                              const SizedBox(),
+                              const SizedBox(),
+                              const SizedBox(),
                             ],
                           ),
 
-                          // HEADER TUẦN
+                          // HÀNG 2: Tuần
                           TableRow(
                             decoration: const BoxDecoration(
                               color: Color(0xFF2563EB),
@@ -420,6 +494,10 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                                 4,
                                 (i) => _weekHeader('T${i + 1}'),
                               ),
+                              ...List.generate(
+                                4,
+                                (i) => _weekHeader('T${i + 1}'),
+                              ),
                             ],
                           ),
 
@@ -428,7 +506,7 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                             (row) => TableRow(
                               children: [
                                 _cell(row['SKU'], 'SKU'),
-                                _cell(row['Tồn kho'].toString(), 'Tồn kho'),
+                                _cell(row['Tồn kho'].toString(), ''),
                                 _cell(row['Trung bình 6 tháng'].toString(), ''),
                                 _cell(row['Trung bình 3 tháng'].toString(), ''),
                                 _cell(row['LT đặt hàng (ngày)'].toString(), ''),
@@ -439,6 +517,8 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                                   _cell(row['T${w}_Xuất'], 'T${w}_Xuất'),
                                 for (int w = 1; w <= 4; w++)
                                   _cell(row['T${w}_Kho'], 'T${w}_Kho'),
+                                for (int w = 1; w <= 4; w++)
+                                  _cell(row['T${w}_ĐH'], 'T${w}_ĐH'),
                               ],
                             ),
                           ),
@@ -450,14 +530,12 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  // Header cột cố định
   Widget _fixedHeader(String text) => Container(
     height: 60,
     alignment: Alignment.center,
@@ -472,7 +550,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     ),
   );
 
-  // Header nhóm - merge đẹp
   Widget _groupHeader(String text, Color? color) => Container(
     height: 60,
     color: color,
@@ -487,7 +564,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     ),
   );
 
-  // Header tuần
   Widget _weekHeader(String text) => Container(
     height: 50,
     alignment: Alignment.center,
@@ -501,7 +577,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     ),
   );
 
-  // Ô dữ liệu
   Widget _cell(dynamic value, String col) => Container(
     height: 56,
     alignment: Alignment.center,
@@ -515,7 +590,6 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     ),
   );
 
-  // Legend item
   Widget _legend(String label, Color color) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [

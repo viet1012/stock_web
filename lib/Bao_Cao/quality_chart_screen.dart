@@ -73,7 +73,7 @@ class QualityChartScreen extends StatelessWidget {
               dataLabelSettings: const DataLabelSettings(
                 isVisible: true,
                 labelAlignment: ChartDataLabelAlignment.top,
-                textStyle: TextStyle(color: Colors.black),
+                textStyle: TextStyle(color: Colors.redAccent),
               ),
               color: Colors.red,
               borderRadius: const BorderRadius.all(Radius.circular(3)),
