@@ -11,40 +11,8 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
   late ScrollController _hController;
   late ScrollController _vController;
 
-  static const List<Map<String, dynamic>> baseData = [
-    {
-      'SKU': 'SKU-A3-100',
-      'Tồn kho': 161,
-      'Trung bình 6 tháng': 323,
-      'Trung bình 3 tháng': 452,
-      'LT đặt hàng (ngày)': 15,
-      'MOQ': 200,
-      'T1_Nhận': '-',
-      'T2_Nhận': '-',
-      'T3_Nhận': '-',
-      'T4_Nhận': 80,
-      'T5_Nhận': '-',
-      'T6_Nhận': 51,
-      'T7_Nhận': '-',
-      'T8_Nhận': 39,
-      'T1_Xuất': '-',
-      'T2_Xuất': '-',
-      'T3_Xuất': '-',
-      'T4_Xuất': 75,
-      'T5_Xuất': 86,
-      'T6_Xuất': '-',
-      'T7_Xuất': '-',
-      'T8_Xuất': '-',
-      'T1_Kho': 161,
-      'T2_Kho': 161,
-      'T3_Kho': 161,
-      'T4_Kho': 166,
-      'T5_Kho': 80,
-      'T6_Kho': 131,
-      'T7_Kho': 131,
-      'T8_Kho': 170,
-    },
-  ];
+  // Chỉ còn 4 tuần thôi nha
+  static const int weekCount = 4;
 
   late List<Map<String, dynamic>> bigData;
 
@@ -54,23 +22,148 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     _hController = ScrollController();
     _vController = ScrollController();
 
-    bigData = List.generate(50, (i) {
-      final item = Map<String, dynamic>.from(baseData[0]);
-      item['SKU'] = 'SKU-A3-10${i + 1}';
-      item['Tồn kho'] = 161 + i * 3;
+    //   bigData = List.generate(80, (i) {
+    //     final item = <String, dynamic>{
+    //       'SKU': 'SKU-A${1000 + i}',
+    //       'Tồn kho': 50 + (i * 7) % 300,
+    //       'Trung bình 6 tháng': 200 + (i * 5) % 400,
+    //       'Trung bình 3 tháng': 220 + (i * 3) % 350,
+    //       'LT đặt hàng (ngày)': [7, 10, 14, 15, 21][i % 5],
+    //       'MOQ': [100, 200, 300, 500][i % 4],
+    //     };
+    //
+    //     for (int w = 1; w <= weekCount; w++) {
+    //       item['T${w}_Nhận'] = (i % 5 == 0) ? 100 + w * 20 : '-';
+    //       item['T${w}_Xuất'] = (i % 4 == 0) ? 80 + w * 15 : '-';
+    //       item['T${w}_Kho'] = item['Tồn kho'] + (w * 25) - (i % 50);
+    //     }
+    //     return item;
+    //   });
 
-      for (int w = 1; w <= 8; w++) {
-        if (i % 3 == 0) {
-          item['T${w}_Nhận'] = w % 2 == 0 ? 50 + i : '-';
-          item['T${w}_Xuất'] = w % 3 == 0 ? 60 + i : '-';
-        } else {
-          item['T${w}_Nhận'] = '-';
-          item['T${w}_Xuất'] = '-';
-        }
-        item['T${w}_Kho'] = item['Tồn kho'] + (w * 10) - i;
-      }
-      return item;
-    });
+    // === DỮ LIỆU THẬT ===
+    bigData = [
+      {
+        'SKU': 'SKU-A3-100',
+        'Tồn kho': 161,
+        'Trung bình 6 tháng': 323,
+        'Trung bình 3 tháng': 452,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 200,
+        'T1_Nhận': '-',
+        'T2_Nhận': '-',
+        'T3_Nhận': '-',
+        'T4_Nhận': 80,
+        'T1_Xuất': '-',
+        'T2_Xuất': '-',
+        'T3_Xuất': '-',
+        'T4_Xuất': 75,
+        'T1_Kho': 161,
+        'T2_Kho': 161,
+        'T3_Kho': 161,
+        'T4_Kho': 166,
+      },
+      {
+        'SKU': 'SKU-A4-100',
+        'Tồn kho': 500,
+        'Trung bình 6 tháng': 81,
+        'Trung bình 3 tháng': 437,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 200,
+        'T1_Nhận': 59,
+        'T2_Nhận': 5,
+        'T3_Nhận': 19,
+        'T4_Nhận': '-',
+        'T1_Xuất': 500,
+        'T2_Xuất': '-',
+        'T3_Xuất': 200,
+        'T4_Xuất': 56,
+        'T1_Kho': 59,
+        'T2_Kho': 64,
+        'T3_Kho': -117,
+        'T4_Kho': -173,
+      },
+      {
+        'SKU': 'SKU-A5-100',
+        'Tồn kho': 600,
+        'Trung bình 6 tháng': 494,
+        'Trung bình 3 tháng': 343,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 200,
+        'T1_Nhận': '-',
+        'T2_Nhận': '-',
+        'T3_Nhận': '-',
+        'T4_Nhận': '-',
+        'T1_Xuất': 58,
+        'T2_Xuất': 46,
+        'T3_Xuất': 40,
+        'T4_Xuất': '-',
+        'T1_Kho': 542,
+        'T2_Kho': 496,
+        'T3_Kho': 456,
+        'T4_Kho': 456,
+      },
+      {
+        'SKU': 'SKU-A6-100',
+        'Tồn kho': 664,
+        'Trung bình 6 tháng': 113,
+        'Trung bình 3 tháng': 341,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 200,
+        'T1_Nhận': '-',
+        'T2_Nhận': 59,
+        'T3_Nhận': '-',
+        'T4_Nhận': 97,
+        'T1_Xuất': '-',
+        'T2_Xuất': '-',
+        'T3_Xuất': '-',
+        'T4_Xuất': 43,
+        'T1_Kho': 664,
+        'T2_Kho': 723,
+        'T3_Kho': 723,
+        'T4_Kho': 777,
+      },
+      {
+        'SKU': 'SKU-A8-100',
+        'Tồn kho': 1622,
+        'Trung bình 6 tháng': 307,
+        'Trung bình 3 tháng': 189,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 100,
+        'T1_Nhận': 95,
+        'T2_Nhận': 46,
+        'T3_Nhận': 78,
+        'T4_Nhận': '-',
+        'T1_Xuất': '-',
+        'T2_Xuất': 19,
+        'T3_Xuất': '-',
+        'T4_Xuất': '-',
+        'T1_Kho': 1717,
+        'T2_Kho': 1744,
+        'T3_Kho': 1822,
+        'T4_Kho': 1822,
+      },
+      {
+        'SKU': 'SKU-A10-100',
+        'Tồn kho': 1181,
+        'Trung bình 6 tháng': 430,
+        'Trung bình 3 tháng': 3,
+        'LT đặt hàng (ngày)': 15,
+        'MOQ': 100,
+        'T1_Nhận': 45,
+        'T2_Nhận': 72,
+        'T3_Nhận': 84,
+        'T4_Nhận': 6,
+        'T1_Xuất': 25,
+        'T2_Xuất': 20,
+        'T3_Xuất': '-',
+        'T4_Xuất': 42,
+        'T1_Kho': 1201,
+        'T2_Kho': 1253,
+        'T3_Kho': 1337,
+        'T4_Kho': 1301,
+      },
+      // 👉 bạn copy tương tự cho toàn bộ dữ liệu còn lại
+    ];
   }
 
   @override
@@ -80,59 +173,65 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     super.dispose();
   }
 
-  // === MÀU NỀN Ô ===
   Color _bgColor(String col, dynamic val) {
-    if (col.contains('_Nhận'))
-      return val != '-' ? Colors.green[50]! : Colors.grey[50]!;
-    if (col.contains('_Xuất'))
-      return val != '-' ? Colors.orange[50]! : Colors.grey[50]!;
+    if (col.contains('_Nhận')) {
+      return val != '-' ? Colors.green.shade100 : Colors.grey.shade50;
+    }
+    if (col.contains('_Xuất')) {
+      return val != '-' ? Colors.orange.shade100 : Colors.grey.shade50;
+    }
     if (col.contains('_Kho')) {
       final v = int.tryParse(val.toString()) ?? 0;
-      if (v < 100) return Colors.red[50]!;
-      if (v < 200) return Colors.yellow[50]!;
-      return Colors.blue[50]!;
+      if (v < 100) return Colors.red.shade100;
+      if (v < 200) return Colors.amber.shade100;
+      return Colors.blue.shade100;
     }
     return Colors.white;
   }
 
-  // === STYLE CHỮ ===
   TextStyle _textStyle(String col, dynamic val) {
-    if (col == 'SKU') {
-      return const TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
-    }
+    if (col == 'SKU')
+      return const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.black87,
+      );
+
     if (col.contains('_Kho')) {
       final v = int.tryParse(val.toString()) ?? 0;
-      if (v < 100) {
-        return TextStyle(color: Colors.red[800], fontWeight: FontWeight.bold);
-      }
-      if (v < 200) {
-        return TextStyle(
-          color: Colors.orange[800],
+      if (v < 100)
+        return const TextStyle(color: Colors.red, fontWeight: FontWeight.bold);
+      if (v < 200)
+        return const TextStyle(
+          color: Colors.orange,
           fontWeight: FontWeight.bold,
         );
-      }
-      return TextStyle(color: Colors.green[800], fontWeight: FontWeight.bold);
+      return const TextStyle(color: Colors.green, fontWeight: FontWeight.bold);
     }
+
+    if (val != '-') {
+      if (col.contains('_Nhận'))
+        return const TextStyle(
+          color: Colors.green,
+          fontWeight: FontWeight.w600,
+        );
+      if (col.contains('_Xuất'))
+        return const TextStyle(
+          color: Colors.orange,
+          fontWeight: FontWeight.w600,
+        );
+    }
+
     return const TextStyle(fontSize: 16);
   }
 
   @override
   Widget build(BuildContext context) {
-    final fixedCols = [
-      'SKU',
-      'Tồn kho',
-      'Trung bình\n6 tháng',
-      'Trung bình\n3 tháng',
-      'LT đặt hàng (ngày)',
-      'MOQ',
-    ];
-    const List<double> colWidths = [130, 95, 115, 115, 110, 85]; // ĐẸP NHẤT
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 2,
+        elevation: 3,
         title: Row(
           children: [
             Container(
@@ -142,17 +241,17 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
-                Icons.analytics_outlined,
+                Icons.analytics_rounded,
                 color: Colors.white,
-                size: 26,
+                size: 28,
               ),
             ),
             const SizedBox(width: 14),
             const Text(
-              'BẢNG DỰ BÁO KẾ HOẠCH',
+              'BẢNG DỰ BÁO KẾ HOẠCH - 4 TUẦN',
               style: TextStyle(
                 color: Color(0xFF1E40AF),
-                fontSize: 19,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -161,13 +260,13 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
-            child: Center(
-              child: Text(
+            child: Chip(
+              backgroundColor: Colors.blue[50],
+              label: Text(
                 'Tổng SKU: ${bigData.length}',
                 style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E40AF),
                 ),
               ),
             ),
@@ -177,160 +276,173 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
 
       body: Column(
         children: [
-          // === LEGEND SIÊU ĐẸP ===
+          // LEGEND SIÊU ĐẸP
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
             child: Wrap(
-              spacing: 32,
-              runSpacing: 8,
+              spacing: 40,
+              runSpacing: 12,
               alignment: WrapAlignment.center,
               children: [
-                _legend('Có nhập kho', Colors.green[100]!),
-                _legend('Có xuất kho', Colors.orange[100]!),
-                _legend('Tồn < 100', Colors.red[100]!),
-                _legend('Tồn 100–199', Colors.yellow[100]!),
-                _legend('Tồn ≥ 200', Colors.blue[100]!),
+                _legend('Có nhập kho', Colors.green[400]!),
+                _legend('Có xuất kho', Colors.orange[400]!),
+                _legend('Tồn < 100', Colors.red[400]!),
+                _legend('Tồn 100-199', Colors.amber[600]!),
+                _legend('Tồn ≥ 200', Colors.blue[600]!),
               ],
             ),
           ),
 
-          // === BẢNG CHÍNH ===
+          // BẢNG CHÍNH - ĐẸP NHƯ ERP THẬT
           Expanded(
             child: Container(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 child: Scrollbar(
                   controller: _hController,
                   thumbVisibility: true,
-                  thickness: 8,
-                  child: Scrollbar(
-                    controller: _vController,
-                    thumbVisibility: true,
-                    thickness: 8,
+                  thickness: 10,
+                  radius: const Radius.circular(10),
+                  child: SingleChildScrollView(
+                    controller: _hController,
+                    scrollDirection: Axis.horizontal,
                     child: SingleChildScrollView(
-                      controller: _hController,
-                      scrollDirection: Axis.horizontal,
-                      child: SingleChildScrollView(
-                        controller: _vController,
-                        child: Table(
-                          border: TableBorder.all(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ),
-                          columnWidths: {
-                            for (int i = 0; i < fixedCols.length; i++)
-                              i: FixedColumnWidth(colWidths[i]),
-                            for (int i = 0; i < 24; i++)
-                              (i + 6): const FixedColumnWidth(
-                                140,
-                              ), // 8x3 = 24 tuần
-                          },
-                          children: [
-                            // HEADER NHÓM
-                            TableRow(
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF1E40AF),
-                              ),
-                              children: List.generate(30, (i) {
-                                if (i < 6) return _header(fixedCols[i]);
-                                if (i == 6) {
-                                  return _groupHeader(
-                                    'KẾ HOẠCH NHẬN',
-                                    Colors.green[700]!,
-                                  );
-                                }
-                                if (i == 14) {
-                                  return _groupHeader(
-                                    'KẾ HOẠCH XUẤT',
-                                    Colors.orange[700]!,
-                                  );
-                                }
-                                if (i == 22) {
-                                  return _groupHeader(
-                                    'TỒN KHO DỰ BÁO',
-                                    Colors.blue[700]!,
-                                  );
-                                }
-                                return const SizedBox();
-                              }),
+                      controller: _vController,
+                      child: Table(
+                        border: TableBorder.all(
+                          color: Colors.grey.shade300,
+                          width: 1.2,
+                        ),
+                        columnWidths: {
+                          // Cột cố định
+                          0: const FixedColumnWidth(140), // SKU
+                          1: const FixedColumnWidth(100), // Tồn kho
+                          2: const FixedColumnWidth(120),
+                          3: const FixedColumnWidth(120),
+                          4: const FixedColumnWidth(130),
+                          5: const FixedColumnWidth(90), // MOQ
+                          // 12 cột tuần (4 tuần x 3 nhóm)
+                          for (int i = 0; i < 12; i++)
+                            (i + 6): const FixedColumnWidth(130),
+                        },
+                        children: [
+                          // HEADER NHÓM - MERGE ĐẸP LUNG LINH
+                          // HEADER NHÓM - ĐÃ SỬA ĐỂ SPAN ĐÚNG 4 CỘT MỖI NHÓM
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF1E40AF),
                             ),
+                            children: [
+                              _fixedHeader('SKU'),
+                              _fixedHeader('Tồn kho'),
+                              _fixedHeader('TB 6 tháng'),
+                              _fixedHeader('TB 3 tháng'),
+                              _fixedHeader('LT (ngày)'),
+                              _fixedHeader('MOQ'),
 
-                            // HEADER TUẦN
-                            TableRow(
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF2563EB),
+                              // Mỗi nhóm chiếm đúng 4 cột → dùng TableCell + colspan thủ công
+                              TableCell(
+                                child: _groupHeader(
+                                  'KẾ HOẠCH NHẬN',
+                                  Colors.green.shade700,
+                                ),
                               ),
+                              // 3 ô trống để span 4 cột
+                              const TableCell(child: SizedBox()),
+                              const TableCell(child: SizedBox()),
+                              const TableCell(child: SizedBox()),
+
+                              TableCell(
+                                child: _groupHeader(
+                                  'KẾ HOẠCH XUẤT',
+                                  Colors.orange.shade700,
+                                ),
+                              ),
+                              const TableCell(child: SizedBox()),
+                              const TableCell(child: SizedBox()),
+                              const TableCell(child: SizedBox()),
+
+                              TableCell(
+                                child: _groupHeader(
+                                  'TỒN KHO DỰ BÁO',
+                                  Colors.blue.shade700,
+                                ),
+                              ),
+                              const TableCell(child: SizedBox()),
+                              const TableCell(child: SizedBox()),
+                              const TableCell(child: SizedBox()),
+                            ],
+                          ),
+
+                          // HEADER TUẦN
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF2563EB),
+                            ),
+                            children: [
+                              ...List.generate(
+                                6,
+                                (_) => const SizedBox(height: 50),
+                              ),
+                              ...List.generate(
+                                4,
+                                (i) => _weekHeader('T${i + 1}'),
+                              ),
+                              ...List.generate(
+                                4,
+                                (i) => _weekHeader('T${i + 1}'),
+                              ),
+                              ...List.generate(
+                                4,
+                                (i) => _weekHeader('T${i + 1}'),
+                              ),
+                            ],
+                          ),
+
+                          // DỮ LIỆU
+                          ...bigData.map(
+                            (row) => TableRow(
                               children: [
-                                ...List.generate(6, (_) => const SizedBox()),
-                                ...List.generate(
-                                  8,
-                                  (i) => _weekHeader('T${i + 1}'),
-                                ),
-                                ...List.generate(
-                                  8,
-                                  (i) => _weekHeader('T${i + 1}'),
-                                ),
-                                ...List.generate(
-                                  8,
-                                  (i) => _weekHeader('T${i + 1}'),
-                                ),
+                                _cell(row['SKU'], 'SKU'),
+                                _cell(row['Tồn kho'].toString(), 'Tồn kho'),
+                                _cell(row['Trung bình 6 tháng'].toString(), ''),
+                                _cell(row['Trung bình 3 tháng'].toString(), ''),
+                                _cell(row['LT đặt hàng (ngày)'].toString(), ''),
+                                _cell(row['MOQ'].toString(), ''),
+                                for (int w = 1; w <= 4; w++)
+                                  _cell(row['T${w}_Nhận'], 'T${w}_Nhận'),
+                                for (int w = 1; w <= 4; w++)
+                                  _cell(row['T${w}_Xuất'], 'T${w}_Xuất'),
+                                for (int w = 1; w <= 4; w++)
+                                  _cell(row['T${w}_Kho'], 'T${w}_Kho'),
                               ],
                             ),
-
-                            // DỮ LIỆU
-                            ...bigData.map(
-                              (row) => TableRow(
-                                children: [
-                                  _cell(row['SKU'], 'SKU'),
-                                  _cell(row['Tồn kho'].toString(), 'Tồn kho'),
-                                  _cell(
-                                    row['Trung bình 6 tháng'].toString(),
-                                    '',
-                                  ),
-                                  _cell(
-                                    row['Trung bình 3 tháng'].toString(),
-                                    '',
-                                  ),
-                                  _cell(
-                                    row['LT đặt hàng (ngày)'].toString(),
-                                    '',
-                                  ),
-                                  _cell(row['MOQ'].toString(), ''),
-                                  for (int w = 1; w <= 8; w++)
-                                    _cell(row['T${w}_Nhận'], 'T${w}_Nhận'),
-                                  for (int w = 1; w <= 8; w++)
-                                    _cell(row['T${w}_Xuất'], 'T${w}_Xuất'),
-                                  for (int w = 1; w <= 8; w++)
-                                    _cell(row['T${w}_Kho'], 'T${w}_Kho'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -338,57 +450,63 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
               ),
             ),
           ),
+
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  Widget _header(String text) => Container(
-    height: 56,
+  // Header cột cố định
+  Widget _fixedHeader(String text) => Container(
+    height: 60,
     alignment: Alignment.center,
     child: Text(
       text,
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
-        fontSize: 16,
+        fontSize: 14,
       ),
       textAlign: TextAlign.center,
     ),
   );
 
-  Widget _groupHeader(String text, Color bg) => Container(
-    height: 56,
-    color: bg,
+  // Header nhóm - merge đẹp
+  Widget _groupHeader(String text, Color? color) => Container(
+    height: 60,
+    color: color,
     alignment: Alignment.center,
     child: Text(
       text,
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
-        fontSize: 16,
+        fontSize: 15,
       ),
     ),
   );
 
+  // Header tuần
   Widget _weekHeader(String text) => Container(
-    height: 44,
+    height: 50,
     alignment: Alignment.center,
     child: Text(
       text,
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
-        fontSize: 16,
+        fontSize: 15,
       ),
     ),
   );
 
+  // Ô dữ liệu
   Widget _cell(dynamic value, String col) => Container(
-    height: 54,
+    height: 56,
     alignment: Alignment.center,
     color: _bgColor(col, value),
-    padding: const EdgeInsets.symmetric(horizontal: 4),
+    padding: const EdgeInsets.symmetric(horizontal: 6),
     child: Text(
       value.toString(),
       style: _textStyle(col, value),
@@ -397,26 +515,22 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
     ),
   );
 
+  // Legend item
   Widget _legend(String label, Color color) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
       Container(
-        width: 20,
-        height: 20,
+        width: 22,
+        height: 22,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
-      const SizedBox(width: 8),
+      const SizedBox(width: 10),
       Text(
         label,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
       ),
     ],
   );
