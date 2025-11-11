@@ -34,7 +34,7 @@ class _GomHangScreenState extends State<GomHangScreen> {
 
   void _initializeMockData() {
     final mockData = MockInventoryData.initializeAll();
-
+    orderWaitList = MockInventoryData.getOrderWaitList();
     _allItems = mockData['shelfItems'];
     _sortItems(_allItems); // Sắp xếp danh sách gốc
     _filteredItems = List.from(_allItems);
@@ -406,29 +406,29 @@ class _GomHangScreenState extends State<GomHangScreen> {
                                 : Colors.grey.shade50);
                     }),
                     cells: [
-                      DataCell(Text(item['TT'].toString())),
+                      DataCell(SelectableText(item['TT'].toString())),
                       DataCell(
-                        Text(
+                        SelectableText(
                           item['ShelfId'],
                           style: const TextStyle(color: Colors.blue),
                         ),
                       ),
-                      DataCell(Text(item['ProductID'])),
+                      DataCell(SelectableText(item['ProductID'])),
                       DataCell(
-                        Text(
+                        SelectableText(
                           item['ProductName'],
                           style: const TextStyle(fontSize: 16),
                         ),
                       ),
                       DataCell(
                         Center(
-                          child: Text(
+                          child: SelectableText(
                             item['Qty'].toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
-                      DataCell(Text(item['BoxList'])),
+                      DataCell(SelectableText(item['BoxList'])),
 
                       DataCell(
                         Center(

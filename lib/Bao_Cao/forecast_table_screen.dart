@@ -426,12 +426,11 @@ class _ForecastTableScreenState extends State<ForecastTableScreen> {
                         columnWidths: {
                           0: const FixedColumnWidth(140),
                           for (int i = 1; i < 6 + (4 * 4); i++)
-                            i: const FixedColumnWidth(120),
+                            i: const FixedColumnWidth(140),
                         },
                         children: [
                           // HÀNG 1: Nhóm cột
                           // THAY TOÀN BỘ HÀNG HEADER NHÓM (HÀNG 1) BẰNG ĐOẠN NÀY:
-                          // Thay vì _mergeCell với width 480, chỉ để 120 và set màu cho cả 4 ô liên tiếp.
                           TableRow(
                             decoration: const BoxDecoration(
                               color: Color(0xFF1E40AF),

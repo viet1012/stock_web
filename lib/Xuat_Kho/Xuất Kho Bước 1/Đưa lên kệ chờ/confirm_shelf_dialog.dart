@@ -73,7 +73,7 @@ class _ConfirmShelfDialogState extends State<ConfirmShelfDialog> {
             TextField(
               controller: boxConfirmController,
               decoration: InputDecoration(
-                labelText: 'Mã Box (BoxIDStock)',
+                labelText: 'Mã Box (Ví dụ: VT1012)',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -85,7 +85,7 @@ class _ConfirmShelfDialogState extends State<ConfirmShelfDialog> {
             TextField(
               controller: shelfConfirmController,
               decoration: InputDecoration(
-                labelText: 'Mã kệ chờ (ShelfIDWait)',
+                labelText: 'Mã kệ chờ',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
