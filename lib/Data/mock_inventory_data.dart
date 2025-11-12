@@ -8,20 +8,34 @@ class MockInventoryData {
       {'ProductID': 'HN000012', 'ProductName': 'Bulong M6'},
     ];
 
-    return List.generate(80, (i) {
-      final product = products[i % products.length]; // chia đều 4 loại
-      final boxCount = (i % 3) + 1; // mỗi sản phẩm có 1–3 box
+    // ✅ Tạo danh sách Box duy nhất trên toàn hệ thống
+    final List<String> allBoxes = List.generate(
+      20,
+      (i) => '[VT]_B_${i + 1}_BOX [VT]',
+    );
 
-      return {
+    final List<Map<String, dynamic>> items = [];
+    int boxIndex = 0;
+
+    for (int i = 0; i < 80; i++) {
+      final product = products[i % products.length];
+
+      // ✅ Mỗi Product có thể nhận 1–3 box khác nhau, nhưng Box không trùng giữa các Product khác nhau
+      final boxList = allBoxes[boxIndex % allBoxes.length];
+      boxIndex++;
+
+      items.add({
         'TT': i + 1,
         'ShelfId': 'PR-${['K', 'J', 'L'][i % 3]}${i + 1}-${(i % 5) + 1}',
         'ProductID': product['ProductID'],
         'ProductName': product['ProductName'],
         'Qty': (i % 5) + 1,
-        'BoxList': '[VT]_B_${boxCount}_Box [VT]',
+        'BoxList': boxList,
         'checked': false,
-      };
-    });
+      });
+    }
+
+    return items;
   }
 
   /// 🔹 Mock danh sách đơn hàng chờ xử lý
@@ -37,24 +51,24 @@ class MockInventoryData {
         'POCode': '456',
         'Status': 'Chờ',
         'Remark': '',
-        'BoxIDStock': 'VT1012',
+        'BoxIDStock': 'BX501',
       },
       {
         'No': 2,
         'PartID': 'P1002',
-        'PName': 'Ống thép 20mm',
+        'PName': 'Trục thép B',
         'QtyPO': 100,
         'QtyInOut': 0,
         'ShelfIDWait': '',
         'POCode': '123',
         'Status': 'Chờ',
         'Remark': '',
-        'BoxIDStock': 'VTA1012',
+        'BoxIDStock': 'BX502',
       },
     ];
   }
 
-  /// 🔹 Mock danh sách box tồn kho (liên kết với POCode)
+  /// 🔹 Mock danh sách box tồn kho
   static List<Map<String, dynamic>> getAllBoxes() {
     return [
       {
@@ -62,7 +76,7 @@ class MockInventoryData {
         'BoxID': 'BX501',
         'QtyStock': 60,
         'CheckSt': 'OK',
-        'ShelfID': '',
+        'ShelfID': 'SHELF-A',
         'POCode': '123',
       },
       {
@@ -70,7 +84,7 @@ class MockInventoryData {
         'BoxID': 'BX502',
         'QtyStock': 40,
         'CheckSt': 'OK',
-        'ShelfID': 'Shelf-2',
+        'ShelfID': 'SHELF-B',
         'POCode': '123',
       },
       {
@@ -78,13 +92,13 @@ class MockInventoryData {
         'BoxID': 'BX503',
         'QtyStock': 20,
         'CheckSt': 'NG',
-        'ShelfID': 'Shelf-3',
-        'POCode': '456',
+        'ShelfID': 'SHELF-C',
+        'POCode': '789',
       },
     ];
   }
 
-  /// 🔹 Hàm tổng hợp tiện lợi (nếu cần khởi tạo 1 lần)
+  /// 🔹 Hàm tổng hợp tiện lợi
   static Map<String, dynamic> initializeAll() {
     return {
       'shelfItems': getShelfItems(),

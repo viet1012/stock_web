@@ -78,23 +78,30 @@ class _GomHangScreenState extends State<GomHangScreen> {
   List<Map<String, dynamic>> filterByProductAndUniqueBoxList(
     List<Map<String, dynamic>> items,
   ) {
-    // Set lưu lại những cặp ProductID|BoxList đã gặp
-    final Set<String> seenProductBoxPairs = <String>{};
+    final Set<String> seenProductBoxPairs =
+        <String>{}; // Để đảm bảo không trùng ProductID|Box
+    final Set<String> usedBoxLists =
+        <String>{}; // Để đảm bảo Box không trùng giữa các sản phẩm khác nhau
     final List<Map<String, dynamic>> result = [];
 
     for (var item in items) {
       final productId = item['ProductID'];
-      final productName = item['ProductName'];
       final boxList = item['BoxList'] as String;
-
-      // Tạo khóa duy nhất cho mỗi cặp ProductID|BoxList
       final key = '$productId|$boxList';
 
-      // Nếu đã gặp rồi -> bỏ qua
+      // ✅ Nếu BoxList này đã được dùng cho Product khác → bỏ qua
+      final isBoxUsedByAnotherProduct =
+          usedBoxLists.contains(boxList) &&
+          !seenProductBoxPairs.any((k) => k.startsWith('$productId|'));
+
+      if (isBoxUsedByAnotherProduct) continue;
+
+      // ✅ Nếu cặp ProductID|BoxList đã gặp → bỏ qua
       if (seenProductBoxPairs.contains(key)) continue;
 
-      // Nếu chưa gặp -> thêm vào
+      // ✅ Thêm vào kết quả
       seenProductBoxPairs.add(key);
+      usedBoxLists.add(boxList);
       result.add(item);
     }
 
