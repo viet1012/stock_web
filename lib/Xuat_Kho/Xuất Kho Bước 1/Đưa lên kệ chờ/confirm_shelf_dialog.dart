@@ -46,11 +46,28 @@ class _ConfirmShelfDialogState extends State<ConfirmShelfDialog> {
       return;
     }
 
+    // final poIndex = widget.orderWaitList.indexWhere((po) {
+    //   final boxList = po['BoxList']?.toString().toUpperCase() ?? '';
+    //   final boxes = boxList.split(',').map((e) => e.trim()).toList();
+    //   return boxes.contains(boxId);
+    // });
+
     final poIndex = widget.orderWaitList.indexWhere((po) {
-      final boxList = po['BoxList']?.toString().toUpperCase() ?? '';
-      final boxes = boxList.split(',').map((e) => e.trim()).toList();
-      return boxes.contains(boxId);
+      // Lấy danh sách BoxList (nhiều box)
+      final boxListStr = po['BoxList']?.toString().toUpperCase() ?? '';
+      final boxList = boxListStr.split(',').map((e) => e.trim()).toList();
+
+      // Lấy BoxID đơn lẻ (1 box)
+      final singleBoxId = po['BoxID']?.toString().toUpperCase();
+
+      // Nếu BoxID nằm trong BoxList hoặc trùng BoxID đơn lẻ → hợp lệ
+      return boxList.contains(boxId) || boxId == singleBoxId;
     });
+
+    if (poIndex == -1) {
+      _showMessage('⚠️ BoxID hợp lệ nhưng chưa có trong danh sách kệ chờ!');
+      return;
+    }
 
     if (poIndex == -1) {
       _showMessage('⚠️ BoxID hợp lệ nhưng chưa có trong danh sách kệ chờ!');

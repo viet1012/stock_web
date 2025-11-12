@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:stock_web/Gom_Hang/GomHangScreen.dart';
-import 'package:stock_web/Nhap_Kho/Chuy%E1%BB%83n%20Kho/confirmation_trans_shelf_screen.dart';
-import 'package:stock_web/Bao_Cao/quality_chart_screen.dart';
 import 'package:stock_web/Bao_Cao/forecast_table_screen.dart';
+import 'package:stock_web/Bao_Cao/frm_stock_report_screen.dart';
 import 'package:stock_web/Bao_Cao/inventory_statistics_screen.dart';
+import 'package:stock_web/Bao_Cao/quality_chart_screen.dart';
+import 'package:stock_web/Gom_Hang/GomHangScreen.dart';
 import 'package:stock_web/Kiem_Ke/box_confirm_screen.dart';
 import 'package:stock_web/Kiem_Ke/inventory_management_screen.dart';
 import 'package:stock_web/MTSStockExportStep2.dart';
+import 'package:stock_web/Nhap_Kho/Chuy%E1%BB%83n%20Kho/confirmation_trans_shelf_screen.dart';
 import 'package:stock_web/Nhap_Kho/In tem len kệ/in_tem_len_ke_mts_screen.dart';
 import 'package:stock_web/Nhap_Kho/Phan_Loai/box_management_screen.dart';
-import 'package:stock_web/Bao_Cao/frm_stock_report_screen.dart';
+
+import 'Gom_Hang/ConfirmBoxScreen.dart';
 import 'intro_page.dart';
 import 'stock_export_form.dart';
 
@@ -47,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ],
     "GOM HÀNG": [
       {"icon": Icons.featured_play_list, "label": "DANH SÁCH GOM HÀNG"},
+      {"icon": Icons.print, "label": "IN TEM GOM HÀNG"},
     ],
     "KIỂM KÊ": [
       {"icon": Icons.assignment_turned_in, "label": "KIỂM KÊ SP"},
@@ -66,8 +69,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     final subList = tabButtons[activeTab];
-    selectedSubMenu =
-    (subList != null && subList.isNotEmpty) ? subList.first["label"] : null;
+    selectedSubMenu = (subList != null && subList.isNotEmpty)
+        ? subList.first["label"]
+        : null;
   }
 
   PreferredSizeWidget _buildAppBar(bool isMobile) {
@@ -109,7 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() {
                         activeTab = tab;
                         final subList = tabButtons[tab];
-                        selectedSubMenu = (subList != null && subList.isNotEmpty)
+                        selectedSubMenu =
+                            (subList != null && subList.isNotEmpty)
                             ? subList.first["label"]
                             : null;
                       });
@@ -133,11 +138,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(icon,
-                              size: 20,
-                              color: isActive
-                                  ? Colors.white
-                                  : Colors.white.withOpacity(0.8)),
+                          Icon(
+                            icon,
+                            size: 20,
+                            color: isActive
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.8),
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             tab,
@@ -145,8 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: isActive
                                   ? Colors.white
                                   : Colors.white.withOpacity(0.9),
-                              fontWeight:
-                              isActive ? FontWeight.bold : FontWeight.w500,
+                              fontWeight: isActive
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                             ),
                           ),
                         ],
@@ -184,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
           value: selectedMonth,
           items: List.generate(
             12,
-                (index) => DropdownMenuItem(
+            (index) => DropdownMenuItem(
               value: index + 1,
               child: Text("Tháng ${index + 1}"),
             ),
@@ -221,17 +229,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(item["icon"],
-                      size: 16,
-                      color: isSelected ? Colors.blue[700] : Colors.grey[700]),
+                  Icon(
+                    item["icon"],
+                    size: 16,
+                    color: isSelected ? Colors.blue[700] : Colors.grey[700],
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     item["label"],
                     style: TextStyle(
-                      fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.w500,
-                      color:
-                      isSelected ? Colors.blue[800] : Colors.grey[800],
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isSelected ? Colors.blue[800] : Colors.grey[800],
                     ),
                   ),
                 ],
@@ -246,7 +256,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     // ✅ Truyền selectedMonth cho các báo cáo
     if (activeTab == "GIỚI THIỆU HỆ THỐNG") return const IntroPage();
-    if (selectedSubMenu == "PHÂN LOẠI BOX LIST") return const BoxManagementScreen();
+    if (selectedSubMenu == "PHÂN LOẠI BOX LIST")
+      return const BoxManagementScreen();
     if (selectedSubMenu == "IN TEM") return const InTemLenKeMTSScreen();
     if (selectedSubMenu == "CHUYỂN HÀNG LÊN KỆ") return FrmTransShelfScreen();
     if (selectedSubMenu == "XUẤT HÀNG (BƯỚC 1)") return StockExportForm();
@@ -265,10 +276,13 @@ class _HomeScreenState extends State<HomeScreen> {
       return InventoryStatisticsScreen(month: selectedMonth);
 
     if (selectedSubMenu == "DANH SÁCH GOM HÀNG") return GomHangScreen();
+    if (selectedSubMenu == "IN TEM GOM HÀNG") return ConfirmShelfScreen();
 
     return Center(
-      child: Text("Trang nội dung của: $activeTab",
-          style: const TextStyle(color: Colors.black54)),
+      child: Text(
+        "Trang nội dung của: $activeTab",
+        style: const TextStyle(color: Colors.black54),
+      ),
     );
   }
 

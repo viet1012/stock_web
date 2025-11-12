@@ -6,6 +6,7 @@ import 'Xuat_Kho/Xuất Kho Bước 1/Xac_Nhan_Box/confirm_boxId_input.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/badge_widget.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/box_list_panel.dart';
 import 'Xuat_Kho/Xuất Kho Bước 1/widgets/input_field.dart';
+import 'Xuat_Kho/Xuất Kho Bước 1/Đưa lên kệ chờ/confirm_shelf_dialog.dart';
 
 class StockExportForm extends StatefulWidget {
   const StockExportForm({super.key});
@@ -150,7 +151,16 @@ class _StockExportFormState extends State<StockExportForm> {
     _calculateTotals();
   }
 
+  Set<String> boxesExported = {};
+
   void _updateExportQty(int qtyExport, String boxId) {
+    final box = allBoxes.firstWhere((b) => b['BoxID'] == boxId);
+
+    // Lấy ShelfID từ box này
+    final shelfId = box['ShelfID'];
+
+    print('Box $boxId → Shelf $shelfId, Qty xuất: $qtyExport');
+
     if (qtyExport <= 0 || selectedPOBoxId == null) {
       return;
     }
@@ -195,6 +205,8 @@ class _StockExportFormState extends State<StockExportForm> {
         );
         return;
       }
+
+      boxesExported.add(boxId);
 
       // ✅ Cập nhật tồn kho & PO
       box['QtyStock'] = currentStock - qtyExport;
@@ -243,17 +255,31 @@ class _StockExportFormState extends State<StockExportForm> {
   }
 
   void _openConfirmShelfDialog() {
-    // showDialog(
-    //   context: context,
-    //   builder: (context) => ConfirmShelfDialog(
-    //     orderWaitList: orderWaitList,
-    //     onUpdate: (updatedList) {
-    //       setState(() {
-    //         orderWaitList = updatedList;
-    //       });
-    //     },
-    //   ),
-    // );
+    final allowedBoxIds = boxesExported.toList();
+
+    // Lấy toàn bộ BoxID từ các dòng đã xác nhận
+    // final allowedBoxIds = allBoxes
+    //     .expand(
+    //       (e) => e['BoxID']
+    //           .toString()
+    //           .split(',')
+    //           .map((x) => x.trim().toUpperCase()),
+    //     )
+    //     .toSet()
+    //     .toList();
+    print("allowedBoxID: ${allowedBoxIds}");
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmShelfDialog(
+        orderWaitList: allBoxes,
+        allowedBoxIds: allowedBoxIds, // ✅ truyền danh sách BoxID được phép quét
+        onUpdate: (updatedList) {
+          setState(() {
+            allBoxes = updatedList;
+          });
+        },
+      ),
+    );
   }
 
   Widget _buildLeftPanel() {
